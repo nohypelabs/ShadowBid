@@ -172,6 +172,7 @@ export function CreateAuction() {
           padding: '40px',
           textAlign: 'left',
         }}
+        className="responsive-form-card"
       >
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '20px' }}>

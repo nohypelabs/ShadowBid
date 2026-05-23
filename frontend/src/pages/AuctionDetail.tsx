@@ -321,7 +321,7 @@ export function AuctionDetail() {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h1
-                    className="font-inter font-extrabold mb-2"
+                    className="font-inter font-extrabold mb-2 responsive-title"
                     style={{ fontSize: '36px', letterSpacing: '-0.03em', color: 'var(--text-primary)' }}
                   >
                     {auctionData.title}

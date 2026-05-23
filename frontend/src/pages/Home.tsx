@@ -57,7 +57,7 @@ export function Home() {
 
           {/* Headline */}
           <h1
-            className="font-inter font-extrabold"
+            className="font-inter font-extrabold responsive-hero-title"
             style={{
               fontSize: 'clamp(40px, 5vw, 56px)',
               letterSpacing: '-0.035em',
@@ -162,7 +162,7 @@ export function Home() {
       </section>
 
       {/* Stats Section */}
-      <section style={{ padding: '0 24px', margin: '24px auto', maxWidth: '960px' }}>
+      <section style={{ padding: '0 24px', margin: '24px auto', maxWidth: '960px' }} className="responsive-section">
         <div className="stats-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -245,11 +245,11 @@ export function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '32px 24px' }}>
+      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '32px 24px' }} className="responsive-section">
         <h2 style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '32px', textAlign: 'center', marginBottom: '6px', color: '#FFFFFF' }}>How It Works</h2>
         <p style={{ color: '#9CA3AF', textAlign: 'center', marginBottom: '28px', fontSize: '15px' }}>Three steps. Fully private. Mathematically verified.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }} className="flex flex-col gap-10 items-center text-center">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }} className="how-it-works-grid">
           <div style={{
             background: '#1A1A1A',
             border: '1px solid #2A2A2A',
@@ -409,7 +409,7 @@ export function Home() {
       </section>
 
       {/* Active Auctions Section */}
-      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 32px' }}>
+      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 32px' }} className="responsive-section">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

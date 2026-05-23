@@ -276,7 +276,7 @@ export function Demo() {
       </div>
 
       {/* ── Templates ── */}
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }} className="responsive-section">
         <div style={{ marginBottom: '32px' }}>
           <h2 style={{
             fontFamily: 'Inter',

@@ -320,7 +320,7 @@ function App() {
 
       {/* Floating Network Bar */}
       {showHeader && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 safe-bottom">
           <ConnectButton.Custom>
             {({ account, mounted }) => {
               const ready = mounted;
