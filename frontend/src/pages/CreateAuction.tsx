@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 // import { useCofheEncrypt } from '@cofhe/react'; // TODO: Re-enable once steps format is known
@@ -50,9 +50,19 @@ export function CreateAuction() {
     setTimeout(() => navigate('/'), 2000);
   }
 
-  if (txError) {
-    toast.error(txError.message || 'Failed to create auction');
-  }
+  useEffect(() => {
+    if (txError) {
+      console.error('[CreateAuction] TX error:', {
+        message: txError.message,
+        name: txError.name,
+        cause: txError.cause,
+        details: (txError as any).details,
+        metaMessages: (txError as any).metaMessages,
+        shortMessage: (txError as any).shortMessage,
+      });
+      toast.error(txError.shortMessage || txError.message || 'Transaction failed');
+    }
+  }, [txError]);
 
   const isLoading = isEncrypting || isTxPending || isConfirming;
 
