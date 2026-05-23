@@ -210,28 +210,125 @@ function App() {
             </ConnectButton.Custom>
           </div>
 
-          {/* ── Mobile toggle ── */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden"
-            style={{
-              color: 'var(--text-secondary)',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '10px',
-              width: '38px',
-              height: '38px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-          >
-            {mobileMenuOpen ? <X style={{ width: '18px', height: '18px' }} /> : <Menu style={{ width: '18px', height: '18px' }} />}
-          </button>
+          {/* ── Mobile header actions ── */}
+          <div className="flex md:hidden items-center gap-2">
+            <ConnectButton.Custom>
+              {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
+                const ready = mounted;
+                const connected = ready && account && chain;
+
+                if (connected) {
+                  return (
+                    <button
+                      onClick={openAccountModal}
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        color: 'var(--text-primary)',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        fontFamily: 'IBM Plex Mono',
+                        borderRadius: '10px',
+                        padding: '8px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <span style={{ width: '6px', height: '6px', borderRadius: '9999px', background: '#10b981', boxShadow: '0 0 4px rgba(16,185,129,0.4)', flexShrink: 0 }} />
+                      <span className="truncate max-w-[80px]">{account.displayName}</span>
+                    </button>
+                  );
+                }
+
+                if (chain?.unsupported) {
+                  return (
+                    <button
+                      onClick={openChainModal}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#f87171',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        borderRadius: '10px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        fontFamily: 'IBM Plex Mono',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <XCircle style={{ width: '14px', height: '14px' }} />
+                      Wrong Network
+                    </button>
+                  );
+                }
+
+                if (!ready) {
+                  return (
+                    <div style={{
+                      height: '34px',
+                      width: '100px',
+                      background: 'rgba(255,255,255,0.04)',
+                      borderRadius: '10px',
+                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }} />
+                  );
+                }
+
+                return (
+                  <button
+                    onClick={openConnectModal}
+                    style={{
+                      background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                      color: '#0a0a0a',
+                      fontWeight: 700,
+                      fontSize: '12px',
+                      fontFamily: 'Inter',
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Wallet style={{ width: '14px', height: '14px', strokeWidth: 2 }} />
+                    Connect
+                  </button>
+                );
+              }}
+            </ConnectButton.Custom>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{
+                color: 'var(--text-secondary)',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '10px',
+                width: '38px',
+                height: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+            >
+              {mobileMenuOpen ? <X style={{ width: '18px', height: '18px' }} /> : <Menu style={{ width: '18px', height: '18px' }} />}
+            </button>
+          </div>
         </nav>
       )}
 
