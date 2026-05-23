@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-// import { useCofheEncrypt } from '@cofhe/react'; // TODO: Re-enable once steps format is known
+import { useCofheEncrypt } from '@cofhe/react';
+import { Encryptable } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock } from 'lucide-react';
@@ -16,19 +17,7 @@ export function CreateAuction() {
   const [revealDelayHours, setRevealDelayHours] = useState('1');
   const [error, setError] = useState<string | null>(null);
 
-  // TODO: Replace mock with real COFHE encryption once steps format is known
-  // useCofheEncrypt requires specific steps structure that causes forEach error
-  // Using mock for UI testing until library documentation is available
-  const encryptInputsAsync = async (input: any) => {
-    // Return a fake encrypted result that matches what handleSubmit expects
-    return [{
-      ctHash: '0x' + '0'.repeat(64),
-      securityZone: 0,
-      utype: 4,
-      signature: '0x' + '0'.repeat(128) as `0x${string}`
-    }];
-  };
-  const isEncrypting = false;
+  const { encryptInputsAsync, isEncrypting } = useCofheEncrypt();
   
   const {
     data: hash,
@@ -111,23 +100,17 @@ export function CreateAuction() {
     }
 
     try {
-      const encryptedResults = await encryptInputsAsync({
-        items: [
-          {
-            value: BigInt(Math.round(minBid * 1e18)),
-            type: 'uint64',
-            label: 'minimumBid',
-          },
-        ],
-      });
+      const encryptedResults = await encryptInputsAsync([
+        Encryptable.uint64(BigInt(Math.round(minBid * 1e18))),
+      ]);
 
       const encrypted = encryptedResults[0];
 
       const inEuint64 = {
-        ctHash: BigInt(encrypted.ctHash),
+        ctHash: encrypted.ctHash,
         securityZone: encrypted.securityZone,
         utype: encrypted.utype,
-        signature: encrypted.signature as `0x${string}`,
+        signature: encrypted.signature,
       };
 
       writeContract({
