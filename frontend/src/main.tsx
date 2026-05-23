@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { WagmiProvider } from "wagmi";
+import { WagmiProvider, useWalletClient, usePublicClient } from "wagmi";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CofheProvider, createCofheConfig } from "@cofhe/react";
+import { CofheProvider, useCofheAutoConnect, createCofheConfig } from "@cofhe/react";
 import { Toaster } from "sonner";
 import { config } from "./config/wagmi";
 import App from "./App";
@@ -28,16 +28,28 @@ const cofheConfig = createCofheConfig({
   ],
 });
 
+function CofheBridge({ children }: { children: React.ReactNode }) {
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
+  useCofheAutoConnect({ walletClient, publicClient });
+
+  return (
+    <CofheProvider config={cofheConfig}>
+      {children}
+      <Toaster position="bottom-right" richColors theme="dark" />
+    </CofheProvider>
+  );
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={darkTheme({ accentColor: '#14B8A6' })} modalSize="compact">
-            <CofheProvider config={cofheConfig}>
+            <CofheBridge>
               <App />
-              <Toaster position="bottom-right" richColors theme="dark" />
-            </CofheProvider>
+            </CofheBridge>
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
