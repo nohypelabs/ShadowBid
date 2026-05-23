@@ -1,0 +1,12 @@
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { arbitrumSepolia } from 'wagmi/chains';
+import { http } from 'wagmi';
+
+export const config = getDefaultConfig({
+  appName: 'ShadowBid',
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '',
+  chains: [arbitrumSepolia],
+  transports: {
+    [arbitrumSepolia.id]: http(),
+  },
+});

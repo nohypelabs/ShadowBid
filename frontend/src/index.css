@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg-void: #030305;
+  --bg-surface: #0d0d12;
+  --bg-raised: #13131a;
+  --border-default: #1e1e2e;
+  --border-glow: rgba(245, 158, 11, 0.35);
+  --amber: #f59e0b;
+  --cyan: #06b6d4;
+  --emerald: #10b981;
+  --red: #ef4444;
+  --text-primary: #f1f5f9;
+  --text-secondary: #64748b;
+  --text-muted: #334155;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: #030305;
+  color: #f1f5f9;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@layer components {
+  /* Glass card - main component */
+  .glass-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+  }
+  
+  .glass-card-hover {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+    transition: all 0.25s ease;
+  }
+  
+  .glass-card-hover:hover {
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px rgba(245, 158, 11, 0.08);
+  }
+  
+  /* Stats card */
+  .stats-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-default);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  
+  .stats-card:hover {
+    border-color: var(--border-glow);
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--amber), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Primary button */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--amber), var(--cyan));
+    color: #000;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  
+  .btn-primary:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+  
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-ghost:hover {
+    border-color: var(--border-glow);
+    color: var(--text-primary);
+  }
+  
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-secondary:hover {
+    border-color: var(--border-glow);
+    color: var(--text-primary);
+  }
+  
+  /* Encrypted text (blur effect) */
+  .encrypted-blur {
+    filter: blur(5px);
+    transition: filter 0.3s ease;
+    user-select: none;
+  }
+  
+  .encrypted-blur:hover {
+    filter: blur(0);
+  }
+  
+  .encrypted-value {
+    filter: blur(4px);
+    user-select: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .encrypted-value:hover {
+    filter: blur(0);
+  }
+  
+  /* Countdown timer */
+  .timer-urgent {
+    color: var(--amber);
+    font-family: 'IBM Plex Mono', monospace;
+    animation: pulse 1.5s infinite;
+  }
+  
+  .timer-normal {
+    color: var(--text-secondary);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  
+  /* Status badges */
+  .badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  
+  .badge-active {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--emerald);
+  }
+  
+  .badge-ending {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--amber);
+    animation: pulse 2s infinite;
+  }
+  
+  .badge-ended {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--red);
+  }
+  
+  .badge-encrypted {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+  }
+}
+
+@layer utilities {
+  /* Page load animation */
+  .fade-in-up {
+    animation: fadeInUp 400ms ease-out;
+  }
+  
+  /* Staggered animations */
+  .stagger-0 { animation-delay: 0ms; }
+  .stagger-1 { animation-delay: 75ms; }
+  .stagger-2 { animation-delay: 150ms; }
+  .stagger-3 { animation-delay: 225ms; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
