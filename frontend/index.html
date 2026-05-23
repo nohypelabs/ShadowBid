@@ -11,6 +11,16 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Prevent "Cannot redefine property: ethereum" crash from conflicting wallet extensions
+      try {
+        if (!window.ethereum) {
+          Object.defineProperty(window, 'ethereum', {
+            value: undefined, writable: true, configurable: true
+          });
+        }
+      } catch (_) {}
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
