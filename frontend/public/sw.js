@@ -1,4 +1,4 @@
-const CACHE = 'shadowbid-v2';
+const CACHE = 'shadowbid-v3';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Cache-first for static assets
+  // Stale-while-revalidate for static assets
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const fetched = fetch(e.request).then((res) => {
@@ -42,6 +42,6 @@ self.addEventListener('fetch', (e) => {
         return res;
       });
       return cached || fetched;
-    })
+    }).catch(() => caches.match(e.request))
   );
 });

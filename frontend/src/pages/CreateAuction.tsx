@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useCofheEncrypt } from '@cofhe/react';
+import { useCofheClient } from '@cofhe/react';
 import { Encryptable } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -17,7 +17,8 @@ export function CreateAuction() {
   const [revealDelayHours, setRevealDelayHours] = useState('1');
   const [error, setError] = useState<string | null>(null);
 
-  const { encryptInputsAsync, isEncrypting } = useCofheEncrypt();
+  const client = useCofheClient();
+  const [isEncrypting, setIsEncrypting] = useState(false);
   
   const {
     data: hash,
@@ -100,9 +101,12 @@ export function CreateAuction() {
     }
 
     try {
-      const encryptedResults = await encryptInputsAsync([
+      setIsEncrypting(true);
+      const builder = client.encryptInputs([
         Encryptable.uint64(BigInt(Math.round(minBid * 1e18))),
       ]);
+      const encryptedResults = await builder.execute();
+      setIsEncrypting(false);
 
       const encrypted = encryptedResults[0];
 
@@ -120,6 +124,7 @@ export function CreateAuction() {
         args: [title.trim(), BigInt(duration * 3600), inEuint64],
       });
     } catch (err) {
+      setIsEncrypting(false);
       setError(err instanceof Error ? err.message : 'Failed to encrypt bid');
     }
   };
