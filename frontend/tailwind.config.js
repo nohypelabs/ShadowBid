@@ -21,7 +21,7 @@ export default {
         'text-muted': '#334155',
       },
       fontFamily: {
-        syne: ['Syne', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
         'ibm-plex-mono': ['"IBM Plex Mono"', 'monospace'],
       },
       animation: {

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
-// import { useCofheEncrypt } from '@cofhe/react'; // TODO: Re-enable once steps format is known
 import { toast } from 'sonner';
-import { Gift, Diamond, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Gift, Diamond, Clock, AlertCircle } from 'lucide-react';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 
 const DEMO_TEMPLATES = [
@@ -13,7 +13,7 @@ const DEMO_TEMPLATES = [
     description: 'Celebrate the launch of ShadowBid with this special demo auction',
     durationHours: 48,
     minBid: 0.1,
-    icon: <Gift className="w-8 h-8" />,
+    icon: <Gift className="w-6 h-6" />,
   },
   {
     id: 'nft',
@@ -21,7 +21,7 @@ const DEMO_TEMPLATES = [
     description: 'A curated collection of rare digital art pieces',
     durationHours: 2,
     minBid: 0.05,
-    icon: <Diamond className="w-8 h-8" />,
+    icon: <Diamond className="w-6 h-6" />,
   },
   {
     id: 'early',
@@ -29,7 +29,7 @@ const DEMO_TEMPLATES = [
     description: 'Exclusive early access auction for demo participants',
     durationHours: 24,
     minBid: 0.01,
-    icon: <Clock className="w-8 h-8" />,
+    icon: <Clock className="w-6 h-6" />,
   },
 ];
 
@@ -39,10 +39,7 @@ export function Demo() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // TODO: Replace mock with real COFHE encryption once steps format is known
-  // useCofheEncrypt requires specific steps structure that causes forEach error
-  // Using mock for UI testing until library documentation is available
-  const encryptInputsAsync = async (input: any) => {
+  const encryptInputsAsync = async (_input: any) => {
     return [{
       ctHash: '0x' + '0'.repeat(64),
       securityZone: 0,
@@ -134,158 +131,260 @@ export function Demo() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#030305' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-void)' }}>
 
-      {/* Header banner */}
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '40px 24px 0' }}>
+      {/* ── Header ── */}
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '56px 24px 0', textAlign: 'center' }}>
 
-        {/* Back link — own line */}
+        {/* Back link — separated from main content */}
         <a href="/" style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '6px',
-          color: '#64748b',
+          color: 'var(--text-muted)',
           textDecoration: 'none',
-          fontSize: '14px',
+          fontSize: '13px',
           fontFamily: 'IBM Plex Mono',
-          marginBottom: '20px',
+          marginBottom: '40px',
           transition: 'color 0.2s',
         }}
-        onMouseEnter={e => e.currentTarget.style.color = '#f1f5f9'}
-        onMouseLeave={e => e.currentTarget.style.color = '#64748b'}>
+        onMouseEnter={e => e.currentTarget.style.color = 'var(--amber)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
           ← Back to Home
         </a>
 
-        {/* DEMO MODE badge — own line below back link */}
+        {/* Badge + Title cluster — tight grouping */}
         <div style={{ marginBottom: '20px' }}>
           <span style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            background: 'rgba(245,158,11,0.1)',
-            border: '1px solid rgba(245,158,11,0.3)',
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.2)',
             borderRadius: '999px',
             padding: '4px 14px',
             fontSize: '11px',
             color: '#f59e0b',
             fontFamily: 'IBM Plex Mono',
-            letterSpacing: '0.08em',
+            letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            fontWeight: 600,
-          }}>⚡ Demo Mode</span>
+            fontWeight: 500,
+          }}>Demo Mode</span>
         </div>
 
-        {/* H1 */}
         <h1 style={{
-          fontFamily: 'Syne',
+          fontFamily: 'Inter',
           fontWeight: 800,
-          fontSize: '48px',
-          lineHeight: 1.1,
-          letterSpacing: '-0.03em',
-          marginBottom: '16px',
-          color: '#f1f5f9',
+          fontSize: 'clamp(40px, 5vw, 56px)',
+          lineHeight: 1.08,
+          letterSpacing: '-0.035em',
+          margin: '0 0 20px',
+          color: 'var(--text-primary)',
         }}>
-          Try{' '}
+          <span>Try </span>
           <span style={{
-            background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+            background: 'linear-gradient(135deg, #f59e0b 20%, #06b6d4 80%)',
+            backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>ShadowBid</span>
         </h1>
 
         <p style={{
-          color: '#64748b',
-          fontSize: '16px',
+          color: 'var(--text-secondary)',
+          fontSize: '17px',
           lineHeight: 1.6,
           maxWidth: '460px',
-          marginBottom: '28px',
+          margin: '0 auto 28px',
         }}>
-          Experience FHE auctions before deploying yours. Test bidding, finalization, and the full encryption flow.
+          Experience FHE auctions before deploying yours.
+          <br />Test bidding, finalization, and the full encryption flow.
         </p>
 
-        {/* Load Demo button */}
+        {/* CTA button */}
         <button
           onClick={createDemoAuctions}
           disabled={isLoading}
           style={{
             background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
-            color: '#000',
-            fontFamily: 'Syne',
+            color: '#0a0a0a',
+            fontFamily: 'Inter',
             fontWeight: 700,
             fontSize: '15px',
-            padding: '12px 28px',
-            borderRadius: '12px',
+            padding: '14px 36px',
+            borderRadius: '14px',
             border: 'none',
             cursor: isLoading ? 'not-allowed' : 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            marginBottom: '40px',
+            gap: '10px',
+            transition: 'transform 0.2s, box-shadow 0.2s, opacity 0.2s',
+            opacity: isLoading ? 0.65 : 1,
+          }}
+          onMouseEnter={e => {
+            if (!isLoading) {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 16px 40px -10px rgba(245,158,11,0.3)';
+            }
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
           }}>
           {isLoading ? (
             <>
-              <svg style={{ animation: 'spin 1s linear infinite', width: '20px', height: '20px' }} fill="none" viewBox="0 0 24 24">
+              <svg style={{ animation: 'spin 1s linear infinite', width: '18px', height: '18px' }} fill="none" viewBox="0 0 24 24">
                 <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              Loading...
+              Creating demo auctions&hellip;
             </>
           ) : (
-            '▶ Load Demo Auctions'
+            <>
+              Load Demo Auctions
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </>
           )}
         </button>
+
+        {/* Error inline */}
         {error && (
-          <p style={{ marginTop: '16px', fontSize: '14px', color: '#ef4444' }}>{error}</p>
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+            background: 'rgba(239, 68, 68, 0.06)',
+            border: '1px solid rgba(239, 68, 68, 0.18)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            margin: '16px auto 0',
+            maxWidth: '440px',
+            textAlign: 'left',
+          }}>
+            <AlertCircle style={{ width: '16px', height: '16px', color: '#ef4444', flexShrink: 0, marginTop: '1px' }} />
+            <span style={{ color: '#ef4444', fontSize: '13px', lineHeight: 1.5 }}>{error}</span>
+          </div>
         )}
 
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid #1e1e2e', marginBottom: '40px' }} />
+        {/* Section divider */}
+        <div style={{
+          borderTop: '1px solid var(--border-default)',
+          marginTop: '56px',
+        }} />
       </div>
 
-      {/* Quick Start Templates */}
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 64px' }}>
-        <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '24px', marginBottom: '6px' }}>Quick Start Templates</h2>
-        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '28px' }}>Or create a custom auction</p>
+      {/* ── Templates ── */}
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{
+            fontFamily: 'Inter',
+            fontWeight: 800,
+            fontSize: 'clamp(20px, 3vw, 26px)',
+            letterSpacing: '-0.02em',
+            marginBottom: '6px',
+            color: 'var(--text-primary)',
+          }}>Quick Start Templates</h2>
+          <p style={{
+            color: 'var(--text-secondary)',
+            fontSize: '14px',
+            fontFamily: 'IBM Plex Mono',
+          }}>Pre-configured auctions — or create your own custom one</p>
+        </div>
 
-        {/* Templates grid — 2 columns on desktop, 1 on mobile */}
+        {/* Template cards grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '16px',
-        }} className="grid-cols-1">
-          {DEMO_TEMPLATES.map((template) => (
-            <div key={template.id} style={{
-              background: '#0d0d12',
-              border: '1px solid #1e1e2e',
-              borderRadius: '16px',
-              padding: '24px',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(245,158,11,0.35)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e1e2e'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '20px',
+        }}>
+          {DEMO_TEMPLATES.map((template, i) => (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.35, ease: 'easeOut' }}
+              style={{
+                background: 'var(--bg-raised)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '16px',
+                padding: '28px',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
+                cursor: 'default',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)';
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border-default)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}>
 
-              {/* Icon */}
-              <div style={{ fontSize: '28px', marginBottom: '12px' }}>{template.icon}</div>
+              {/* Icon + meta row */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                marginBottom: '20px',
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(6,182,212,0.1))',
+                  border: '1px solid rgba(245,158,11,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f59e0b',
+                }}>
+                  {template.icon}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                  <span style={{
+                    fontFamily: 'IBM Plex Mono',
+                    fontSize: '12px',
+                    color: 'var(--text-secondary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}>
+                    <Clock style={{ width: '12px', height: '12px' }} />
+                    {template.durationHours}h
+                  </span>
+                  <span style={{
+                    fontFamily: 'IBM Plex Mono',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#f59e0b',
+                  }}>
+                    Min: {template.minBid} ETH
+                  </span>
+                </div>
+              </div>
 
               {/* Title + description */}
-              <div>
-                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: '18px', marginBottom: '6px', color: '#f1f5f9' }}>{template.title}</h3>
-                <p style={{ color: '#64748b', fontSize: '13px', lineHeight: 1.5, marginBottom: '16px' }}>{template.description}</p>
-              </div>
-
-              {/* Meta row */}
-              <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-                <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '12px', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ⏱ {template.durationHours}h
-                </span>
-                <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '12px', color: '#f59e0b' }}>
-                  Min: {template.minBid} ETH
-                </span>
-              </div>
+              <h3 style={{
+                fontFamily: 'Inter',
+                fontWeight: 700,
+                fontSize: '18px',
+                marginBottom: '8px',
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.02em',
+              }}>{template.title}</h3>
+              <p style={{
+                color: 'var(--text-secondary)',
+                fontSize: '13px',
+                lineHeight: 1.6,
+                flex: 1,
+                marginBottom: '24px',
+              }}>{template.description}</p>
 
               {/* Use Template button */}
               <button
@@ -293,11 +392,11 @@ export function Demo() {
                 style={{
                   width: '100%',
                   background: 'transparent',
-                  border: '1px solid #1e1e2e',
+                  border: '1px solid var(--border-default)',
                   borderRadius: '10px',
-                  padding: '10px',
-                  color: '#94a3b8',
-                  fontFamily: 'Syne',
+                  padding: '11px 0',
+                  color: 'var(--text-secondary)',
+                  fontFamily: 'Inter',
                   fontWeight: 600,
                   fontSize: '14px',
                   cursor: 'pointer',
@@ -307,11 +406,19 @@ export function Demo() {
                   justifyContent: 'center',
                   gap: '8px',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.08)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'; e.currentTarget.style.color = '#f59e0b'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#1e1e2e'; e.currentTarget.style.color = '#94a3b8'; }}>
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(245,158,11,0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)';
+                  e.currentTarget.style.color = '#f59e0b';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.borderColor = 'var(--border-default)';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }}>
                 Use Template →
               </button>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

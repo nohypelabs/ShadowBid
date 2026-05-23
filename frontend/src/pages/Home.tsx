@@ -17,37 +17,38 @@ export function Home() {
   const totalAuctions = auctionCounter ? Number(auctionCounter) : 0;
 
   return (
-    <div className="space-y-16 sm:space-y-20">
+    <div className="space-y-8 sm:space-y-10">
       {/* Hero Section */}
-      <section className="text-center" style={{ padding: '112px 0 96px', position: 'relative' }}>
-        {/* Decorative glow */}
+      <section className="text-center" style={{ padding: '48px 0 36px', position: 'relative' }}>
+        {/* Decorative glow — subtle radial behind headline */}
         <div style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%)',
-          filter: 'blur(80px)',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.06) 0%, transparent 70%)',
+          filter: 'blur(100px)',
           zIndex: -1,
           pointerEvents: 'none',
         }} />
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="fade-in-up"
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          {/* Pill label */}
+          {/* Pill label — placed close to headline */}
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase"
             style={{
-              background: 'rgba(20, 184, 166, 0.1)',
-              border: '1px solid rgba(20, 184, 166, 0.2)',
+              background: 'rgba(20, 184, 166, 0.08)',
+              border: '1px solid rgba(20, 184, 166, 0.18)',
               color: '#2DD4BF',
-              marginBottom: '16px',
+              marginBottom: '12px',
+              fontFamily: 'IBM Plex Mono',
+              letterSpacing: '0.1em',
             }}
           >
             <ShieldCheck style={{ width: '18px', height: '18px', strokeWidth: 1.5 }} />
@@ -56,23 +57,35 @@ export function Home() {
 
           {/* Headline */}
           <h1
-            className="font-syne font-extrabold mb-6"
+            className="font-inter font-extrabold"
             style={{
-              fontSize: 'clamp(40px, 5vw, 64px)',
-              letterSpacing: '-0.02em',
-              lineHeight: '1.1',
-              color: '#FFFFFF',
+              fontSize: 'clamp(40px, 5vw, 56px)',
+              letterSpacing: '-0.035em',
+              lineHeight: 1.08,
+              color: 'var(--text-primary)',
+              margin: '0 0 10px',
             }}
           >
             Bid Privately.
             <br />
-            Win <span style={{ background: 'linear-gradient(135deg, #FBBF24, #14B8A6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Fairly.</span>
+            Win{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #f59e0b 20%, #06b6d4 80%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>Fairly.</span>
           </h1>
 
           {/* Subheadline */}
           <p
-            className="text-lg max-w-[520px] mx-auto mb-8"
-            style={{ color: '#9CA3AF', lineHeight: '1.7' }}
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: '17px',
+              lineHeight: 1.6,
+              maxWidth: '460px',
+              margin: '0 auto 16px',
+            }}
           >
             Sealed-bid auctions on-chain. Your bids stay fully encrypted until the auction ends.
           </p>
@@ -83,56 +96,63 @@ export function Home() {
             flexDirection: 'row',
             gap: '12px',
             justifyContent: 'center',
-            marginTop: '32px',
             flexWrap: 'wrap',
           }}>
             <button
               onClick={() => window.location.href = '/create'}
               style={{
-                background: 'linear-gradient(135deg, #FBBF24 0%, #14B8A6 100%)',
-                color: '#0A0A0A',
-                fontFamily: 'Syne',
+                background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                color: '#0a0a0a',
+                fontFamily: 'Inter',
                 fontWeight: 700,
                 fontSize: '15px',
-                padding: '14px 32px',
-                borderRadius: '12px',
+                padding: '14px 36px',
+                borderRadius: '14px',
                 border: 'none',
                 cursor: 'pointer',
                 letterSpacing: '-0.01em',
-                transition: 'all 0.2s',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'transform 0.2s, box-shadow 0.2s',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(20, 184, 166, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 16px 40px -10px rgba(245,158,11,0.3)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              Create Auction →
+              Create Auction
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </button>
             <button
               onClick={() => window.location.href = '/demo'}
               style={{
                 background: 'transparent',
-                color: '#9CA3AF',
-                fontFamily: 'Syne',
+                color: 'var(--text-secondary)',
+                fontFamily: 'Inter',
                 fontWeight: 600,
                 fontSize: '15px',
-                padding: '14px 32px',
-                borderRadius: '12px',
-                border: '1px solid #2A2A2A',
+                padding: '14px 36px',
+                borderRadius: '14px',
+                border: '1px solid var(--border-default)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.4)';
-                e.currentTarget.style.color = '#FFFFFF';
+                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.35)';
+                e.currentTarget.style.color = 'var(--text-primary)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = '#2A2A2A';
-                e.currentTarget.style.color = '#9CA3AF';
+                e.currentTarget.style.borderColor = 'var(--border-default)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               Try Demo
@@ -142,7 +162,7 @@ export function Home() {
       </section>
 
       {/* Stats Section */}
-      <section style={{ padding: '0 24px', margin: '64px auto', maxWidth: '960px' }}>
+      <section style={{ padding: '0 24px', margin: '24px auto', maxWidth: '960px' }}>
         <div className="stats-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -153,12 +173,12 @@ export function Home() {
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid #1e1e2e',
             borderRadius: '16px',
-            padding: '28px 20px',
+            padding: '24px 16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '10px',
+            gap: '8px',
             transition: 'border-color 0.2s',
           }}
           onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
@@ -171,12 +191,12 @@ export function Home() {
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid #1e1e2e',
             borderRadius: '16px',
-            padding: '28px 20px',
+            padding: '24px 16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '10px',
+            gap: '8px',
             transition: 'border-color 0.2s',
           }}
           onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
@@ -189,12 +209,12 @@ export function Home() {
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid #1e1e2e',
             borderRadius: '16px',
-            padding: '28px 20px',
+            padding: '24px 16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '10px',
+            gap: '8px',
             transition: 'border-color 0.2s',
           }}
           onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
@@ -207,12 +227,12 @@ export function Home() {
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid #1e1e2e',
             borderRadius: '16px',
-            padding: '28px 20px',
+            padding: '24px 16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '10px',
+            gap: '8px',
             transition: 'border-color 0.2s',
           }}
           onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
@@ -225,16 +245,16 @@ export function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '64px 24px' }}>
-        <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '32px', textAlign: 'center', marginBottom: '8px', color: '#FFFFFF' }}>How It Works</h2>
-        <p style={{ color: '#9CA3AF', textAlign: 'center', marginBottom: '48px', fontSize: '15px' }}>Three steps. Fully private. Mathematically verified.</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }} className="flex flex-col gap-10 items-center text-center">
+      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '32px 24px' }}>
+        <h2 style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '32px', textAlign: 'center', marginBottom: '6px', color: '#FFFFFF' }}>How It Works</h2>
+        <p style={{ color: '#9CA3AF', textAlign: 'center', marginBottom: '28px', fontSize: '15px' }}>Three steps. Fully private. Mathematically verified.</p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }} className="flex flex-col gap-10 items-center text-center">
           <div style={{
             background: '#1A1A1A',
             border: '1px solid #2A2A2A',
             borderRadius: '20px',
-            padding: '40px 28px 32px',
+            padding: '32px 24px 24px',
             textAlign: 'center',
             position: 'relative',
             overflow: 'hidden',
@@ -249,7 +269,7 @@ export function Home() {
               position: 'absolute',
               bottom: '-10px',
               right: '12px',
-              fontFamily: 'Syne',
+              fontFamily: 'Inter',
               fontWeight: 800,
               fontSize: '96px',
               lineHeight: 1,
@@ -270,7 +290,7 @@ export function Home() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 20px',
+              margin: '0 auto 16px',
               transition: 'all 0.3s',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.6)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
@@ -278,7 +298,7 @@ export function Home() {
               <Lock style={{ width: '32px', height: '32px', color: '#2DD4BF', strokeWidth: 1.5 }} />
             </div>
             
-            <h3 style={{ fontFamily: 'Syne', fontWeight: 600, fontSize: '18px', marginBottom: '8px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Encrypt Bid</h3>
+            <h3 style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: '18px', marginBottom: '6px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Encrypt Bid</h3>
             <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.65', margin: 0, maxWidth: '260px' }}>Your bid is encrypted with FHE before leaving your browser. No one can see the amount.</p>
           </div>
 
@@ -286,7 +306,7 @@ export function Home() {
             background: '#1A1A1A',
             border: '1px solid #2A2A2A',
             borderRadius: '20px',
-            padding: '40px 28px 32px',
+            padding: '32px 24px 24px',
             textAlign: 'center',
             position: 'relative',
             overflow: 'hidden',
@@ -301,7 +321,7 @@ export function Home() {
               position: 'absolute',
               bottom: '-10px',
               right: '12px',
-              fontFamily: 'Syne',
+              fontFamily: 'Inter',
               fontWeight: 800,
               fontSize: '96px',
               lineHeight: 1,
@@ -322,7 +342,7 @@ export function Home() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 20px',
+              margin: '0 auto 16px',
               transition: 'all 0.3s',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.6)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
@@ -330,7 +350,7 @@ export function Home() {
               <Link2 style={{ width: '32px', height: '32px', color: '#2DD4BF', strokeWidth: 1.5 }} />
             </div>
             
-            <h3 style={{ fontFamily: 'Syne', fontWeight: 600, fontSize: '18px', marginBottom: '8px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Submit On-Chain</h3>
+            <h3 style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: '18px', marginBottom: '6px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Submit On-Chain</h3>
             <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.65', margin: 0, maxWidth: '260px' }}>Encrypted bids are stored on-chain. No front-running or bid sniping.</p>
           </div>
 
@@ -338,7 +358,7 @@ export function Home() {
             background: '#1A1A1A',
             border: '1px solid #2A2A2A',
             borderRadius: '20px',
-            padding: '40px 28px 32px',
+            padding: '32px 24px 24px',
             textAlign: 'center',
             position: 'relative',
             overflow: 'hidden',
@@ -353,7 +373,7 @@ export function Home() {
               position: 'absolute',
               bottom: '-10px',
               right: '12px',
-              fontFamily: 'Syne',
+              fontFamily: 'Inter',
               fontWeight: 800,
               fontSize: '96px',
               lineHeight: 1,
@@ -374,7 +394,7 @@ export function Home() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 20px',
+              margin: '0 auto 16px',
               transition: 'all 0.3s',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.6)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
@@ -382,14 +402,14 @@ export function Home() {
               <Trophy style={{ width: '32px', height: '32px', color: '#2DD4BF', strokeWidth: 1.5 }} />
             </div>
             
-            <h3 style={{ fontFamily: 'Syne', fontWeight: 600, fontSize: '18px', marginBottom: '8px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Reveal Winner</h3>
+            <h3 style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: '18px', marginBottom: '6px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Reveal Winner</h3>
             <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.65', margin: 0, maxWidth: '260px' }}>All bids decrypt simultaneously. Highest bidder wins fairly.</p>
           </div>
         </div>
       </section>
 
       {/* Active Auctions Section */}
-      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 64px' }}>
+      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 32px' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -412,7 +432,7 @@ export function Home() {
           }}
         >
           {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h2 style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -467,13 +487,13 @@ export function Home() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: '220px',
+              minHeight: '168px',
             }}>
               {/* Icon */}
               <div style={{
-                width: '48px',
-                height: '48px',
-                marginBottom: '16px',
+                width: '40px',
+                height: '40px',
+                marginBottom: '12px',
               }}>
                 <svg viewBox="0 0 24 24" fill="none" style={{ width: '100%', height: '100%' }}>
                   <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4B5563" fillOpacity="0.5"/>
@@ -487,8 +507,7 @@ export function Home() {
                 fontSize: '16px',
                 fontWeight: 600,
                 color: '#FFFFFF',
-                marginBottom: '8px',
-                margin: '0 0 8px 0',
+                margin: '0 0 4px',
               }}>
                 No Active Auctions
               </h3>
@@ -500,7 +519,7 @@ export function Home() {
                 color: '#9CA3AF',
                 maxWidth: '280px',
                 textAlign: 'center',
-                marginBottom: '24px',
+                marginBottom: '18px',
               }}>
                 Be the first to create an auction on ShadowBid
               </p>

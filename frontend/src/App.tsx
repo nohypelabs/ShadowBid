@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Menu, X, ShieldCheck, Wallet, XCircle } from 'lucide-react';
+import { Menu, X, Wallet, XCircle } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Home, CreateAuction, AuctionDetail, Demo } from './pages';
 
@@ -25,104 +25,151 @@ function App() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: 'rgba(10,10,10,0.8)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          padding: '0 24px',
-          height: '72px',
+          background: 'rgba(10,10,10,0.65)',
+          backdropFilter: 'blur(20px) saturate(140%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          padding: '0 28px',
+          height: '68px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(20, 184, 166, 0.2))',
-              border: '1px solid rgba(20, 184, 166, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+          {/* ── Logo ── */}
+          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img
+              src="/shadowbid2.png"
+              alt="ShadowBid"
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+              }}
+            />
+            <span style={{
+              fontFamily: 'Inter',
+              fontWeight: 800,
+              fontSize: '20px',
+              color: '#FFFFFF',
+              letterSpacing: '-0.02em',
             }}>
-              <ShieldCheck style={{ width: '20px', height: '20px', color: '#2DD4BF', strokeWidth: 1.5 }} />
-            </div>
-            <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '20px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>
-              Shadow<span style={{ background: 'linear-gradient(135deg, #FBBF24, #14B8A6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Bid</span>
+              Shadow<span style={{
+                background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>Bid</span>
             </span>
           </a>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="hidden md:flex">
-            <a href="/" style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#FFFFFF'}
-              onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>Home</a>
-            <a href="/create" style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#FFFFFF'}
-              onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>Create</a>
-            <a href="/demo" style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#FFFFFF'}
-              onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}>Demo</a>
+          {/* ── Desktop Nav ── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} className="hidden md:flex">
+            {[
+              { label: 'Home', href: '/' },
+              { label: 'Create', href: '/create' },
+              { label: 'Demo', href: '/demo' },
+            ].map(link => (
+              <a
+                key={link.href}
+                href={link.href}
+                style={{
+                  color: 'var(--text-secondary)',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  fontFamily: 'IBM Plex Mono',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  transition: 'color 0.2s, background 0.2s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+
+            <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)', margin: '0 12px' }} />
+
             <ConnectButton.Custom>
               {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
                 const ready = mounted;
                 const connected = ready && account && chain;
 
-                // Loading skeleton while mounting
                 if (!ready) {
                   return (
-                    <div style={{ height: '40px', width: '144px', background: '#1f2937', borderRadius: '12px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                    <div style={{
+                      height: '38px',
+                      width: '140px',
+                      background: 'rgba(255,255,255,0.04)',
+                      borderRadius: '12px',
+                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }} />
                   );
                 }
 
-                // Connected state: show chip with address
                 if (connected) {
                   return (
                     <button
                       onClick={openAccountModal}
                       style={{
-                        background: '#1f2937',
-                        border: '1px solid #374151',
-                        color: '#FFFFFF',
-                        fontSize: '14px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        color: 'var(--text-primary)',
+                        fontSize: '13px',
                         fontWeight: 500,
-                        borderRadius: '9999px',
+                        fontFamily: 'IBM Plex Mono',
+                        borderRadius: '12px',
                         padding: '8px 16px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
                         cursor: 'pointer',
-                        transition: 'background-color 0.2s',
+                        backdropFilter: 'blur(8px)',
+                        transition: 'background 0.2s, border-color 0.2s',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#374151'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#1f2937'}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.borderColor = 'rgba(245,158,11,0.25)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                      }}
                     >
-                      <span style={{ width: '8px', height: '8px', borderRadius: '9999px', background: '#10b981' }}></span>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '9999px', background: '#10b981', boxShadow: '0 0 6px rgba(16,185,129,0.4)' }} />
                       {account.displayName}
                     </button>
                   );
                 }
 
-                // Wrong network state
                 if (chain?.unsupported) {
                   return (
                     <button
                       onClick={openChainModal}
                       style={{
-                        background: 'rgba(239, 68, 68, 0.2)',
+                        background: 'rgba(239, 68, 68, 0.1)',
                         color: '#f87171',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
                         borderRadius: '12px',
-                        padding: '10px 20px',
-                        fontSize: '14px',
+                        padding: '9px 18px',
+                        fontSize: '13px',
                         fontWeight: 500,
+                        fontFamily: 'IBM Plex Mono',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
                         cursor: 'pointer',
-                        transition: 'background-color 0.2s',
+                        transition: 'background 0.2s',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.3)'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.18)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
                     >
                       <XCircle style={{ width: '16px', height: '16px' }} />
                       Wrong Network
@@ -130,34 +177,34 @@ function App() {
                   );
                 }
 
-                // Disconnected state: the main gradient button
                 return (
                   <button
                     onClick={openConnectModal}
                     style={{
-                      background: 'linear-gradient(135deg, #FBBF24 0%, #14B8A6 100%)',
-                      color: '#0A0A0A',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      padding: '10px 20px',
+                      background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                      color: '#0a0a0a',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      fontFamily: 'Inter',
+                      padding: '9px 20px',
                       borderRadius: '12px',
                       border: 'none',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      transition: 'all 0.2s',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                      e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(20, 184, 166, 0.2)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 12px 32px -8px rgba(245,158,11,0.3)';
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.transform = 'translateY(0)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    <Wallet style={{ width: '16px', height: '16px', strokeWidth: 2 }} />
+                    <Wallet style={{ width: '15px', height: '15px', strokeWidth: 2 }} />
                     Connect Wallet
                   </button>
                 );
@@ -165,32 +212,89 @@ function App() {
             </ConnectButton.Custom>
           </div>
 
+          {/* ── Mobile toggle ── */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden"
-            style={{ color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}
+            style={{
+              color: 'var(--text-secondary)',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '10px',
+              width: '38px',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X style={{ width: '18px', height: '18px' }} /> : <Menu style={{ width: '18px', height: '18px' }} />}
           </button>
         </nav>
       )}
 
       {mobileMenuOpen && (
         <div
-          className="md:hidden fixed inset-y-0 right-0 w-64 z-50"
-          style={{ background: '#1A1A1A', borderLeft: '1px solid #2A2A2A' }}
+          className="md:hidden fixed inset-y-0 right-0 w-72 z-50"
+          style={{
+            background: 'rgba(10,10,10,0.92)',
+            backdropFilter: 'blur(24px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+            borderLeft: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
-          <div style={{ padding: '16px' }}>
+          <div style={{ padding: '24px' }}>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              style={{ color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '24px' }}
+              style={{
+                color: 'var(--text-secondary)',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '10px',
+                width: '38px',
+                height: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                marginBottom: '28px',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
             >
-              <X className="w-5 h-5" />
+              <X style={{ width: '18px', height: '18px' }} />
             </button>
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <a href="/" onClick={() => setMobileMenuOpen(false)} style={{ color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '12px 16px', borderRadius: '8px' }}>Home</a>
-              <a href="/create" onClick={() => setMobileMenuOpen(false)} style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '12px 16px', borderRadius: '8px' }}>Create</a>
-              <a href="/demo" onClick={() => setMobileMenuOpen(false)} style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '12px 16px', borderRadius: '8px' }}>Demo</a>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {[
+                { label: 'Home', href: '/' },
+                { label: 'Create', href: '/create' },
+                { label: 'Demo', href: '/demo' },
+              ].map(link => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    color: 'var(--text-primary)',
+                    textDecoration: 'none',
+                    fontSize: '15px',
+                    fontWeight: 500,
+                    fontFamily: 'IBM Plex Mono',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  {link.label}
+                </a>
+              ))}
             </nav>
           </div>
         </div>
@@ -199,7 +303,7 @@ function App() {
       {mobileMenuOpen && (
         <div
           className="md:hidden fixed inset-0 z-40"
-          style={{ background: 'rgba(0,0,0,0.5)' }}
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -268,8 +372,12 @@ function App() {
           }}>
             {/* Logo row */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldCheck style={{ width: '16px', height: '16px', color: '#2DD4BF', strokeWidth: 1.5 }} />
-              <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '16px', color: '#FFFFFF' }}>
+              <img
+                src="/shadowbid2.png"
+                alt="ShadowBid"
+                style={{ width: '20px', height: '20px', borderRadius: '4px' }}
+              />
+              <span style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '16px', color: '#FFFFFF' }}>
                 Shadow<span style={{ background: 'linear-gradient(135deg, #FBBF24, #14B8A6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Bid</span>
               </span>
             </div>

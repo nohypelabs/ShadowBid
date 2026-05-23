@@ -33,7 +33,7 @@ export function AuctionCard({ auction, bidCount, isLoading = false }: AuctionCar
       <div className="p-5">
         {/* Status Badge */}
         <div className="flex justify-between items-start mb-3">
-          <h3 className="font-syne font-semibold text-lg line-clamp-1" style={{ letterSpacing: '-0.03em' }}>
+          <h3 className="font-inter font-semibold text-lg line-clamp-1" style={{ letterSpacing: '-0.03em' }}>
             {auction.title}
           </h3>
           {auction.finalized && <span className="badge badge-ended">Finalized</span>}

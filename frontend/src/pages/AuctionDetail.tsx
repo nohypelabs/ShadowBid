@@ -282,7 +282,7 @@ export function AuctionDetail() {
           </div>
         </header>
         <main className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h2 className="text-2xl font-syne font-extrabold mb-4" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+          <h2 className="text-2xl font-inter font-extrabold mb-4" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
             Auction not found
           </h2>
           <Link
@@ -321,7 +321,7 @@ export function AuctionDetail() {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h1
-                    className="font-syne font-extrabold mb-2"
+                    className="font-inter font-extrabold mb-2"
                     style={{ fontSize: '36px', letterSpacing: '-0.03em', color: 'var(--text-primary)' }}
                   >
                     {auctionData.title}
@@ -351,7 +351,7 @@ export function AuctionDetail() {
                     <Users className="w-4 h-4" />
                     <span className="text-xs">Bidders</span>
                   </div>
-                  <p className="text-2xl font-syne font-extrabold font-ibm-plex-mono" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                  <p className="text-2xl font-inter font-extrabold font-ibm-plex-mono" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                     {Number(bidCount || 0)}
                   </p>
                 </div>
@@ -375,7 +375,7 @@ export function AuctionDetail() {
                 transition={{ delay: 0.1 }}
                 className="glass-card rounded-xl p-8"
               >
-                <h2 className="text-2xl font-syne font-extrabold mb-6 flex items-center gap-2" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                <h2 className="text-2xl font-inter font-extrabold mb-6 flex items-center gap-2" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                   <Trophy className="w-6 h-6" style={{ color: 'var(--amber)' }} />
                   Current Highest Bid
                 </h2>
@@ -384,7 +384,7 @@ export function AuctionDetail() {
                   <div className="space-y-4">
                     <div className="rounded-xl p-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
                       <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Winning Bid</p>
-                      <p className="text-4xl font-syne font-extrabold font-ibm-plex-mono gradient-text" style={{ letterSpacing: '-0.03em' }}>
+                      <p className="text-4xl font-inter font-extrabold font-ibm-plex-mono gradient-text" style={{ letterSpacing: '-0.03em' }}>
                         {Number(auctionData.revealedBid) / 1e18} ETH
                       </p>
                     </div>
@@ -404,7 +404,7 @@ export function AuctionDetail() {
                   <div className="space-y-4">
                     <div className="rounded-xl p-6" style={{ background: 'rgba(255,255,255,0.03)' }}>
                       <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Highest Bid (Encrypted)</p>
-                      <p className="text-4xl font-syne font-extrabold font-ibm-plex-mono gradient-text encrypted-blur" style={{ letterSpacing: '-0.03em' }}>
+                      <p className="text-4xl font-inter font-extrabold font-ibm-plex-mono gradient-text encrypted-blur" style={{ letterSpacing: '-0.03em' }}>
                         {decryptedBid ? `${(BigInt(decryptedBid) / BigInt(1e18)).toString()} ETH` : '••••• ETH'}
                       </p>
                     </div>
@@ -442,7 +442,7 @@ export function AuctionDetail() {
               <div className="flex items-start gap-3">
                 <Lock className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--amber)' }} />
                 <div>
-                  <h3 className="font-semibold mb-1 font-syne" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                  <h3 className="font-semibold mb-1 font-inter" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                     How your bid is encrypted
                   </h3>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -461,7 +461,7 @@ export function AuctionDetail() {
                   animate={{ opacity: 1, x: 0 }}
                   className="glass-card rounded-xl p-6"
                 >
-                  <h2 className="text-xl font-syne font-extrabold mb-6" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                  <h2 className="text-xl font-inter font-extrabold mb-6" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                     Place Your Bid
                   </h2>
                   <form onSubmit={handlePlaceBid} className="space-y-4">
@@ -534,7 +534,7 @@ export function AuctionDetail() {
                   animate={{ opacity: 1, x: 0 }}
                   className="glass-card rounded-xl p-6"
                 >
-                  <h2 className="text-xl font-syne font-extrabold mb-4" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                  <h2 className="text-xl font-inter font-extrabold mb-4" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                     Finalize Auction
                   </h2>
                   <p className="mb-6 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -556,7 +556,7 @@ export function AuctionDetail() {
                   animate={{ opacity: 1, x: 0 }}
                   className="glass-card rounded-xl p-6"
                 >
-                  <h2 className="text-xl font-syne font-extrabold mb-4" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                  <h2 className="text-xl font-inter font-extrabold mb-4" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                     Reveal Winner
                   </h2>
                   <p className="mb-6 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -587,7 +587,7 @@ export function AuctionDetail() {
                       <Gift className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-syne font-extrabold" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                      <h2 className="text-xl font-inter font-extrabold" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
                         Congratulations!
                       </h2>
                       <p className="text-sm" style={{ color: 'var(--amber)' }}>You won this auction</p>

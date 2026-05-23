@@ -136,11 +136,12 @@ export function CreateAuction() {
       maxWidth: '640px',
       margin: '0 auto',
       padding: '48px 24px',
+      textAlign: 'center',
     }}>
       <header style={{ marginBottom: '32px' }}>
         <Link
           to="/"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b', textDecoration: 'none', fontSize: '14px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#f59e0b', textDecoration: 'none', fontSize: '14px' }}
         >
           <ArrowLeft style={{ width: '16px', height: '16px' }} />
           Back to Home
@@ -152,10 +153,10 @@ export function CreateAuction() {
         animate={{ opacity: 1, y: 0 }}
         style={{ marginBottom: '32px' }}
       >
-        <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '36px', letterSpacing: '-0.03em', color: '#f1f5f9', marginBottom: '8px' }}>
+        <h1 style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '36px', letterSpacing: '-0.03em', color: '#f1f5f9', marginBottom: '8px' }}>
           Create Sealed Auction
         </h1>
-        <p style={{ color: '#64748b' }}>
+        <p style={{ color: '#64748b', maxWidth: '420px', margin: '0 auto' }}>
           Create a new sealed-bid auction. Your minimum bid will be encrypted using FHE.
         </p>
       </motion.div>
@@ -169,6 +170,7 @@ export function CreateAuction() {
           border: '1px solid #1e1e2e',
           borderRadius: '24px',
           padding: '40px',
+          textAlign: 'left',
         }}
       >
         <form onSubmit={handleSubmit}>
