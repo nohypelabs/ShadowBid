@@ -11,7 +11,7 @@ function App() {
   const showHeader = !location.pathname.startsWith('/auction/');
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-void)' }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'var(--bg-void)' }}>
       {/* Radial glow effect */}
       <div
         className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] pointer-events-none -z-10"
@@ -21,7 +21,7 @@ function App() {
       />
 
       {showHeader && (
-        <nav style={{
+        <nav className="px-4 sm:px-7" style={{
           position: 'sticky',
           top: 0,
           zIndex: 50,
@@ -29,7 +29,6 @@ function App() {
           backdropFilter: 'blur(20px) saturate(140%)',
           WebkitBackdropFilter: 'blur(20px) saturate(140%)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
-          padding: '0 28px',
           height: '68px',
           display: 'flex',
           alignItems: 'center',
@@ -46,10 +45,9 @@ function App() {
                 borderRadius: '8px',
               }}
             />
-            <span style={{
+            <span className="text-lg sm:text-xl" style={{
               fontFamily: 'Inter',
               fontWeight: 800,
-              fontSize: '20px',
               color: '#FFFFFF',
               letterSpacing: '-0.02em',
             }}>
@@ -239,7 +237,7 @@ function App() {
 
       {mobileMenuOpen && (
         <div
-          className="md:hidden fixed inset-y-0 right-0 w-72 z-50"
+          className="md:hidden fixed inset-y-0 right-0 w-72 max-w-[80vw] z-50"
           style={{
             background: 'rgba(10,10,10,0.92)',
             backdropFilter: 'blur(24px) saturate(140%)',
@@ -328,7 +326,7 @@ function App() {
 
               return (
                 <div
-                  className="rounded-full px-4 py-2 flex items-center gap-4"
+                  className="rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 sm:gap-4 max-w-[95vw]"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     backdropFilter: 'blur(12px)',
@@ -336,13 +334,13 @@ function App() {
                   }}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Arbitrum Sepolia</span>
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></div>
+                    <span className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>Arbitrum Sepolia</span>
                   </div>
-                  <div className="w-px h-4" style={{ background: 'var(--border-default)' }}></div>
+                  <div className="w-px h-4 flex-shrink-0" style={{ background: 'var(--border-default)' }}></div>
                   {account && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-ibm-plex-mono" style={{ color: 'var(--text-secondary)' }}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-xs font-ibm-plex-mono truncate" style={{ color: 'var(--text-secondary)' }}>
                         {account.displayName}
                       </span>
                     </div>
@@ -388,7 +386,7 @@ function App() {
             </p>
 
             {/* Links row */}
-            <div style={{ display: 'flex', gap: '24px', marginTop: '4px' }}>
+            <div style={{ display: 'flex', gap: '24px', marginTop: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <a href="/create" style={{ color: '#475569', fontSize: '13px', textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.color = '#f1f5f9'}
                 onMouseLeave={e => e.currentTarget.style.color = '#475569'}>Create Auction</a>
