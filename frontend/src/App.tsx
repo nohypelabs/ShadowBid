@@ -294,6 +294,105 @@ function App() {
                 </a>
               ))}
             </nav>
+
+            <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
+              <ConnectButton.Custom>
+                {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
+                  const ready = mounted;
+                  const connected = ready && account && chain;
+
+                  if (!ready) {
+                    return (
+                      <div style={{
+                        height: '44px',
+                        width: '100%',
+                        background: 'rgba(255,255,255,0.04)',
+                        borderRadius: '12px',
+                        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                      }} />
+                    );
+                  }
+
+                  if (connected) {
+                    return (
+                      <button
+                        onClick={() => { openAccountModal(); setMobileMenuOpen(false); }}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: 'var(--text-primary)',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          fontFamily: 'IBM Plex Mono',
+                          borderRadius: '12px',
+                          padding: '12px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <span style={{ width: '8px', height: '8px', borderRadius: '9999px', background: '#10b981', boxShadow: '0 0 6px rgba(16,185,129,0.4)', flexShrink: 0 }} />
+                        <span className="truncate">{account.displayName}</span>
+                      </button>
+                    );
+                  }
+
+                  if (chain?.unsupported) {
+                    return (
+                      <button
+                        onClick={openChainModal}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          color: '#f87171',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          borderRadius: '12px',
+                          padding: '12px 18px',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          fontFamily: 'IBM Plex Mono',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <XCircle style={{ width: '16px', height: '16px' }} />
+                        Wrong Network
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <button
+                      onClick={() => { openConnectModal(); setMobileMenuOpen(false); }}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                        color: '#0a0a0a',
+                        fontWeight: 700,
+                        fontSize: '14px',
+                        fontFamily: 'Inter',
+                        padding: '12px 20px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                      }}
+                    >
+                      <Wallet style={{ width: '16px', height: '16px', strokeWidth: 2 }} />
+                      Connect Wallet
+                    </button>
+                  );
+                }}
+              </ConnectButton.Custom>
+            </div>
           </div>
         </div>
       )}
