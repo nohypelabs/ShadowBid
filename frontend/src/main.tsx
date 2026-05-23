@@ -19,11 +19,11 @@ const cofheConfig = createCofheConfig({
     {
       id: 421614,
       name: "Arbitrum Sepolia",
-      network: "arbitrum-sepolia",
-      coFheUrl: "https://cofhe-testnet.fhenix.io",
-      verifierUrl: "https://verifier-testnet.fhenix.io",
-      thresholdNetworkUrl: "https://threshold-testnet.fhenix.io",
-      environment: "DEV",
+      network: "arb-sepolia",
+      coFheUrl: "https://testnet-cofhe.fhenix.zone",
+      verifierUrl: "https://testnet-cofhe-vrf.fhenix.zone",
+      thresholdNetworkUrl: "https://testnet-cofhe-tn.fhenix.zone",
+      environment: "TESTNET",
     },
   ],
 });
