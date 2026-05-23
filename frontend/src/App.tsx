@@ -61,7 +61,7 @@ function App() {
           </a>
 
           {/* ── Desktop Nav: links + separator + Connect Wallet ── */}
-          <div className="hidden md:flex" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '4px' }}>
             {[
               { label: 'Home', href: '/' },
               { label: 'Create', href: '/create' },
@@ -211,7 +211,7 @@ function App() {
           </div>
 
           {/* ── Mobile: Connect Wallet + Hamburger ── */}
-          <div className="flex md:hidden" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="flex md:hidden" style={{ alignItems: 'center', gap: '6px' }}>
             <ConnectButton.Custom>
               {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
                 const ready = mounted;
