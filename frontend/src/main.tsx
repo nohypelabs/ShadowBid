@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { WagmiProvider, useWalletClient, usePublicClient } from "wagmi";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CofheProvider, useCofheAutoConnect, createCofheConfig } from "@cofhe/react";
+import { CofheProvider, createCofheConfig } from "@cofhe/react";
 import { Toaster } from "sonner";
 import { config } from "./config/wagmi";
 import App from "./App";
@@ -31,10 +31,9 @@ const cofheConfig = createCofheConfig({
 function CofheBridge({ children }: { children: React.ReactNode }) {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  useCofheAutoConnect({ walletClient, publicClient });
 
   return (
-    <CofheProvider config={cofheConfig}>
+    <CofheProvider config={cofheConfig} walletClient={walletClient} publicClient={publicClient}>
       {children}
       <Toaster position="bottom-right" richColors theme="dark" />
     </CofheProvider>
