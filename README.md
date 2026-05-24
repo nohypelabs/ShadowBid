@@ -159,6 +159,12 @@ Tests use the CoFHE mock coprocessor automatically — no external dependencies 
 - Decryption requires a permit from the Fhenix Threshold Network
 - No trusted third parties or off-chain computation required
 
+## Built For
+
+**Privacy-by-Design dApp Buildathon** — Build the Encrypted Fhenix Ecosystem.
+
+The window for privacy-native architecture is open. This project is built for founders who want to bake privacy in from day one — not retrofit it later.
+
 ## License
 
 MIT
