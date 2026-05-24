@@ -17,7 +17,7 @@ export function Home() {
   const totalAuctions = auctionCounter ? Number(auctionCounter) : 0;
 
   return (
-    <div className="space-y-8 sm:space-y-10">
+    <div>
       {/* Hero Section */}
       <section className="text-center" style={{ padding: '48px 0 36px', position: 'relative' }}>
         {/* Decorative glow — subtle radial behind headline */}
@@ -162,7 +162,7 @@ export function Home() {
       </section>
 
       {/* Stats Section */}
-      <section style={{ padding: '0 24px', margin: '24px auto', maxWidth: '960px' }} className="responsive-section">
+      <section style={{ padding: '0 24px', margin: '24px auto 8px', maxWidth: '960px' }} className="responsive-section">
         <div className="stats-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -245,7 +245,7 @@ export function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '32px 24px' }} className="responsive-section">
+      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '12px 24px 32px' }} className="responsive-section">
         <h2 style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '32px', textAlign: 'center', marginBottom: '6px', color: '#FFFFFF' }}>How It Works</h2>
         <p style={{ color: '#9CA3AF', textAlign: 'center', marginBottom: '28px', fontSize: '15px' }}>Three steps. Fully private. Mathematically verified.</p>
 
