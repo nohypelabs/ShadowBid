@@ -1,5 +1,7 @@
 # ShadowBid
 
+> **Live Demo:** [shadowbid26.vercel.app](https://shadowbid26.vercel.app)
+
 ShadowBid is a sealed-bid auction protocol where bids stay encrypted forever — even from the contract itself. Built on Fhenix Fully Homomorphic Encryption (FHE) to eliminate MEV, front-running, and bid sniping in on-chain auctions.
 
 ## The Problem
@@ -164,6 +166,15 @@ Tests use the CoFHE mock coprocessor automatically — no external dependencies 
 **Privacy-by-Design dApp Buildathon** — Build the Encrypted Fhenix Ecosystem.
 
 The window for privacy-native architecture is open. This project is built for founders who want to bake privacy in from day one — not retrofit it later.
+
+## Team
+
+**ShadowBid Team**
+
+- Email: [abdulgofur100persen@gmail.com](mailto:abdulgofur100persen@gmail.com)
+- GitHub: [github.com/nohypelabas/ShadowBid](https://github.com/nohypelabas/ShadowBid)
+- X: [x.com/nohypelabs](https://x.com/nohypelabs)
+- Telegram: [@nohyplabs](https://t.me/nohyplabs)
 
 ## License
 
