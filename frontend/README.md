@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# ShadowBid — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sealed-bid auction dApp powered by **Fully Homomorphic Encryption (FHE)** on Arbitrum Sepolia. Bids are encrypted on-chain using the Fhenix CoFHE protocol — the contract compares them without ever decrypting, and only the winner is revealed.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Layer | Library |
+|-------|---------|
+| Framework | React 19 + Vite + TypeScript |
+| Blockchain | wagmi v3, viem |
+| Wallet | RainbowKit v2 |
+| FHE | @cofhe/react + @cofhe/sdk (Fhenix testnet) |
+| Styling | Tailwind CSS v4, Framer Motion |
+| Toasts | Sonner |
+| Icons | Lucide React |
 
-## React Compiler
+## Provider Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+BrowserRouter → WagmiProvider → QueryClientProvider → RainbowKitProvider → CofheProvider
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The `CofheBridge` component inside `main.tsx` pipes `walletClient` and `publicClient` from wagmi into the CoFHE provider so encrypt/decrypt calls are signed by the connected wallet.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node 18+
+- A [WalletConnect Cloud project ID](https://cloud.walletconnect.com/) (free)
+
+### Setup
+
+```bash
+cd frontend
+cp .env.example .env
+# Edit .env and paste your VITE_WALLETCONNECT_PROJECT_ID
+npm install
+npm run dev
 ```
+
+Opens at `http://localhost:5173`.
+
+### Available Commands
+
+```bash
+npm run dev       # Vite dev server
+npm run build     # TypeScript check + production build
+npm run preview   # Preview production build locally
+npm run lint      # ESLint
+```
+
+## Project Structure
+
+```
+src/
+├── main.tsx              # Entry point, provider wiring, CoFHE config
+├── App.tsx               # Router, nav bar, footer, floating network bar
+├── index.css             # Tailwind + custom CSS variables
+├── pages/
+│   ├── Home.tsx          # Landing page, how-it-works, stats
+│   ├── CreateAuction.tsx # Seller creates auction with encrypted min bid
+│   ├── AuctionDetail.tsx # Place bid, finalize, reveal winner
+│   └── Demo.tsx          # Pre-seeded demo auctions
+├── components/
+│   ├── AuctionCard.tsx       # Auction list card with countdown
+│   ├── CountdownTimer.tsx    # Live countdown component
+│   ├── ErrorBoundary.tsx     # React error boundary
+│   ├── TransactionToast.tsx  # TX status toast helpers
+│   └── index.ts
+├── config/
+│   └── wagmi.ts          # RainbowKit + wagmi config (Arbitrum Sepolia)
+├── constants/
+│   ├── ShadowBid.json    # Contract ABI (imported from Hardhat artifact)
+│   └── contracts.ts      # Contract address + ABI export
+└── types/
+    └── index.ts          # Shared TypeScript types
+```
+
+## Contract
+
+| Detail | Value |
+|--------|-------|
+| Network | Arbitrum Sepolia (chainId 421614) |
+| Address | `0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1` |
+| ABI | `src/constants/ShadowBid.json` (symlinked from `contracts/artifacts/`) |
+
+## FHE Encryption Flow
+
+1. **Create Auction** — seller encrypts minimum bid via `cofheClient.encrypt.encryptUint64()`, submits `InEuint64` calldata struct
+2. **Place Bid** — bidder encrypts bid amount same way, contract compares via FHE CMUX (`gt` + `select`)
+3. **Finalize** — seller calls `FHE.allowPublic()` to make winner/bid decryptable
+4. **Reveal** — anyone submits Threshold Network decrypt signatures; plaintext winner + bid become public
+
+## Key Design
+
+- Bid amounts are `uint64` in wei (max ~18.4 ETH). Convert with `BigInt(value * 1e18)`.
+- Below-minimum bids are silently zeroed — contract never reveals rejected bids.
+- One bid per address per auction. Ties go to the first bidder.
+- The ABI is imported directly from `../../../contracts/artifacts/contracts/ShadowBid.sol/ShadowBid.json` — recompile contracts and the frontend picks up changes automatically.

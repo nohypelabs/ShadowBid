@@ -41,7 +41,7 @@ FHE allows computations on encrypted data without decryption. You can add, multi
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/nohypelabas/ShadowBid.git
 cd ShadowBid
 
 # Install contract dependencies
@@ -56,17 +56,29 @@ npm install
 cd ../contracts
 cp .env.example .env
 # Edit .env and add your private key
+
+cd ../frontend
+cp .env.example .env
+# Edit .env and add your WalletConnect project ID
 ```
 
 ### Environment Variables
 
-Create `.env` in the `/contracts` directory:
+**Contracts** — create `.env` in the `/contracts` directory:
 
 ```bash
 PRIVATE_KEY=your_private_key_here
 ARBITRUM_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
 ARBISCAN_API_KEY=optional_for_verification
 ```
+
+**Frontend** — create `.env` in the `/frontend` directory:
+
+```bash
+VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
+```
+
+Get a free project ID from [WalletConnect Cloud](https://cloud.walletconnect.com/).
 
 ### Deploy Contracts
 
@@ -113,9 +125,9 @@ Tests use the CoFHE mock coprocessor automatically — no external dependencies 
 1. Connect your wallet (Arbitrum Sepolia network)
 2. Navigate to the **Demo** route in the app
 3. Click **"Load Demo Auctions"** to create 3 sample auctions:
-   - ShadowBid Launch Auction (48 hours, 0.1 ETH min)
-   - Rare NFT Bundle (2 hours, 0.05 ETH min)
-   - Early Bird Special (24 hours, 0.01 ETH min)
+   - Launch Auction (48 hours, 0.1 ETH min)
+   - NFT Bundle (2 hours, 0.05 ETH min)
+   - Early Bird (24 hours, 0.01 ETH min)
 4. Place encrypted bids on active auctions
 5. Wait for auction to end, then finalize as seller
 6. Winner is revealed using FHE decryption
@@ -130,11 +142,12 @@ Tests use the CoFHE mock coprocessor automatically — no external dependencies 
 
 ## Contract Functions
 
-- `createAuction(string title, uint256 duration, inEuint64 minimumBid)` — Create a new auction
-- `placeBid(uint256 auctionId, inEuint64 encryptedBid)` — Submit an encrypted bid
-- `finalize(uint256 auctionId)` — End bidding and prepare for winner selection
-- `revealWinner(uint256 auctionId)` — Decrypt and reveal the winning bid and bidder
+- `createAuction(string title, uint256 duration, InEuint64 minimumBidEncrypted)` — Create a new auction
+- `placeBid(uint256 auctionId, InEuint64 bidAmountEncrypted)` — Submit an encrypted bid
+- `finalize(uint256 auctionId)` — End bidding and make winner data publicly decryptable
+- `revealWinner(uint256 auctionId, euint64 bidCtHash, uint64 bidDecrypted, bytes bidSignature, eaddress winnerCtHash, address winnerDecrypted, bytes winnerSignature)` — Verify Threshold Network signatures and publish plaintext winner + bid on-chain
 - `getBidderCount(uint256 auctionId)` — Get total number of bidders
+- `getBidder(uint256 auctionId, uint256 index)` — Get bidder address by index
 - `getHighestBidCtHash(uint256 auctionId)` — Get ciphertext hash of highest bid
 - `getHighestBidderCtHash(uint256 auctionId)` — Get ciphertext hash of highest bidder
 
