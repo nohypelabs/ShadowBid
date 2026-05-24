@@ -174,7 +174,7 @@ The window for privacy-native architecture is open. This project is built for fo
 - Email: [abdulgofur100persen@gmail.com](mailto:abdulgofur100persen@gmail.com)
 - GitHub: [github.com/nohypelabas/ShadowBid](https://github.com/nohypelabas/ShadowBid)
 - X: [x.com/nohypelabs](https://x.com/nohypelabs)
-- Telegram: [@nohyplabs](https://t.me/nohyplabs)
+- Telegram: [@nohypelabs](https://t.me/nohypelabs)
 
 ## License
 
