@@ -55,10 +55,11 @@ describe("ShadowBid", function () {
       const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 100n);
+      const minBidWei = hre.ethers.parseEther("0.01");
 
       const tx = await shadowBid
         .connect(seller)
-        .createAuction("Rare NFT #1", 3600, minBid);
+        .createAuction("Rare NFT #1", 3600, minBid, minBidWei);
       await tx.wait();
 
       expect(await shadowBid.auctionCounter()).to.equal(1n);
@@ -67,6 +68,7 @@ describe("ShadowBid", function () {
       expect(auction.seller).to.equal(seller.address);
       expect(auction.title).to.equal("Rare NFT #1");
       expect(auction.finalized).to.be.false;
+      expect(auction.paymentClaimed).to.be.false;
       expect(auction.revealedWinner).to.equal(
         "0x0000000000000000000000000000000000000000",
       );
@@ -76,28 +78,50 @@ describe("ShadowBid", function () {
       const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 50n);
+      const minBidWei = hre.ethers.parseEther("0.005");
 
       await expect(
-        shadowBid.connect(seller).createAuction("Art Piece", 1800, minBid),
+        shadowBid.connect(seller).createAuction("Art Piece", 1800, minBid, minBidWei),
       ).to.emit(shadowBid, "AuctionCreated");
+    });
+
+    it("should reject invalid duration", async function () {
+      const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 50n);
+      const minBidWei = hre.ethers.parseEther("0.005");
+
+      // Too short (less than 60 seconds)
+      await expect(
+        shadowBid.connect(seller).createAuction("Too Short", 30, minBid, minBidWei),
+      ).to.be.revertedWithCustomError(shadowBid, "InvalidDuration");
+
+      // Too long (more than 365 days)
+      await expect(
+        shadowBid.connect(seller).createAuction("Too Long", 366 * 24 * 3600, minBid, minBidWei),
+      ).to.be.revertedWithCustomError(shadowBid, "InvalidDuration");
     });
   });
 
   // ─────────────────────── Place Bid ───────────────────────
 
   describe("placeBid", function () {
-    it("should accept an encrypted bid and store it", async function () {
+    it("should accept an encrypted bid with ETH deposit", async function () {
       const { shadowBid, seller, alice, sellerClient, aliceClient } =
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 100n);
-      await shadowBid.connect(seller).createAuction("Token", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(seller).createAuction("Token", 3600, minBid, minBidWei);
 
       const bid = await encryptBid(aliceClient, 500n);
-      await shadowBid.connect(alice).placeBid(0, bid);
+      const bidWei = hre.ethers.parseEther("0.05");
+      await shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: bidWei });
 
       expect(await shadowBid.getBidderCount(0)).to.equal(1n);
       expect(await shadowBid.getBidder(0, 0)).to.equal(alice.address);
+      expect(await shadowBid.getBidderDeposit(0, alice.address)).to.equal(bidWei);
+      expect(await shadowBid.totalEscrowed(0)).to.equal(bidWei);
     });
 
     it("should emit BidSubmitted event", async function () {
@@ -105,14 +129,15 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 100n);
-      await shadowBid.connect(seller).createAuction("Item", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(seller).createAuction("Item", 3600, minBid, minBidWei);
 
       const bid = await encryptBid(aliceClient, 200n);
+      const bidWei = hre.ethers.parseEther("0.02");
 
-      await expect(shadowBid.connect(alice).placeBid(0, bid)).to.emit(
-        shadowBid,
-        "BidSubmitted",
-      );
+      await expect(
+        shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: bidWei }),
+      ).to.emit(shadowBid, "BidSubmitted");
     });
 
     it("should reject duplicate bids from the same address", async function () {
@@ -120,14 +145,16 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 100n);
-      await shadowBid.connect(seller).createAuction("Dup Test", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(seller).createAuction("Dup Test", 3600, minBid, minBidWei);
 
       const bid1 = await encryptBid(aliceClient, 300n);
-      await shadowBid.connect(alice).placeBid(0, bid1);
+      const bidWei = hre.ethers.parseEther("0.03");
+      await shadowBid.connect(alice).placeBid(0, bid1, minBidWei, { value: bidWei });
 
       const bid2 = await encryptBid(aliceClient, 400n);
       await expect(
-        shadowBid.connect(alice).placeBid(0, bid2),
+        shadowBid.connect(alice).placeBid(0, bid2, minBidWei, { value: bidWei }),
       ).to.be.revertedWithCustomError(shadowBid, "AlreadyBid");
     });
 
@@ -136,16 +163,34 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 100n);
-      await shadowBid.connect(seller).createAuction("Late Bid", 1, minBid);
+      const minBidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(seller).createAuction("Late Bid", 60, minBid, minBidWei);
 
-      // Fast-forward past bidding end
-      await hre.network.provider.send("evm_increaseTime", [2]);
+      // Fast-forward past bidding end (60 seconds)
+      await hre.network.provider.send("evm_increaseTime", [61]);
       await hre.network.provider.send("evm_mine");
 
       const bid = await encryptBid(aliceClient, 500n);
+      const bidWei = hre.ethers.parseEther("0.05");
       await expect(
-        shadowBid.connect(alice).placeBid(0, bid),
+        shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: bidWei }),
       ).to.be.revertedWithCustomError(shadowBid, "BiddingPeriodEnded");
+    });
+
+    it("should reject bids with insufficient ETH", async function () {
+      const { shadowBid, seller, alice, sellerClient, aliceClient } =
+        await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 100n);
+      const minBidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(seller).createAuction("Insufficient", 3600, minBid, minBidWei);
+
+      const bid = await encryptBid(aliceClient, 500n);
+      const lowBidWei = hre.ethers.parseEther("0.005"); // Below minimum
+
+      await expect(
+        shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: lowBidWei }),
+      ).to.be.revertedWithCustomError(shadowBid, "InsufficientETH");
     });
   });
 
@@ -166,18 +211,20 @@ describe("ShadowBid", function () {
       } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
       await shadowBid
         .connect(seller)
-        .createAuction("Rare Token", 3600, minBid);
+        .createAuction("Rare Token", 3600, minBid, minBidWei);
 
       // Alice bids 500, Bob bids 1500, Carol bids 800
       const aliceBid = await encryptBid(aliceClient, 500n);
       const bobBid = await encryptBid(bobClient, 1500n);
       const carolBid = await encryptBid(carolClient, 800n);
 
-      await shadowBid.connect(alice).placeBid(0, aliceBid);
-      await shadowBid.connect(bob).placeBid(0, bobBid);
-      await shadowBid.connect(carol).placeBid(0, carolBid);
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(0, aliceBid, minBidWei, { value: bidWei });
+      await shadowBid.connect(bob).placeBid(0, bobBid, minBidWei, { value: bidWei });
+      await shadowBid.connect(carol).placeBid(0, carolBid, minBidWei, { value: bidWei });
 
       // Use the mock coprocessor to read raw plaintext of the encrypted state.
       // This bypasses ACL — only works in the mock Hardhat environment.
@@ -207,16 +254,18 @@ describe("ShadowBid", function () {
       } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 1n);
-      await shadowBid.connect(seller).createAuction("Descending", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Descending", 3600, minBid, minBidWei);
 
       // Alice bids 3000, Bob bids 2000, Carol bids 1000
       const aliceBid = await encryptBid(aliceClient, 3000n);
       const bobBid = await encryptBid(bobClient, 2000n);
       const carolBid = await encryptBid(carolClient, 1000n);
 
-      await shadowBid.connect(alice).placeBid(0, aliceBid);
-      await shadowBid.connect(bob).placeBid(0, bobBid);
-      await shadowBid.connect(carol).placeBid(0, carolBid);
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(0, aliceBid, minBidWei, { value: bidWei });
+      await shadowBid.connect(bob).placeBid(0, bobBid, minBidWei, { value: bidWei });
+      await shadowBid.connect(carol).placeBid(0, carolBid, minBidWei, { value: bidWei });
 
       const highestBidHash = await shadowBid.getHighestBidCtHash(0);
       const highestBidderHash = await shadowBid.getHighestBidderCtHash(0);
@@ -242,14 +291,16 @@ describe("ShadowBid", function () {
       } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 1n);
-      await shadowBid.connect(seller).createAuction("Tie", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Tie", 3600, minBid, minBidWei);
 
       // Both bid 1000
       const aliceBid = await encryptBid(aliceClient, 1000n);
       const bobBid = await encryptBid(bobClient, 1000n);
 
-      await shadowBid.connect(alice).placeBid(0, aliceBid);
-      await shadowBid.connect(bob).placeBid(0, bobBid);
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(0, aliceBid, minBidWei, { value: bidWei });
+      await shadowBid.connect(bob).placeBid(0, bobBid, minBidWei, { value: bidWei });
 
       const highestBidderHash = await shadowBid.getHighestBidderCtHash(0);
       const highestBidderPlain =
@@ -272,14 +323,16 @@ describe("ShadowBid", function () {
 
       // Minimum bid = 1000
       const minBid = await encryptMinBid(sellerClient, 1000n);
-      await shadowBid.connect(seller).createAuction("MinBid Test", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.1");
+      await shadowBid.connect(seller).createAuction("MinBid Test", 3600, minBid, minBidWei);
 
       // Alice bids 500 (below min), Bob bids 2000 (above min)
       const aliceBid = await encryptBid(aliceClient, 500n);
       const bobBid = await encryptBid(bobClient, 2000n);
 
-      await shadowBid.connect(alice).placeBid(0, aliceBid);
-      await shadowBid.connect(bob).placeBid(0, bobBid);
+      const bidWei = hre.ethers.parseEther("0.1");
+      await shadowBid.connect(alice).placeBid(0, aliceBid, minBidWei, { value: bidWei });
+      await shadowBid.connect(bob).placeBid(0, bobBid, minBidWei, { value: bidWei });
 
       const highestBidHash = await shadowBid.getHighestBidCtHash(0);
       const highestBidderHash = await shadowBid.getHighestBidderCtHash(0);
@@ -302,10 +355,12 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 10n);
-      await shadowBid.connect(seller).createAuction("Fin", 60, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Fin", 60, minBid, minBidWei);
 
       const bid = await encryptBid(aliceClient, 500n);
-      await shadowBid.connect(alice).placeBid(0, bid);
+      const bidWei = hre.ethers.parseEther("0.05");
+      await shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: bidWei });
 
       await hre.network.provider.send("evm_increaseTime", [61]);
       await hre.network.provider.send("evm_mine");
@@ -321,10 +376,12 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 10n);
-      await shadowBid.connect(seller).createAuction("NoAuth", 60, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("NoAuth", 60, minBid, minBidWei);
 
       const bid = await encryptBid(aliceClient, 500n);
-      await shadowBid.connect(alice).placeBid(0, bid);
+      const bidWei = hre.ethers.parseEther("0.05");
+      await shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: bidWei });
 
       await hre.network.provider.send("evm_increaseTime", [61]);
       await hre.network.provider.send("evm_mine");
@@ -339,10 +396,12 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 10n);
-      await shadowBid.connect(seller).createAuction("Early", 3600, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Early", 3600, minBid, minBidWei);
 
       const bid = await encryptBid(aliceClient, 500n);
-      await shadowBid.connect(alice).placeBid(0, bid);
+      const bidWei = hre.ethers.parseEther("0.05");
+      await shadowBid.connect(alice).placeBid(0, bid, minBidWei, { value: bidWei });
 
       await expect(
         shadowBid.connect(seller).finalize(0),
@@ -354,7 +413,8 @@ describe("ShadowBid", function () {
         await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 10n);
-      await shadowBid.connect(seller).createAuction("Empty", 60, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Empty", 60, minBid, minBidWei);
 
       await hre.network.provider.send("evm_increaseTime", [61]);
       await hre.network.provider.send("evm_mine");
@@ -380,22 +440,30 @@ describe("ShadowBid", function () {
       } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
       await shadowBid
         .connect(seller)
-        .createAuction("Reveal Test", 60, minBid);
+        .createAuction("Reveal Test", 60, minBid, minBidWei);
 
       // Alice 300, Bob 900, Carol 600
+      const bidWei = hre.ethers.parseEther("0.01");
       await shadowBid.connect(alice).placeBid(
         0,
         await encryptBid(aliceClient, 300n),
+        minBidWei,
+        { value: bidWei },
       );
       await shadowBid.connect(bob).placeBid(
         0,
         await encryptBid(bobClient, 900n),
+        minBidWei,
+        { value: bidWei },
       );
       await shadowBid.connect(carol).placeBid(
         0,
         await encryptBid(carolClient, 600n),
+        minBidWei,
+        { value: bidWei },
       );
 
       // Fast-forward & finalize
@@ -457,15 +525,21 @@ describe("ShadowBid", function () {
       } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 1n);
-      await shadowBid.connect(seller).createAuction("Event Test", 60, minBid);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Event Test", 60, minBid, minBidWei);
 
+      const bidWei = hre.ethers.parseEther("0.01");
       await shadowBid.connect(alice).placeBid(
         0,
         await encryptBid(aliceClient, 420n),
+        minBidWei,
+        { value: bidWei },
       );
       await shadowBid.connect(bob).placeBid(
         0,
         await encryptBid(bobClient, 690n),
+        minBidWei,
+        { value: bidWei },
       );
 
       await hre.network.provider.send("evm_increaseTime", [61]);
@@ -503,6 +577,421 @@ describe("ShadowBid", function () {
       )
         .to.emit(shadowBid, "AuctionFinalized")
         .withArgs(0, bob.address, 690n);
+    });
+  });
+
+  // ─────────────────────── Payment Flow ───────────────────────
+
+  describe("claimPayment", function () {
+    it("should allow seller to claim winning bid after reveal", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        bob,
+        sellerClient,
+        aliceClient,
+        bobClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Payment Test", 60, minBid, minBidWei);
+
+      // Alice bids 0.05 ETH, Bob bids 0.1 ETH
+      const aliceBidWei = hre.ethers.parseEther("0.05");
+      const bobBidWei = hre.ethers.parseEther("0.1");
+
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 300n),
+        minBidWei,
+        { value: aliceBidWei },
+      );
+      await shadowBid.connect(bob).placeBid(
+        0,
+        await encryptBid(bobClient, 900n),
+        minBidWei,
+        { value: bobBidWei },
+      );
+
+      // Finalize and reveal
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      // Claim payment
+      const sellerBalanceBefore = await hre.ethers.provider.getBalance(seller.address);
+      await shadowBid.connect(seller).claimPayment(0);
+      const sellerBalanceAfter = await hre.ethers.provider.getBalance(seller.address);
+
+      // Seller should receive Bob's 0.1 ETH (minus gas)
+      expect(sellerBalanceAfter).to.be.gt(sellerBalanceBefore);
+      expect(await shadowBid.isPaymentClaimed(0)).to.be.true;
+    });
+
+    it("should reject claimPayment from non-seller", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        bob,
+        sellerClient,
+        aliceClient,
+        bobClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("No Claim", 60, minBid, minBidWei);
+
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 500n),
+        minBidWei,
+        { value: bidWei },
+      );
+
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      // Reveal first
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      // Non-seller tries to claim
+      await expect(
+        shadowBid.connect(alice).claimPayment(0),
+      ).to.be.revertedWithCustomError(shadowBid, "OnlySellerCanFinalize");
+    });
+
+    it("should reject double claimPayment", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        sellerClient,
+        aliceClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Double Claim", 60, minBid, minBidWei);
+
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 500n),
+        minBidWei,
+        { value: bidWei },
+      );
+
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      // First claim succeeds
+      await shadowBid.connect(seller).claimPayment(0);
+
+      // Second claim fails
+      await expect(
+        shadowBid.connect(seller).claimPayment(0),
+      ).to.be.revertedWithCustomError(shadowBid, "PaymentAlreadyClaimed");
+    });
+  });
+
+  // ─────────────────────── Refund Flow ───────────────────────
+
+  describe("claimRefund", function () {
+    it("should allow losing bidders to claim refund", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        bob,
+        sellerClient,
+        aliceClient,
+        bobClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Refund Test", 60, minBid, minBidWei);
+
+      // Alice bids 0.05 ETH, Bob bids 0.1 ETH (winner)
+      const aliceBidWei = hre.ethers.parseEther("0.05");
+      const bobBidWei = hre.ethers.parseEther("0.1");
+
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 300n),
+        minBidWei,
+        { value: aliceBidWei },
+      );
+      await shadowBid.connect(bob).placeBid(
+        0,
+        await encryptBid(bobClient, 900n),
+        minBidWei,
+        { value: bobBidWei },
+      );
+
+      // Finalize and reveal
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      // Alice (loser) claims refund
+      const aliceBalanceBefore = await hre.ethers.provider.getBalance(alice.address);
+      await shadowBid.connect(alice).claimRefund(0);
+      const aliceBalanceAfter = await hre.ethers.provider.getBalance(alice.address);
+
+      // Alice should get her 0.05 ETH back (minus gas)
+      expect(aliceBalanceAfter).to.be.gt(aliceBalanceBefore);
+      expect(await shadowBid.getBidderDeposit(0, alice.address)).to.equal(0);
+    });
+
+    it("should reject refund for winner", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        bob,
+        sellerClient,
+        aliceClient,
+        bobClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Winner No Refund", 60, minBid, minBidWei);
+
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 300n),
+        minBidWei,
+        { value: bidWei },
+      );
+      await shadowBid.connect(bob).placeBid(
+        0,
+        await encryptBid(bobClient, 900n),
+        minBidWei,
+        { value: bidWei },
+      );
+
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      // Bob (winner) tries to claim refund — should fail
+      await expect(
+        shadowBid.connect(bob).claimRefund(0),
+      ).to.be.revertedWithCustomError(shadowBid, "WinnerCannotRefund");
+    });
+
+    it("should reject double refund", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        bob,
+        sellerClient,
+        aliceClient,
+        bobClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Double Refund", 60, minBid, minBidWei);
+
+      const bidWei = hre.ethers.parseEther("0.01");
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 300n),
+        minBidWei,
+        { value: bidWei },
+      );
+      await shadowBid.connect(bob).placeBid(
+        0,
+        await encryptBid(bobClient, 900n),
+        minBidWei,
+        { value: bidWei },
+      );
+
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      // First refund succeeds
+      await shadowBid.connect(alice).claimRefund(0);
+
+      // Second refund fails
+      await expect(
+        shadowBid.connect(alice).claimRefund(0),
+      ).to.be.revertedWithCustomError(shadowBid, "NoRefundAvailable");
+    });
+
+    it("should emit RefundClaimed event", async function () {
+      const {
+        shadowBid,
+        seller,
+        alice,
+        bob,
+        sellerClient,
+        aliceClient,
+        bobClient,
+      } = await loadFixture(deployFixture);
+
+      const minBid = await encryptMinBid(sellerClient, 10n);
+      const minBidWei = hre.ethers.parseEther("0.001");
+      await shadowBid.connect(seller).createAuction("Refund Event", 60, minBid, minBidWei);
+
+      const aliceBidWei = hre.ethers.parseEther("0.05");
+      const bobBidWei = hre.ethers.parseEther("0.1");
+
+      await shadowBid.connect(alice).placeBid(
+        0,
+        await encryptBid(aliceClient, 300n),
+        minBidWei,
+        { value: aliceBidWei },
+      );
+      await shadowBid.connect(bob).placeBid(
+        0,
+        await encryptBid(bobClient, 900n),
+        minBidWei,
+        { value: bobBidWei },
+      );
+
+      await hre.network.provider.send("evm_increaseTime", [61]);
+      await hre.network.provider.send("evm_mine");
+      await shadowBid.connect(seller).finalize(0);
+
+      const bidCtHash = await shadowBid.getHighestBidCtHash(0);
+      const bidderCtHash = await shadowBid.getHighestBidderCtHash(0);
+      const bidResult = await sellerClient.decryptForTx(bidCtHash).withoutPermit().execute();
+      const bidderResult = await sellerClient.decryptForTx(bidderCtHash).withoutPermit().execute();
+      const winnerAddress = hre.ethers.getAddress(
+        "0x" + bidderResult.decryptedValue.toString(16).padStart(40, "0"),
+      );
+      await shadowBid.connect(seller).revealWinner(
+        0,
+        bidResult.ctHash,
+        bidResult.decryptedValue,
+        bidResult.signature,
+        bidderResult.ctHash,
+        winnerAddress,
+        bidderResult.signature,
+      );
+
+      await expect(
+        shadowBid.connect(alice).claimRefund(0),
+      )
+        .to.emit(shadowBid, "RefundClaimed")
+        .withArgs(0, alice.address, aliceBidWei);
     });
   });
 });
