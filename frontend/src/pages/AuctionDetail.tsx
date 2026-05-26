@@ -4,7 +4,7 @@ import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAcc
 import { useCofheClient } from '@cofhe/react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
@@ -45,6 +45,16 @@ export function AuctionDetail() {
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'bids',
+    args: [auctionId, address || '0x0000000000000000000000000000000000000000'],
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  const { data: userDeposit } = useReadContract({
+    address: SHADOWBID_ADDRESS,
+    abi: SHADOWBID_ABI,
+    functionName: 'getBidderDeposit',
     args: [auctionId, address || '0x0000000000000000000000000000000000000000'],
     query: {
       enabled: !!address,
@@ -111,6 +121,8 @@ export function AuctionDetail() {
   let isSeller = false;
   let hasBid = false;
   let isWinning = false;
+  let isWinner = false;
+  let canClaimRefund = false;
 
   if (auction && Array.isArray(auction)) {
     auctionData = {
@@ -118,17 +130,24 @@ export function AuctionDetail() {
       title: auction[1] as string,
       biddingEnd: auction[2] as bigint,
       finalized: auction[3] as boolean,
-      minimumBid: auction[4] as `0x${string}`,
-      highestBid: auction[5] as `0x${string}`,
-      highestBidder: auction[6] as `0x${string}`,
-      revealedBid: auction[7] as bigint,
-      revealedWinner: auction[8] as string,
+      paymentClaimed: auction[4] as boolean,
+      minimumBid: auction[5] as `0x${string}`,
+      highestBid: auction[6] as `0x${string}`,
+      highestBidder: auction[7] as `0x${string}`,
+      revealedBid: auction[8] as bigint,
+      revealedWinner: auction[9] as string,
     };
 
     isBiddingActive = auctionData.biddingEnd > now && !auctionData.finalized;
     isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
     hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
     isWinning = !!decryptedBidder && !!address && decryptedBidder.toLowerCase() === address.toLowerCase();
+    isWinner = auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && 
+               !!address && 
+               auctionData.revealedWinner.toLowerCase() === address.toLowerCase();
+    canClaimRefund = hasBid && !isWinner && auctionData.finalized && 
+                     auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' &&
+                     userDeposit && (userDeposit as bigint) > 0n;
   }
 
   useEffect(() => {
@@ -185,11 +204,14 @@ export function AuctionDetail() {
         signature: encrypted.signature as `0x${string}`,
       };
 
+      const bidWei = BigInt(Math.round(bidValue * 1e18));
+
       writeContract({
         address: SHADOWBID_ADDRESS,
         abi: SHADOWBID_ABI,
         functionName: 'placeBid',
-        args: [auctionId, inEuint64],
+        args: [auctionId, inEuint64, bidWei],
+        value: bidWei,
       });
     } catch (err) {
       setIsEncrypting(false);
@@ -230,9 +252,27 @@ export function AuctionDetail() {
     }
   }, [auctionData, cofheClient, highestBidCtHash, highestBidderCtHash]);
 
-  const handleClaim = useCallback(() => {
-    toast.success('Claim functionality coming soon!');
-  }, []);
+  const handleClaimPayment = useCallback(() => {
+    if (!auctionData || !isSeller) return;
+
+    writeContract({
+      address: SHADOWBID_ADDRESS,
+      abi: SHADOWBID_ABI,
+      functionName: 'claimPayment',
+      args: [auctionId],
+    });
+  }, [auctionData, isSeller, writeContract, auctionId]);
+
+  const handleClaimRefund = useCallback(() => {
+    if (!canClaimRefund) return;
+
+    writeContract({
+      address: SHADOWBID_ADDRESS,
+      abi: SHADOWBID_ABI,
+      functionName: 'claimRefund',
+      args: [auctionId],
+    });
+  }, [canClaimRefund, writeContract, auctionId]);
 
   if (hash) {
     toast.loading('Processing transaction...', { id: hash });
@@ -493,6 +533,16 @@ export function AuctionDetail() {
                       />
                     </div>
 
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Wallet className="w-4 h-4" style={{ color: 'var(--amber)' }} />
+                        <p className="text-sm font-medium" style={{ color: 'var(--amber)' }}>ETH Deposit Required</p>
+                      </div>
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        You must deposit ETH equal to your bid amount. This ETH will be held in escrow until the auction ends. Losing bidders can claim a full refund.
+                      </p>
+                    </div>
+
                     {error && (
                       <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
                         <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--red)' }} />
@@ -505,7 +555,7 @@ export function AuctionDetail() {
                       disabled={isLoading || isEncrypting}
                       className="btn-primary w-full py-4 rounded-xl font-medium"
                     >
-                      {isEncrypting ? 'Encrypting...' : isTxPending || isConfirming ? 'Processing...' : 'Place Bid'}
+                      {isEncrypting ? 'Encrypting...' : isTxPending || isConfirming ? 'Processing...' : 'Place Bid & Deposit ETH'}
                     </button>
 
                     <p className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
@@ -523,7 +573,14 @@ export function AuctionDetail() {
                 >
                   <div className="flex items-center gap-3">
                     <Lock className="w-5 h-5" style={{ color: 'var(--amber)' }} />
-                    <p style={{ color: 'var(--text-primary)' }}>You have already placed a bid on this auction.</p>
+                    <div>
+                      <p style={{ color: 'var(--text-primary)' }}>You have already placed a bid on this auction.</p>
+                      {userDeposit && (userDeposit as bigint) > 0n && (
+                        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                          Your deposit: {Number((userDeposit as bigint) / BigInt(1e18))} ETH
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -572,7 +629,50 @@ export function AuctionDetail() {
                 </motion.div>
               )}
 
-              {auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && (
+              {isSeller && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && !auctionData.paymentClaimed && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="glass-card rounded-xl p-6"
+                >
+                  <h2 className="text-xl font-inter font-extrabold mb-4 flex items-center gap-2" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                    <Wallet className="w-5 h-5" style={{ color: 'var(--amber)' }} />
+                    Claim Payment
+                  </h2>
+                  <p className="mb-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    The auction has ended and the winner has been revealed. You can now claim the winning bid amount.
+                  </p>
+                  <div className="rounded-xl p-4 mb-4" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                    <p className="text-sm" style={{ color: 'var(--emerald)' }}>
+                      Winning bid: {Number(auctionData.revealedBid) / 1e18} ETH
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleClaimPayment}
+                    disabled={isLoading}
+                    className="btn-primary w-full py-4 rounded-xl font-medium flex items-center justify-center gap-2"
+                  >
+                    <ArrowDownToLine className="w-5 h-5" />
+                    {isTxPending || isConfirming ? 'Processing...' : 'Claim Payment'}
+                  </button>
+                </motion.div>
+              )}
+
+              {isSeller && auctionData.paymentClaimed && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="rounded-xl p-6"
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <Gift className="w-5 h-5" style={{ color: 'var(--emerald)' }} />
+                    <p className="font-medium" style={{ color: 'var(--emerald)' }}>Payment has been claimed!</p>
+                  </div>
+                </motion.div>
+              )}
+
+              {isWinner && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -584,7 +684,7 @@ export function AuctionDetail() {
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-cyan-600 flex items-center justify-center">
-                      <Gift className="w-6 h-6 text-white" />
+                      <Trophy className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <h2 className="text-xl font-inter font-extrabold" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
@@ -593,13 +693,52 @@ export function AuctionDetail() {
                       <p className="text-sm" style={{ color: 'var(--amber)' }}>You won this auction</p>
                     </div>
                   </div>
+                  <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                    The seller will receive your bid payment. Thank you for participating!
+                  </p>
+                </motion.div>
+              )}
+
+              {canClaimRefund && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="glass-card rounded-xl p-6"
+                >
+                  <h2 className="text-xl font-inter font-extrabold mb-4 flex items-center gap-2" style={{ letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+                    <ArrowDownToLine className="w-5 h-5" style={{ color: 'var(--amber)' }} />
+                    Claim Refund
+                  </h2>
+                  <p className="mb-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    Unfortunately, you didn't win this auction. You can claim a full refund of your deposited ETH.
+                  </p>
+                  <div className="rounded-xl p-4 mb-4" style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                    <p className="text-sm" style={{ color: 'var(--amber)' }}>
+                      Your deposit: {Number((userDeposit as bigint) / BigInt(1e18))} ETH
+                    </p>
+                  </div>
                   <button
-                    onClick={handleClaim}
+                    onClick={handleClaimRefund}
+                    disabled={isLoading}
                     className="btn-primary w-full py-4 rounded-xl font-medium flex items-center justify-center gap-2"
                   >
-                    <Gift className="w-5 h-5" />
-                    Claim Winnings
+                    <ArrowDownToLine className="w-5 h-5" />
+                    {isTxPending || isConfirming ? 'Processing...' : 'Claim Refund'}
                   </button>
+                </motion.div>
+              )}
+
+              {hasBid && !isWinner && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && userDeposit && (userDeposit as bigint) === 0n && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="rounded-xl p-6"
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <Gift className="w-5 h-5" style={{ color: 'var(--emerald)' }} />
+                    <p className="font-medium" style={{ color: 'var(--emerald)' }}>Refund has been claimed!</p>
+                  </div>
                 </motion.div>
               )}
             </div>

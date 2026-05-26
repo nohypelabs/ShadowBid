@@ -145,7 +145,7 @@ export function CreateAuction() {
         address: SHADOWBID_ADDRESS,
         abi: SHADOWBID_ABI,
         functionName: 'createAuction',
-        args: [title.trim(), BigInt(duration * 3600), inEuint64],
+        args: [title.trim(), BigInt(duration * 3600), inEuint64, BigInt(Math.round(minBid * 1e18))],
       });
     } catch (err) {
       setIsEncrypting(false);
