@@ -1,14 +1,20 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract } from 'wagmi';
 import { motion } from 'framer-motion';
-import { Lock, Link2, Trophy, ShieldCheck } from 'lucide-react';
-import { AuctionCard, AuctionCardSkeleton } from '../components';
+import { 
+  Lock, ShieldCheck, Trophy, Clock, Users, ArrowRight, 
+  Sparkles, TrendingUp, Zap, Search, Plus,
+  Activity, ChevronRight
+} from 'lucide-react';
+import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import type { AuctionWithId } from '../types';
 
 export function Home() {
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: auctionCounter } = useReadContract({
+  const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctionCounter',
@@ -16,588 +22,652 @@ export function Home() {
 
   const totalAuctions = auctionCounter ? Number(auctionCounter) : 0;
 
+  // Animated counter
+  const [displayCount, setDisplayCount] = useState(0);
+  useEffect(() => {
+    if (totalAuctions > 0) {
+      const duration = 1000;
+      const steps = 30;
+      const increment = totalAuctions / steps;
+      let current = 0;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= totalAuctions) {
+          setDisplayCount(totalAuctions);
+          clearInterval(timer);
+        } else {
+          setDisplayCount(Math.floor(current));
+        }
+      }, duration / steps);
+      return () => clearInterval(timer);
+    }
+  }, [totalAuctions]);
+
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="text-center" style={{ padding: '48px 0 36px', position: 'relative' }}>
-        {/* Decorative glow — subtle radial behind headline */}
+    <div style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* Animated Background Blobs */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
         <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.06) 0%, transparent 70%)',
-          filter: 'blur(100px)',
-          zIndex: -1,
-          pointerEvents: 'none',
+          position: 'absolute', top: '10%', left: '20%',
+          width: '400px', height: '400px',
+          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, transparent 70%)',
+          filter: 'blur(80px)', borderRadius: '50%',
+          animation: 'pulse 4s ease-in-out infinite',
         }} />
+        <div style={{
+          position: 'absolute', bottom: '20%', right: '15%',
+          width: '350px', height: '350px',
+          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.05) 0%, transparent 70%)',
+          filter: 'blur(80px)', borderRadius: '50%',
+          animation: 'pulse 4s ease-in-out infinite 2s',
+        }} />
+      </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        >
-          {/* Pill label — placed close to headline */}
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase"
-            style={{
-              background: 'rgba(20, 184, 166, 0.08)',
-              border: '1px solid rgba(20, 184, 166, 0.18)',
-              color: '#2DD4BF',
-              marginBottom: '12px',
-              fontFamily: 'IBM Plex Mono',
-              letterSpacing: '0.1em',
-            }}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {/* Hero Section */}
+        <section style={{ padding: '80px 24px 48px', textAlign: 'center' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            style={{ maxWidth: '800px', margin: '0 auto' }}
           >
-            <ShieldCheck style={{ width: '18px', height: '18px', strokeWidth: 1.5 }} />
-            Powered by FHE Encryption
-          </div>
-
-          {/* Headline */}
-          <h1
-            className="font-inter font-extrabold responsive-hero-title"
-            style={{
-              fontSize: 'clamp(40px, 5vw, 56px)',
-              letterSpacing: '-0.035em',
-              lineHeight: 1.08,
-              color: 'var(--text-primary)',
-              margin: '0 0 10px',
-            }}
-          >
-            Bid Privately.
-            <br />
-            Win{' '}
-            <span style={{
-              background: 'linear-gradient(135deg, #f59e0b 20%, #06b6d4 80%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>Fairly.</span>
-          </h1>
-
-          {/* Subheadline */}
-          <p
-            style={{
-              color: 'var(--text-secondary)',
-              fontSize: '17px',
-              lineHeight: 1.6,
-              maxWidth: '460px',
-              margin: '0 auto 16px',
-            }}
-          >
-            Sealed-bid auctions on-chain. Your bids stay fully encrypted until the auction ends.
-          </p>
-
-          {/* CTA row */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '12px',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}>
-            <button
-              onClick={() => window.location.href = '/create'}
+            {/* Badge */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
               style={{
-                background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
-                color: '#0a0a0a',
-                fontFamily: 'Inter',
-                fontWeight: 700,
-                fontSize: '15px',
-                padding: '14px 36px',
-                borderRadius: '14px',
-                border: 'none',
-                cursor: 'pointer',
-                letterSpacing: '-0.01em',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '10px',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 16px 40px -10px rgba(245,158,11,0.3)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
+                gap: '8px',
+                padding: '8px 20px',
+                borderRadius: '100px',
+                marginBottom: '24px',
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(6, 182, 212, 0.12))',
+                border: '1px solid rgba(245, 158, 11, 0.25)',
               }}
             >
-              Create Auction
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => window.location.href = '/demo'}
-              style={{
-                background: 'transparent',
-                color: 'var(--text-secondary)',
-                fontFamily: 'Inter',
-                fontWeight: 600,
-                fontSize: '15px',
-                padding: '14px 36px',
-                borderRadius: '14px',
-                border: '1px solid var(--border-default)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.35)';
-                e.currentTarget.style.color = 'var(--text-primary)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--border-default)';
-                e.currentTarget.style.color = 'var(--text-secondary)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              Try Demo
-            </button>
-          </div>
-        </motion.div>
-      </section>
+              <ShieldCheck size={16} color="#f59e0b" />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#fbbf24', fontFamily: 'IBM Plex Mono' }}>
+                Powered by FHE Encryption
+              </span>
+              <Sparkles size={16} color="#06b6d4" />
+            </motion.div>
 
-      {/* Stats Section */}
-      <section style={{ padding: '0 24px', margin: '24px auto 8px', maxWidth: '960px' }} className="responsive-section">
-        <div className="stats-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '16px',
-          alignItems: 'stretch',
-        }}>
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid #1e1e2e',
-            borderRadius: '16px',
-            padding: '24px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            transition: 'border-color 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
-          onMouseLeave={e => e.currentTarget.style.borderColor = '#1e1e2e'}>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#475569' }}>Total Auctions</span>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '40px', fontWeight: 600, color: '#f1f5f9', lineHeight: 1 }}>{totalAuctions}</span>
-          </div>
-
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid #1e1e2e',
-            borderRadius: '16px',
-            padding: '24px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            transition: 'border-color 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
-          onMouseLeave={e => e.currentTarget.style.borderColor = '#1e1e2e'}>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#475569' }}>Active Now</span>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '40px', fontWeight: 600, color: '#f59e0b', lineHeight: 1 }}>{totalAuctions}</span>
-          </div>
-
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid #1e1e2e',
-            borderRadius: '16px',
-            padding: '24px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            transition: 'border-color 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
-          onMouseLeave={e => e.currentTarget.style.borderColor = '#1e1e2e'}>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#475569' }}>Encryption</span>
-            <span style={{ fontSize: '32px', fontWeight: 800, background: 'linear-gradient(135deg, #f59e0b, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1 }}>FHE-256</span>
-          </div>
-
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid #1e1e2e',
-            borderRadius: '16px',
-            padding: '24px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            transition: 'border-color 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'}
-          onMouseLeave={e => e.currentTarget.style.borderColor = '#1e1e2e'}>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#475569' }}>Network</span>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '24px', fontWeight: 600, color: '#f1f5f9', lineHeight: 1 }}>Arbitrum</span>
-            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '12px', color: '#475569' }}>Sepolia</span>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section style={{ maxWidth: '72rem', margin: '0 auto', padding: '12px 24px 32px' }} className="responsive-section">
-        <h2 style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '32px', textAlign: 'center', marginBottom: '6px', color: '#FFFFFF' }}>How It Works</h2>
-        <p style={{ color: '#9CA3AF', textAlign: 'center', marginBottom: '28px', fontSize: '15px' }}>Three steps. Fully private. Mathematically verified.</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }} className="how-it-works-grid">
-          <div style={{
-            background: '#1A1A1A',
-            border: '1px solid #2A2A2A',
-            borderRadius: '20px',
-            padding: '32px 24px 24px',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.25s ease',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A2A'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{
-              position: 'absolute',
-              bottom: '-10px',
-              right: '12px',
+            {/* Title */}
+            <h1 style={{
               fontFamily: 'Inter',
               fontWeight: 800,
-              fontSize: '96px',
-              lineHeight: 1,
-              background: 'linear-gradient(135deg, #FBBF24, #14B8A6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              opacity: 0.08,
-              userSelect: 'none',
-              pointerEvents: 'none',
-            }}>01</div>
-            
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '9999px',
-              background: 'rgba(20, 184, 166, 0.1)',
-              border: '1px solid rgba(20, 184, 166, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.6)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.3)'; e.currentTarget.style.transform = 'scale(1)'; }}>
-              <Lock style={{ width: '32px', height: '32px', color: '#2DD4BF', strokeWidth: 1.5 }} />
-            </div>
-            
-            <h3 style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: '18px', marginBottom: '6px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Encrypt Bid</h3>
-            <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.65', margin: 0, maxWidth: '260px' }}>Your bid is encrypted with FHE before leaving your browser. No one can see the amount.</p>
-          </div>
+              fontSize: 'clamp(42px, 6vw, 68px)',
+              lineHeight: 1.1,
+              letterSpacing: '-0.04em',
+              marginBottom: '24px',
+              color: '#f1f5f9',
+            }}>
+              Bid Privately.
+              <br />
+              <span style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #06b6d4 50%, #8b5cf6 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>
+                Win Fairly.
+              </span>
+            </h1>
 
-          <div style={{
-            background: '#1A1A1A',
-            border: '1px solid #2A2A2A',
-            borderRadius: '20px',
-            padding: '32px 24px 24px',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.25s ease',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A2A'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{
-              position: 'absolute',
-              bottom: '-10px',
-              right: '12px',
-              fontFamily: 'Inter',
-              fontWeight: 800,
-              fontSize: '96px',
-              lineHeight: 1,
-              background: 'linear-gradient(135deg, #FBBF24, #14B8A6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              opacity: 0.08,
-              userSelect: 'none',
-              pointerEvents: 'none',
-            }}>02</div>
-            
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '9999px',
-              background: 'rgba(20, 184, 166, 0.1)',
-              border: '1px solid rgba(20, 184, 166, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.6)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.3)'; e.currentTarget.style.transform = 'scale(1)'; }}>
-              <Link2 style={{ width: '32px', height: '32px', color: '#2DD4BF', strokeWidth: 1.5 }} />
-            </div>
-            
-            <h3 style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: '18px', marginBottom: '6px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Submit On-Chain</h3>
-            <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.65', margin: 0, maxWidth: '260px' }}>Encrypted bids are stored on-chain. No front-running or bid sniping.</p>
-          </div>
-
-          <div style={{
-            background: '#1A1A1A',
-            border: '1px solid #2A2A2A',
-            borderRadius: '20px',
-            padding: '32px 24px 24px',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.25s ease',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A2A'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <div style={{
-              position: 'absolute',
-              bottom: '-10px',
-              right: '12px',
-              fontFamily: 'Inter',
-              fontWeight: 800,
-              fontSize: '96px',
-              lineHeight: 1,
-              background: 'linear-gradient(135deg, #FBBF24, #14B8A6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              opacity: 0.08,
-              userSelect: 'none',
-              pointerEvents: 'none',
-            }}>03</div>
-            
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '9999px',
-              background: 'rgba(20, 184, 166, 0.1)',
-              border: '1px solid rgba(20, 184, 166, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.6)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(20, 184, 166, 0.3)'; e.currentTarget.style.transform = 'scale(1)'; }}>
-              <Trophy style={{ width: '32px', height: '32px', color: '#2DD4BF', strokeWidth: 1.5 }} />
-            </div>
-            
-            <h3 style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: '18px', marginBottom: '6px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>Reveal Winner</h3>
-            <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.65', margin: 0, maxWidth: '260px' }}>All bids decrypt simultaneously. Highest bidder wins fairly.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Active Auctions Section */}
-      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 32px' }} className="responsive-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          style={{
-            background: '#1A1A1A',
-            border: '1px solid #2A2A2A',
-            borderRadius: '16px',
-            padding: '24px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.borderColor = '#3A3A3A';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.6)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.borderColor = '#2A2A2A';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.5)';
-          }}
-        >
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{
+            {/* Subtitle */}
+            <p style={{
               fontSize: '18px',
-              fontWeight: 600,
-              color: '#FFFFFF',
-              letterSpacing: '-0.01em',
-              margin: 0,
+              lineHeight: 1.7,
+              color: '#94a3b8',
+              maxWidth: '600px',
+              margin: '0 auto 40px',
             }}>
-              Active Auctions
-            </h2>
-            {totalAuctions > 0 && (
-              <Link
-                to="/demo"
-                style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  background: 'linear-gradient(135deg, #FBBF24 0%, #14B8A6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.opacity = '0.8';
-                  e.currentTarget.style.textDecoration = 'underline';
-                  e.currentTarget.style.textDecorationColor = '#14B8A6';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.opacity = '1';
-                  e.currentTarget.style.textDecoration = 'none';
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.outline = 'none';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px rgba(20, 184, 166, 0.5)';
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                View all →
-              </Link>
-            )}
-          </div>
+              Sealed-bid auctions on Arbitrum. Your bids stay fully encrypted with{' '}
+              <span style={{ color: '#2dd4bf', fontWeight: 600 }}>Fully Homomorphic Encryption</span>{' '}
+              until the auction ends. No front-running. No bid sniping.
+            </p>
 
-          {/* Empty State */}
-          {totalAuctions === 0 ? (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '168px',
-            }}>
-              {/* Icon */}
-              <div style={{
-                width: '40px',
-                height: '40px',
-                marginBottom: '12px',
-              }}>
-                <svg viewBox="0 0 24 24" fill="none" style={{ width: '100%', height: '100%' }}>
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4B5563" fillOpacity="0.5"/>
-                  <path d="M2 17L12 22L22 17" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 12L12 17L22 12" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-
-              {/* Title */}
-              <h3 style={{
-                fontSize: '16px',
-                fontWeight: 600,
-                color: '#FFFFFF',
-                margin: '0 0 4px',
-              }}>
-                No Active Auctions
-              </h3>
-
-              {/* Subtitle */}
-              <p style={{
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#9CA3AF',
-                maxWidth: '280px',
-                textAlign: 'center',
-                marginBottom: '18px',
-              }}>
-                Be the first to create an auction on ShadowBid
-              </p>
-
-              {/* CTA Button */}
+            {/* CTA Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <Link
                 to="/create"
+                className="btn-primary"
                 style={{
-                  background: 'linear-gradient(135deg, #FBBF24 0%, #14B8A6 100%)',
-                  color: '#0A0A0A',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '16px 36px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  borderRadius: '14px',
                   textDecoration: 'none',
+                }}
+              >
+                <Plus size={20} />
+                Create Auction
+                <ArrowRight size={18} />
+              </Link>
+              
+              <Link
+                to="/demo"
+                className="btn-ghost"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '16px 36px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  borderRadius: '14px',
+                  textDecoration: 'none',
+                }}
+              >
+                <Zap size={18} />
+                Try Demo
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Stats Section */}
+        <section style={{ padding: '0 24px 48px', maxWidth: '1000px', margin: '0 auto' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '16px',
+            }}
+            className="stats-grid"
+          >
+            <StatCard
+              icon={<Activity size={20} color="#f59e0b" />}
+              label="Total Auctions"
+              value={isLoadingCounter ? '...' : displayCount.toString()}
+              color="#f59e0b"
+            />
+            <StatCard
+              icon={<TrendingUp size={20} color="#10b981" />}
+              label="Active Now"
+              value={totalAuctions.toString()}
+              color="#10b981"
+            />
+            <StatCard
+              icon={<Lock size={20} color="#06b6d4" />}
+              label="Encryption"
+              value="FHE-256"
+              color="#06b6d4"
+              isGradient
+            />
+            <StatCard
+              icon={<Zap size={20} color="#8b5cf6" />}
+              label="Network"
+              value="Arbitrum"
+              subValue="Sepolia Testnet"
+              color="#8b5cf6"
+            />
+          </motion.div>
+        </section>
+
+        {/* How It Works Section */}
+        <section style={{ padding: '48px 24px 64px', maxWidth: '1000px', margin: '0 auto' }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{ textAlign: 'center', marginBottom: '48px' }}
+          >
+            <h2 style={{
+              fontFamily: 'Inter',
+              fontWeight: 800,
+              fontSize: '36px',
+              color: '#f1f5f9',
+              letterSpacing: '-0.03em',
+              marginBottom: '12px',
+            }}>
+              How It Works
+            </h2>
+            <p style={{ color: '#94a3b8', fontSize: '17px' }}>
+              Three steps. Fully private. Mathematically verified.
+            </p>
+          </motion.div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '24px',
+          }}
+          className="how-it-works-grid"
+          >
+            <StepCard
+              step="01"
+              icon={<Lock size={28} color="#f59e0b" />}
+              title="Encrypt Bid"
+              description="Your bid is encrypted with FHE before leaving your browser. No one can see the amount."
+              color="#f59e0b"
+              delay={0}
+            />
+            <StepCard
+              step="02"
+              icon={<Activity size={28} color="#06b6d4" />}
+              title="Submit On-Chain"
+              description="Encrypted bids are stored on-chain with ETH escrow. No front-running or bid sniping."
+              color="#06b6d4"
+              delay={0.15}
+            />
+            <StepCard
+              step="03"
+              icon={<Trophy size={28} color="#8b5cf6" />}
+              title="Reveal Winner"
+              description="All bids decrypt simultaneously. Highest bidder wins. Losers get instant refunds."
+              color="#8b5cf6"
+              delay={0.3}
+            />
+          </div>
+        </section>
+
+        {/* Active Auctions Section */}
+        <section style={{ padding: '0 24px 64px', maxWidth: '1000px', margin: '0 auto' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            {/* Section Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px',
+              flexWrap: 'wrap',
+              gap: '16px',
+            }}>
+              <div>
+                <h2 style={{
+                  fontFamily: 'Inter',
+                  fontWeight: 800,
+                  fontSize: '28px',
+                  color: '#f1f5f9',
+                  letterSpacing: '-0.03em',
+                  marginBottom: '4px',
+                }}>
+                  Active Auctions
+                </h2>
+                <p style={{ color: '#94a3b8', fontSize: '15px' }}>
+                  Browse and bid on live sealed auctions
+                </p>
+              </div>
+              
+              {/* Search */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 16px',
+                borderRadius: '12px',
+                background: '#13131a',
+                border: '1px solid #1e1e2e',
+              }}>
+                <Search size={16} color="#475569" />
+                <input
+                  type="text"
+                  placeholder="Search auctions..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: '#f1f5f9',
+                    fontSize: '14px',
+                    width: '200px',
+                    fontFamily: 'inherit',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Auctions Container */}
+            <div style={{
+              background: '#0d0d12',
+              border: '1px solid #1e1e2e',
+              borderRadius: '20px',
+              overflow: 'hidden',
+            }}>
+              {totalAuctions === 0 ? (
+                <EmptyState />
+              ) : (
+                <div>
+                  {Array.from({ length: Math.min(totalAuctions, 8) }, (_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <AuctionItem auctionId={i} />
+                    </motion.div>
+                  ))}
+                  {totalAuctions > 8 && (
+                    <div style={{
+                      padding: '16px',
+                      textAlign: 'center',
+                      borderTop: '1px solid #1e1e2e',
+                    }}>
+                      <Link
+                        to="/auctions"
+                        style={{
+                          color: '#f59e0b',
+                          textDecoration: 'none',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        View All Auctions
+                        <ChevronRight size={16} />
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Footer CTA */}
+        <section style={{ padding: '0 24px 80px', maxWidth: '800px', margin: '0 auto' }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(6, 182, 212, 0.08))',
+              border: '1px solid rgba(245, 158, 11, 0.2)',
+              borderRadius: '24px',
+              padding: '56px 40px',
+              textAlign: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Grid pattern */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px',
+              opacity: 0.5,
+            }} />
+            
+            <div style={{ position: 'relative' }}>
+              <h3 style={{
+                fontFamily: 'Inter',
+                fontWeight: 800,
+                fontSize: '32px',
+                color: '#f1f5f9',
+                letterSpacing: '-0.03em',
+                marginBottom: '12px',
+              }}>
+                Ready to Bid Privately?
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '17px', marginBottom: '32px' }}>
+                Join the future of fair auctions with FHE encryption
+              </p>
+              <Link
+                to="/create"
+                className="btn-primary"
+                style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(20, 184, 166, 0.3)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.outline = 'none';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px rgba(20, 184, 166, 0.5), 0 0 0 4px #0A0A0A';
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.boxShadow = 'none';
+                  padding: '14px 32px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  borderRadius: '14px',
+                  textDecoration: 'none',
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Create Auction
+                Get Started
+                <ArrowRight size={18} />
               </Link>
             </div>
-          ) : (
-            /* Normal State - Auction List */
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0',
-            }}>
-              {Array.from({ length: Math.min(totalAuctions, 8) }, (_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    padding: '12px 8px',
-                    borderBottom: i < Math.min(totalAuctions, 8) - 1 ? '1px solid #374151' : 'none',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderRadius: '8px',
-                    transition: 'background-color 0.2s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.5)'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <AuctionItem auctionId={i} />
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </section>
+          </motion.div>
+        </section>
+      </div>
     </div>
   );
 }
 
+// Stat Card Component
+function StatCard({ icon, label, value, color, subValue, isGradient }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  color: string;
+  subValue?: string;
+  isGradient?: boolean;
+}) {
+  return (
+    <div
+      className="glass-card-hover"
+      style={{
+        padding: '24px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+      }}>
+        <div style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: `${color}15`,
+          border: `1px solid ${color}30`,
+        }}>
+          {icon}
+        </div>
+        <span style={{
+          fontSize: '11px',
+          fontWeight: 600,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: '#64748b',
+        }}>
+          {label}
+        </span>
+      </div>
+      <div style={{
+        fontFamily: 'IBM Plex Mono',
+        fontSize: '32px',
+        fontWeight: 700,
+        lineHeight: 1,
+        ...(isGradient ? {
+          background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        } : {
+          color: '#f1f5f9',
+        }),
+      }}>
+        {value}
+      </div>
+      {subValue && (
+        <span style={{ fontSize: '12px', color: '#64748b' }}>{subValue}</span>
+      )}
+    </div>
+  );
+}
+
+// Step Card Component
+function StepCard({ step, icon, title, description, color, delay }: {
+  step: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  color: string;
+  delay: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay }}
+      className="glass-card-hover"
+      style={{
+        padding: '32px 24px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Step Number Background */}
+      <div style={{
+        position: 'absolute',
+        top: '16px',
+        right: '16px',
+        fontFamily: 'Inter',
+        fontWeight: 800,
+        fontSize: '64px',
+        lineHeight: 1,
+        color: color,
+        opacity: 0.06,
+        userSelect: 'none',
+      }}>
+        {step}
+      </div>
+
+      {/* Icon */}
+      <div style={{
+        width: '56px',
+        height: '56px',
+        borderRadius: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '0 auto 20px',
+        background: `${color}12`,
+        border: `1px solid ${color}25`,
+      }}>
+        {icon}
+      </div>
+
+      {/* Title */}
+      <h3 style={{
+        fontFamily: 'Inter',
+        fontWeight: 700,
+        fontSize: '18px',
+        color: '#f1f5f9',
+        marginBottom: '8px',
+        letterSpacing: '-0.02em',
+      }}>
+        {title}
+      </h3>
+
+      {/* Description */}
+      <p style={{
+        color: '#94a3b8',
+        fontSize: '14px',
+        lineHeight: 1.6,
+        margin: 0,
+      }}>
+        {description}
+      </p>
+    </motion.div>
+  );
+}
+
+// Empty State Component
+function EmptyState() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '64px 24px',
+      textAlign: 'center',
+    }}>
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', duration: 0.6 }}
+        style={{
+          width: '72px',
+          height: '72px',
+          borderRadius: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '24px',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(6, 182, 212, 0.1))',
+          border: '1px solid rgba(245, 158, 11, 0.2)',
+        }}
+      >
+        <Sparkles size={32} color="#f59e0b" />
+      </motion.div>
+      
+      <h3 style={{
+        fontFamily: 'Inter',
+        fontWeight: 700,
+        fontSize: '20px',
+        color: '#f1f5f9',
+        marginBottom: '8px',
+      }}>
+        No Auctions Yet
+      </h3>
+      <p style={{
+        color: '#94a3b8',
+        fontSize: '15px',
+        maxWidth: '360px',
+        marginBottom: '24px',
+        lineHeight: 1.6,
+      }}>
+        Be the first to create a sealed-bid auction on ShadowBid
+      </p>
+      
+      <Link
+        to="/create"
+        className="btn-primary"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '12px 24px',
+          fontSize: '14px',
+          fontWeight: 700,
+          borderRadius: '12px',
+          textDecoration: 'none',
+        }}
+      >
+        <Plus size={18} />
+        Create First Auction
+      </Link>
+    </div>
+  );
+}
+
+// Auction Item Component
 function AuctionItem({ auctionId }: { auctionId: number }) {
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
@@ -614,7 +684,36 @@ function AuctionItem({ auctionId }: { auctionId: number }) {
   });
 
   if (isLoading || !auction) {
-    return <AuctionCardSkeleton />;
+    return (
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid #1e1e2e' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '44px',
+            height: '44px',
+            borderRadius: '12px',
+            background: '#13131a',
+            animation: 'pulse 2s infinite',
+          }} />
+          <div style={{ flex: 1 }}>
+            <div style={{
+              height: '16px',
+              width: '140px',
+              borderRadius: '4px',
+              background: '#13131a',
+              marginBottom: '8px',
+              animation: 'pulse 2s infinite',
+            }} />
+            <div style={{
+              height: '12px',
+              width: '200px',
+              borderRadius: '4px',
+              background: '#13131a',
+              animation: 'pulse 2s infinite',
+            }} />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const auctionData: AuctionWithId = {
@@ -623,12 +722,131 @@ function AuctionItem({ auctionId }: { auctionId: number }) {
     title: (auction as unknown[])[1] as string,
     biddingEnd: (auction as unknown[])[2] as bigint,
     finalized: (auction as unknown[])[3] as boolean,
-    minimumBid: (auction as unknown[])[4] as `0x${string}`,
-    highestBid: (auction as unknown[])[5] as `0x${string}`,
-    highestBidder: (auction as unknown[])[6] as `0x${string}`,
-    revealedBid: (auction as unknown[])[7] as bigint,
-    revealedWinner: (auction as unknown[])[8] as string,
+    paymentClaimed: (auction as unknown[])[4] as boolean,
+    minimumBid: (auction as unknown[])[5] as `0x${string}`,
+    highestBid: (auction as unknown[])[6] as `0x${string}`,
+    highestBidder: (auction as unknown[])[7] as `0x${string}`,
+    revealedBid: (auction as unknown[])[8] as bigint,
+    revealedWinner: (auction as unknown[])[9] as string,
   };
 
-  return <AuctionCard auction={auctionData} bidCount={Number(bidCount || 0)} />;
+  const now = BigInt(Math.floor(Date.now() / 1000));
+  const isActive = auctionData.biddingEnd > now && !auctionData.finalized;
+  const isEnded = auctionData.finalized || auctionData.biddingEnd <= now;
+  const bidderCount = Number(bidCount || 0);
+
+  return (
+    <Link
+      to={`/auction/${auctionId}`}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '20px 24px',
+        borderBottom: '1px solid #1e1e2e',
+        textDecoration: 'none',
+        transition: 'background 0.2s',
+      }}
+      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {/* Icon */}
+        <div style={{
+          width: '44px',
+          height: '44px',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: isActive 
+            ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(6, 182, 212, 0.12))'
+            : 'rgba(255,255,255,0.04)',
+          border: isActive ? '1px solid rgba(245, 158, 11, 0.25)' : '1px solid #1e1e2e',
+        }}>
+          {isActive ? (
+            <Zap size={20} color="#f59e0b" />
+          ) : (
+            <Lock size={20} color="#475569" />
+          )}
+        </div>
+
+        {/* Info */}
+        <div>
+          <h4 style={{
+            fontFamily: 'Inter',
+            fontWeight: 600,
+            fontSize: '15px',
+            color: '#f1f5f9',
+            marginBottom: '4px',
+            letterSpacing: '-0.02em',
+          }}>
+            {auctionData.title}
+          </h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b' }}>
+              <Users size={12} />
+              {bidderCount} bidders
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b' }}>
+              <Clock size={12} />
+              {isActive ? (
+                <CountdownTimer endTime={auctionData.biddingEnd} compact />
+              ) : (
+                'Ended'
+              )}
+            </span>
+            <span style={{ fontFamily: 'IBM Plex Mono', fontSize: '11px', color: '#475569' }}>
+              {auctionData.seller.slice(0, 6)}...{auctionData.seller.slice(-4)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Status Badge */}
+        {isActive && (
+          <span style={{
+            padding: '4px 12px',
+            borderRadius: '100px',
+            fontSize: '11px',
+            fontWeight: 600,
+            background: 'rgba(16, 185, 129, 0.1)',
+            color: '#10b981',
+            border: '1px solid rgba(16, 185, 129, 0.25)',
+          }}>
+            Active
+          </span>
+        )}
+        {isEnded && !auctionData.finalized && (
+          <span style={{
+            padding: '4px 12px',
+            borderRadius: '100px',
+            fontSize: '11px',
+            fontWeight: 600,
+            background: 'rgba(245, 158, 11, 0.1)',
+            color: '#f59e0b',
+            border: '1px solid rgba(245, 158, 11, 0.25)',
+          }}>
+            Ended
+          </span>
+        )}
+        {auctionData.finalized && (
+          <span style={{
+            padding: '4px 12px',
+            borderRadius: '100px',
+            fontSize: '11px',
+            fontWeight: 600,
+            background: 'rgba(139, 92, 246, 0.1)',
+            color: '#8b5cf6',
+            border: '1px solid rgba(139, 92, 246, 0.25)',
+          }}>
+            Finalized
+          </span>
+        )}
+
+        <ChevronRight size={18} color="#475569" />
+      </div>
+    </Link>
+  );
 }

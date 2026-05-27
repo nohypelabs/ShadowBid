@@ -1,460 +1,301 @@
-import { useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import { Menu, X, Wallet, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Menu, X, Zap, ExternalLink } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Home, CreateAuction, AuctionDetail, Demo } from './pages';
 
 function App() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const showHeader = !location.pathname.startsWith('/auction/');
 
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  const navLinks = [
+    { label: 'Home', href: '/', icon: '◈' },
+    { label: 'Create', href: '/create', icon: '✦' },
+    { label: 'Demo', href: '/demo', icon: '⚡' },
+  ];
+
+  const isActive = (href: string) => {
+    if (href === '/') return location.pathname === '/';
+    return location.pathname.startsWith(href);
+  };
+
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'var(--bg-void)' }}>
-      {/* Radial glow effect */}
-      <div
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] pointer-events-none -z-10"
-        style={{
-          background: 'radial-gradient(ellipse 60% 30% at 50% -10%, rgba(245,158,11,0.06) 0%, transparent 70%)',
-        }}
-      />
+    <div style={{ minHeight: '100vh', overflowX: 'hidden', backgroundColor: 'var(--bg-void)', position: 'relative' }}>
+      {/* Top Gradient Glow */}
+      <div style={{
+        position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', height: '50vh', pointerEvents: 'none', zIndex: 0,
+        background: 'radial-gradient(ellipse 60% 40% at 50% -20%, rgba(245,158,11,0.08) 0%, transparent 60%)',
+      }} />
 
       {showHeader && (
-        <nav className="px-4 sm:px-7" style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: 'rgba(10,10,10,0.65)',
-          backdropFilter: 'blur(20px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(140%)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          height: '68px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+        <header style={{
+          position: 'sticky', top: 0, zIndex: 100,
+          background: scrolled ? 'rgba(3,3,5,0.95)' : 'rgba(3,3,5,0.7)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+          transition: 'all 0.3s ease',
         }}>
-          {/* ── Logo ── */}
-          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img
-              src="/shadowbid2.png"
-              alt="ShadowBid"
-              style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '8px',
-              }}
-            />
-            <span className="text-lg sm:text-xl" style={{
-              fontFamily: 'Inter',
-              fontWeight: 800,
-              color: '#FFFFFF',
-              letterSpacing: '-0.02em',
-            }}>
-              Shadow<span style={{
-                background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}>Bid</span>
-            </span>
-          </a>
+          <div style={{
+            maxWidth: '1200px', margin: '0 auto', padding: '0 24px',
+            height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            {/* Logo */}
+            <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '12px',
+                background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(6,182,212,0.15))',
+                border: '1px solid rgba(245,158,11,0.25)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                position: 'relative', overflow: 'hidden',
+              }}>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)',
+                  animation: 'shimmer 3s infinite',
+                }} />
+                <Zap size={20} color="#f59e0b" />
+              </div>
+              <div>
+                <span style={{
+                  fontFamily: 'Inter', fontWeight: 800, fontSize: '20px',
+                  color: '#f1f5f9', letterSpacing: '-0.02em', display: 'block', lineHeight: 1.2,
+                }}>
+                  Shadow<span style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                    backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  }}>Bid</span>
+                </span>
+                <span style={{ fontSize: '10px', color: '#475569', fontFamily: 'IBM Plex Mono', letterSpacing: '0.05em' }}>
+                  FHE-POWERED
+                </span>
+              </div>
+            </Link>
 
-          {/* ── Desktop Nav: links + separator + Connect Wallet ── */}
-          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '4px' }}>
-            {[
-              { label: 'Home', href: '/' },
-              { label: 'Create', href: '/create' },
-              { label: 'Demo', href: '/demo' },
-            ].map(link => (
-              <a
-                key={link.href}
-                href={link.href}
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex" style={{ alignItems: 'center', gap: '4px' }}>
+              {navLinks.map(link => (
+                <Link
+                  key={link.href} to={link.href}
+                  style={{
+                    textDecoration: 'none', fontSize: '14px', fontWeight: 500,
+                    fontFamily: 'IBM Plex Mono', padding: '10px 18px', borderRadius: '12px',
+                    transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '8px',
+                    ...(isActive(link.href) ? {
+                      color: '#f1f5f9', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+                    } : {
+                      color: '#64748b', background: 'transparent', border: '1px solid transparent',
+                    }),
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive(link.href)) {
+                      e.currentTarget.style.color = '#f1f5f9';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive(link.href)) {
+                      e.currentTarget.style.color = '#64748b';
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <span style={{ fontSize: '10px', opacity: 0.7 }}>{link.icon}</span>
+                  {link.label}
+                </Link>
+              ))}
+
+              <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.06)', margin: '0 16px' }} />
+
+              {/* Network Badge */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '8px 14px', borderRadius: '10px', marginRight: '12px',
+                background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)',
+              }}>
+                <div style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  background: '#10b981', boxShadow: '0 0 8px rgba(16,185,129,0.6)',
+                  animation: 'pulse 2s infinite',
+                }} />
+                <span style={{ fontSize: '12px', color: '#10b981', fontFamily: 'IBM Plex Mono', fontWeight: 500 }}>
+                  Arbitrum Sepolia
+                </span>
+              </div>
+
+              {/* RainbowKit Connect Button — built-in, handles modal internally */}
+              <ConnectButton
+                showBalance={false}
+                chainStatus="none"
+                accountStatus="address"
+              />
+            </nav>
+
+            {/* Mobile */}
+            <div className="flex md:hidden" style={{ alignItems: 'center', gap: '12px' }}>
+              <ConnectButton
+                showBalance={false}
+                chainStatus="none"
+                accountStatus="address"
+              />
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 style={{
-                  color: 'var(--text-secondary)',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  fontFamily: 'IBM Plex Mono',
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  transition: 'color 0.2s, background 0.2s',
+                  color: '#64748b', background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px',
+                  width: '40px', height: '40px', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', transition: 'all 0.2s ease', flexShrink: 0,
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                  e.currentTarget.style.color = '#f1f5f9';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  e.currentTarget.style.color = '#64748b';
                 }}
               >
-                {link.label}
-              </a>
-            ))}
-
-            <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.08)', margin: '0 12px' }} />
-
-            <ConnectButton.Custom>
-              {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
-                const ready = mounted;
-                const connected = ready && account && chain;
-
-                if (!ready) {
-                  return (
-                    <div style={{
-                      height: '38px',
-                      width: '140px',
-                      background: 'rgba(255,255,255,0.04)',
-                      borderRadius: '12px',
-                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    }} />
-                  );
-                }
-
-                if (connected) {
-                  return (
-                    <button
-                      onClick={openAccountModal}
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        color: 'var(--text-primary)',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        fontFamily: 'IBM Plex Mono',
-                        borderRadius: '12px',
-                        padding: '8px 16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        cursor: 'pointer',
-                        backdropFilter: 'blur(8px)',
-                        transition: 'background 0.2s, border-color 0.2s',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                        e.currentTarget.style.borderColor = 'rgba(245,158,11,0.25)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                      }}
-                    >
-                      <span style={{ width: '7px', height: '7px', borderRadius: '9999px', background: '#10b981', boxShadow: '0 0 6px rgba(16,185,129,0.4)' }} />
-                      {account.displayName}
-                    </button>
-                  );
-                }
-
-                if (chain?.unsupported) {
-                  return (
-                    <button
-                      onClick={openChainModal}
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        color: '#f87171',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                        borderRadius: '12px',
-                        padding: '9px 18px',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        fontFamily: 'IBM Plex Mono',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.18)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-                    >
-                      <XCircle style={{ width: '16px', height: '16px' }} />
-                      Wrong Network
-                    </button>
-                  );
-                }
-
-                return (
-                  <button
-                    onClick={openConnectModal}
-                    style={{
-                      background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
-                      color: '#0a0a0a',
-                      fontWeight: 700,
-                      fontSize: '13px',
-                      fontFamily: 'Inter',
-                      padding: '9px 20px',
-                      borderRadius: '12px',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 12px 32px -8px rgba(245,158,11,0.3)';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  >
-                    <Wallet style={{ width: '15px', height: '15px', strokeWidth: 2 }} />
-                    Connect Wallet
-                  </button>
-                );
-              }}
-            </ConnectButton.Custom>
+                {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </div>
           </div>
-
-          {/* ── Mobile: Connect Wallet + Hamburger ── */}
-          <div className="flex md:hidden" style={{ alignItems: 'center', gap: '6px' }}>
-            <ConnectButton.Custom>
-              {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
-                const ready = mounted;
-                const connected = ready && account && chain;
-
-                if (!ready) {
-                  return <div style={{ height: '34px', width: '80px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />;
-                }
-
-                if (connected) {
-                  return (
-                    <button onClick={openAccountModal} style={{
-                      background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                      color: 'var(--text-primary)', fontSize: '12px', fontWeight: 500,
-                      fontFamily: 'IBM Plex Mono', borderRadius: '10px', padding: '8px 12px',
-                      display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', whiteSpace: 'nowrap',
-                    }}>
-                      <span style={{ width: '6px', height: '6px', borderRadius: '9999px', background: '#10b981', boxShadow: '0 0 4px rgba(16,185,129,0.4)', flexShrink: 0 }} />
-                      <span className="truncate max-w-[80px]">{account.displayName}</span>
-                    </button>
-                  );
-                }
-
-                if (chain?.unsupported) {
-                  return (
-                    <button onClick={openChainModal} style={{
-                      background: 'rgba(239, 68, 68, 0.1)', color: '#f87171',
-                      border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px',
-                      padding: '8px 12px', fontSize: '12px', fontWeight: 500,
-                      fontFamily: 'IBM Plex Mono', display: 'flex', alignItems: 'center',
-                      gap: '6px', cursor: 'pointer', whiteSpace: 'nowrap',
-                    }}>
-                      <XCircle style={{ width: '14px', height: '14px' }} />
-                      Wrong Network
-                    </button>
-                  );
-                }
-
-                return (
-                  <button onClick={openConnectModal} style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
-                    color: '#0a0a0a', fontWeight: 700, fontSize: '12px',
-                    fontFamily: 'Inter', padding: '8px 14px', borderRadius: '10px',
-                    border: 'none', cursor: 'pointer', display: 'flex',
-                    alignItems: 'center', gap: '6px', whiteSpace: 'nowrap',
-                  }}>
-                    <Wallet style={{ width: '14px', height: '14px', strokeWidth: 2 }} />
-                    Connect
-                  </button>
-                );
-              }}
-            </ConnectButton.Custom>
-
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{
-                color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px',
-                width: '38px', height: '38px', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0,
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-            >
-              {mobileMenuOpen ? <X style={{ width: '18px', height: '18px' }} /> : <Menu style={{ width: '18px', height: '18px' }} />}
-            </button>
-          </div>
-        </nav>
+        </header>
       )}
 
+      {/* Mobile Slide-out Menu */}
       {mobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-y-0 right-0 w-72 max-w-[80vw] z-50"
-          style={{
-            background: 'rgba(10,10,10,0.92)',
-            backdropFilter: 'blur(24px) saturate(140%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-            borderLeft: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          <div style={{ padding: '24px' }}>
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              style={{
-                color: 'var(--text-secondary)',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: '10px',
-                width: '38px',
-                height: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                marginBottom: '28px',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-            >
-              <X style={{ width: '18px', height: '18px' }} />
-            </button>
+        <>
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 90,
+              background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+            }}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div
+            className="md:hidden"
+            style={{
+              position: 'fixed', top: 0, right: 0, bottom: 0,
+              width: '300px', maxWidth: '85vw', zIndex: 95,
+              background: 'rgba(10,10,15,0.95)', backdropFilter: 'blur(32px)',
+              borderLeft: '1px solid rgba(255,255,255,0.06)',
+              padding: '24px', display: 'flex', flexDirection: 'column',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px', height: '32px', borderRadius: '8px',
+                  background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(6,182,212,0.15))',
+                  border: '1px solid rgba(245,158,11,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Zap size={16} color="#f59e0b" />
+                </div>
+                <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: '16px', color: '#f1f5f9' }}>
+                  Shadow<span style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
+                    backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  }}>Bid</span>
+                </span>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  color: '#64748b', background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px',
+                  width: '32px', height: '32px', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Nav Links */}
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {[
-                { label: 'Home', href: '/' },
-                { label: 'Create', href: '/create' },
-                { label: 'Demo', href: '/demo' },
-              ].map(link => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
+              {navLinks.map(link => (
+                <Link
+                  key={link.href} to={link.href}
                   style={{
-                    color: 'var(--text-primary)',
-                    textDecoration: 'none',
-                    fontSize: '15px',
-                    fontWeight: 500,
-                    fontFamily: 'IBM Plex Mono',
-                    padding: '12px 16px',
-                    borderRadius: '10px',
-                    transition: 'background 0.2s',
+                    textDecoration: 'none', fontSize: '15px', fontWeight: 500,
+                    fontFamily: 'IBM Plex Mono', padding: '14px 16px', borderRadius: '12px',
+                    transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '12px',
+                    ...(isActive(link.href) ? {
+                      color: '#f1f5f9', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+                    } : {
+                      color: '#94a3b8', background: 'transparent', border: '1px solid transparent',
+                    }),
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
+                  <span style={{
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    background: isActive(link.href) ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px',
+                  }}>
+                    {link.icon}
+                  </span>
                   {link.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
-            <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
-              <ConnectButton.Custom>
-                {({ account, chain, openConnectModal, openAccountModal, openChainModal, mounted }) => {
-                  const ready = mounted;
-                  const connected = ready && account && chain;
+            {/* Network Info */}
+            <div style={{
+              marginTop: '24px', padding: '16px', borderRadius: '12px',
+              background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '8px', height: '8px', borderRadius: '50%',
+                  background: '#10b981', boxShadow: '0 0 8px rgba(16,185,129,0.5)',
+                }} />
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#10b981', fontFamily: 'IBM Plex Mono' }}>
+                    Arbitrum Sepolia
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>Testnet Connected</div>
+                </div>
+              </div>
+            </div>
 
-                  if (!ready) {
-                    return (
-                      <div style={{
-                        height: '44px',
-                        width: '100%',
-                        background: 'rgba(255,255,255,0.04)',
-                        borderRadius: '12px',
-                        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                      }} />
-                    );
-                  }
+            <div style={{ flex: 1 }} />
 
-                  if (connected) {
-                    return (
-                      <button
-                        onClick={() => { openAccountModal(); setMobileMenuOpen(false); }}
-                        style={{
-                          width: '100%',
-                          background: 'rgba(255,255,255,0.05)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          color: 'var(--text-primary)',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          fontFamily: 'IBM Plex Mono',
-                          borderRadius: '12px',
-                          padding: '12px 16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <span style={{ width: '8px', height: '8px', borderRadius: '9999px', background: '#10b981', boxShadow: '0 0 6px rgba(16,185,129,0.4)', flexShrink: 0 }} />
-                        <span className="truncate">{account.displayName}</span>
-                      </button>
-                    );
-                  }
-
-                  if (chain?.unsupported) {
-                    return (
-                      <button
-                        onClick={openChainModal}
-                        style={{
-                          width: '100%',
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          color: '#f87171',
-                          border: '1px solid rgba(239, 68, 68, 0.2)',
-                          borderRadius: '12px',
-                          padding: '12px 18px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          fontFamily: 'IBM Plex Mono',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '8px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <XCircle style={{ width: '16px', height: '16px' }} />
-                        Wrong Network
-                      </button>
-                    );
-                  }
-
-                  return (
-                    <button
-                      onClick={() => { openConnectModal(); setMobileMenuOpen(false); }}
-                      style={{
-                        width: '100%',
-                        background: 'linear-gradient(135deg, #f59e0b, #06b6d4)',
-                        color: '#0a0a0a',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        fontFamily: 'Inter',
-                        padding: '12px 20px',
-                        borderRadius: '12px',
-                        border: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                      }}
-                    >
-                      <Wallet style={{ width: '16px', height: '16px', strokeWidth: 2 }} />
-                      Connect Wallet
-                    </button>
-                  );
-                }}
-              </ConnectButton.Custom>
+            {/* Footer Links */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <a href="https://sepolia.arbiscan.io/address/0x2BccEa43CE4D32dbfE813c5FEdd39C396E75072c" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '8px', color: '#64748b', textDecoration: 'none', fontSize: '13px', fontFamily: 'IBM Plex Mono' }}
+              >
+                <ExternalLink size={14} /> View Contract
+              </a>
+              <a href="https://github.com/nohypelabas/ShadowBid" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', borderRadius: '8px', color: '#64748b', textDecoration: 'none', fontSize: '13px', fontFamily: 'IBM Plex Mono' }}
+              >
+                <ExternalLink size={14} /> GitHub
+              </a>
             </div>
           </div>
-        </div>
-      )}
-
-      {mobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-40"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-          onClick={() => setMobileMenuOpen(false)}
-        />
+        </>
       )}
 
       {/* Main Content */}
-      <main className={!showHeader ? '' : 'max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12'}>
+      <main style={{ position: 'relative', zIndex: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CreateAuction />} />
@@ -463,95 +304,25 @@ function App() {
         </Routes>
       </main>
 
-      {/* Floating Network Bar */}
-      {showHeader && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 safe-bottom">
-          <ConnectButton.Custom>
-            {({ account, mounted }) => {
-              const ready = mounted;
-              if (!ready) return null;
-
-              return (
-                <div
-                  className="rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 sm:gap-4 max-w-[95vw]"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid var(--border-default)',
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></div>
-                    <span className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>Arbitrum Sepolia</span>
-                  </div>
-                  <div className="w-px h-4 flex-shrink-0" style={{ background: 'var(--border-default)' }}></div>
-                  {account && (
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-ibm-plex-mono truncate" style={{ color: 'var(--text-secondary)' }}>
-                        {account.displayName}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            }}
-          </ConnectButton.Custom>
-        </div>
-      )}
-
-      {/* Footer */}
-      {showHeader && (
-        <footer style={{
-          borderTop: '1px solid #1e1e2e',
-          marginTop: '80px',
-          padding: '32px 24px',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            maxWidth: '960px',
-            margin: '0 auto',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-          }}>
-            {/* Logo row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <img
-                src="/shadowbid2.png"
-                alt="ShadowBid"
-                style={{ width: '20px', height: '20px', borderRadius: '4px' }}
-              />
-              <span style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '16px', color: '#FFFFFF' }}>
-                Shadow<span style={{ background: 'linear-gradient(135deg, #FBBF24, #14B8A6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Bid</span>
-              </span>
-            </div>
-
-            {/* Tagline */}
-            <p style={{ color: '#334155', fontSize: '13px', fontFamily: 'IBM Plex Mono' }}>
-              Powered by FHE — Arbitrum Sepolia
-            </p>
-
-            {/* Links row */}
-            <div style={{ display: 'flex', gap: '24px', marginTop: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <a href="/create" style={{ color: '#475569', fontSize: '13px', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#f1f5f9'}
-                onMouseLeave={e => e.currentTarget.style.color = '#475569'}>Create Auction</a>
-              <a href="/demo" style={{ color: '#475569', fontSize: '13px', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#f1f5f9'}
-                onMouseLeave={e => e.currentTarget.style.color = '#475569'}>Try Demo</a>
-              <a href="#" style={{ color: '#475569', fontSize: '13px', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#f1f5f9'}
-                onMouseLeave={e => e.currentTarget.style.color = '#475569'}>Pitch Deck ↗</a>
-            </div>
-
-            {/* Copyright */}
-            <p style={{ color: '#1e293b', fontSize: '12px', fontFamily: 'IBM Plex Mono', marginTop: '8px' }}>
-              © 2025 ShadowBid
-            </p>
-          </div>
-        </footer>
-      )}
+      {/* CSS */}
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @media (max-width: 768px) {
+          .hidden.md\\:flex { display: none !important; }
+          .flex.md\\:hidden { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .hidden.md\\:flex { display: flex !important; }
+          .flex.md\\:hidden { display: none !important; }
+        }
+        /* Override RainbowKit button to match ShadowBid style */
+        [data-rk] button {
+          font-family: 'Inter', sans-serif !important;
+        }
+      `}</style>
     </div>
   );
 }
