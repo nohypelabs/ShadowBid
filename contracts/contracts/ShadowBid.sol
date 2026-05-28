@@ -7,6 +7,10 @@ import "@fhenixprotocol/cofhe-contracts/FHE.sol";
 /// @notice Bids remain encrypted on-chain until finalization. Winner is
 ///         determined entirely in encrypted space using FHE.select() (CMUX).
 ///         ETH is escrowed during bidding and released after reveal.
+/// @dev Bid amounts are encrypted scores used for ranking. The winner's
+///      ETH deposit (not the encrypted bid value) is transferred to the seller.
+///      euint64 supports values up to ~18.4 ETH. For larger auctions,
+///      consider using a different unit or upgrading to euint128.
 contract ShadowBid {
     // ──────────────────────────────── Types ────────────────────────────────
 
@@ -16,6 +20,7 @@ contract ShadowBid {
         uint256 biddingEnd;
         bool finalized;
         bool paymentClaimed;
+        uint256 minimumBidWei; // Plaintext minimum — stored on-chain for ETH validation
         // Encrypted running state — only the contract (via ACL) can read these
         euint64 minimumBid;
         euint64 highestBid;
@@ -35,6 +40,7 @@ contract ShadowBid {
 
     uint256 public constant MIN_AUCTION_DURATION = 60; // 1 minute minimum
     uint256 public constant MAX_AUCTION_DURATION = 365 days;
+    uint256 public constant MAX_BIDDERS = 500;
 
     // ──────────────────────────── State ────────────────────────────
 
@@ -67,6 +73,8 @@ contract ShadowBid {
     error BiddingPeriodActive(uint256 auctionId);
     error AuctionAlreadyFinalized(uint256 auctionId);
     error OnlySellerCanFinalize();
+    error OnlySellerCanClaim();
+    error SellerCannotBid(uint256 auctionId);
     error AlreadyBid(uint256 auctionId);
     error RevealNotReady();
     error NoBids(uint256 auctionId);
@@ -76,6 +84,7 @@ contract ShadowBid {
     error NotWinner();
     error NoRefundAvailable();
     error WinnerCannotRefund();
+    error MaxBiddersReached(uint256 auctionId);
 
     // ─────────────────────────── Modifiers ─────────────────────────
 
@@ -128,15 +137,12 @@ contract ShadowBid {
         a.biddingEnd = block.timestamp + duration;
         a.finalized = false;
         a.paymentClaimed = false;
+        a.minimumBidWei = minimumBidWei;
         a.minimumBid = minimumBid;
         a.highestBid = initialBid;
         a.highestBidder = initialBidder;
         a.revealedBid = 0;
         a.revealedWinner = address(0);
-
-        // Store minimumBidWei for ETH validation (encrypted value is for comparison)
-        // We'll use the encrypted comparison for privacy, but need plaintext for ETH check
-        // The encrypted minimum is stored separately for FHE operations
 
         // Grant the contract permission to use these encrypted values later
         FHE.allowThis(a.minimumBid);
@@ -150,24 +156,33 @@ contract ShadowBid {
 
     /// @notice Submit a sealed bid with ETH deposit. The bid amount is never
     ///         visible on-chain until after finalization.
+    /// @dev The encrypted bid is a ranking score. The winner pays their
+    ///      ETH deposit (not the encrypted bid value) to the seller.
     /// @param auctionId The auction to bid on
     /// @param bidAmountEncrypted Encrypted bid amount (InEuint64 from SDK)
-    /// @param minimumBidWei The minimum bid in wei (must match auction's minimum)
-    function placeBid(uint256 auctionId, InEuint64 calldata bidAmountEncrypted, uint256 minimumBidWei)
+    function placeBid(uint256 auctionId, InEuint64 calldata bidAmountEncrypted)
         external
         payable
         auctionExists(auctionId)
         biddingActive(auctionId)
         notFinalized(auctionId)
     {
+        Auction storage a = auctions[auctionId];
+
+        // ── Seller cannot bid on own auction ──
+        if (msg.sender == a.seller) revert SellerCannotBid(auctionId);
+
+        // ── One bid per address ──
         if (bids[auctionId][msg.sender].exists) revert AlreadyBid(auctionId);
-        
-        // Require ETH deposit >= minimum bid
-        if (msg.value < minimumBidWei) {
-            revert InsufficientETH(minimumBidWei, msg.value);
+
+        // ── Max bidders cap ──
+        if (_bidders[auctionId].length >= MAX_BIDDERS) revert MaxBiddersReached(auctionId);
+
+        // ── Require ETH deposit >= on-chain minimum ──
+        if (msg.value < a.minimumBidWei) {
+            revert InsufficientETH(a.minimumBidWei, msg.value);
         }
 
-        Auction storage a = auctions[auctionId];
         euint64 bidAmount = FHE.asEuint64(bidAmountEncrypted);
 
         // ── Enforce minimum bid (encrypted comparison) ──
@@ -284,21 +299,23 @@ contract ShadowBid {
 
     // ────────────────────────── Claim Payment ──────────────────────
 
-    /// @notice Seller claims the winning bid amount after reveal
+    /// @notice Seller claims the winner's ETH deposit after reveal.
+    /// @dev The winning bid (encrypted score) is separate from the ETH
+    ///      deposit. The seller receives the winner's deposited ETH.
     /// @param auctionId The auction to claim payment from
     function claimPayment(uint256 auctionId)
         external
         auctionExists(auctionId)
     {
         Auction storage a = auctions[auctionId];
-        
-        if (msg.sender != a.seller) revert OnlySellerCanFinalize();
+
+        if (msg.sender != a.seller) revert OnlySellerCanClaim();
         if (a.revealedWinner == address(0)) revert RevealNotReady();
         if (a.paymentClaimed) revert PaymentAlreadyClaimed();
 
         // Get the winner's ETH deposit
         uint256 payment = bids[auctionId][a.revealedWinner].ethDeposited;
-        
+
         if (payment == 0) revert NoRefundAvailable();
 
         a.paymentClaimed = true;
@@ -320,7 +337,7 @@ contract ShadowBid {
         auctionExists(auctionId)
     {
         Auction storage a = auctions[auctionId];
-        
+
         if (a.revealedWinner == address(0)) revert RevealNotReady();
         if (msg.sender == a.revealedWinner) revert WinnerCannotRefund();
 
@@ -399,5 +416,15 @@ contract ShadowBid {
         returns (bool)
     {
         return auctions[auctionId].paymentClaimed;
+    }
+
+    /// @notice Returns the on-chain minimum bid in wei
+    function getMinimumBidWei(uint256 auctionId)
+        external
+        view
+        auctionExists(auctionId)
+        returns (uint256)
+    {
+        return auctions[auctionId].minimumBidWei;
     }
 }
