@@ -9,6 +9,13 @@ interface CountdownTimerProps {
   compact?: boolean;
 }
 
+const STATUS_CONFIG = {
+  active: { cls: 'sb-timer--active' },
+  ending: { cls: 'sb-timer--ending' },
+  ended: { cls: 'sb-timer--ended' },
+  finalizing: { cls: 'sb-timer--finalizing' },
+} as const;
+
 export function CountdownTimer({ endTime, isFinalized = false, onComplete, compact = false }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const [status, setStatus] = useState<AuctionStatus>('active');
@@ -30,18 +37,11 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
       }
 
       setSecondsLeft(difference);
-      
-      if (totalDuration === 0) {
-        setTotalDuration(difference);
-      }
+      if (totalDuration === 0) setTotalDuration(difference);
 
-      if (isFinalized) {
-        setStatus('finalizing');
-      } else if (difference < 3600) {
-        setStatus('ending');
-      } else {
-        setStatus('active');
-      }
+      if (isFinalized) setStatus('finalizing');
+      else if (difference < 3600) setStatus('ending');
+      else setStatus('active');
 
       const days = Math.floor(difference / 86400);
       const hours = Math.floor((difference % 86400) / 3600);
@@ -49,83 +49,40 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
       const seconds = difference % 60;
 
       if (compact) {
-        if (days > 0) {
-          setTimeLeft(`${days}d ${hours}h`);
-        } else if (hours > 0) {
-          setTimeLeft(`${hours}h ${minutes}m`);
-        } else if (minutes > 0) {
-          setTimeLeft(`${minutes}m ${seconds}s`);
-        } else {
-          setTimeLeft(`${seconds}s`);
-        }
+        if (days > 0) setTimeLeft(`${days}d ${hours}h`);
+        else if (hours > 0) setTimeLeft(`${hours}h ${minutes}m`);
+        else if (minutes > 0) setTimeLeft(`${minutes}m ${seconds}s`);
+        else setTimeLeft(`${seconds}s`);
       } else {
-        if (days > 0) {
-          setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-        } else if (hours > 0) {
-          setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-        } else if (minutes > 0) {
-          setTimeLeft(`${minutes}m ${seconds}s`);
-        } else {
-          setTimeLeft(`${seconds}s`);
-        }
+        if (days > 0) setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+        else if (hours > 0) setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+        else if (minutes > 0) setTimeLeft(`${minutes}m ${seconds}s`);
+        else setTimeLeft(`${seconds}s`);
       }
     };
 
     calculateTimeLeft();
     const interval = setInterval(calculateTimeLeft, 1000);
-
     return () => clearInterval(interval);
   }, [endTime, isFinalized, onComplete, compact, totalDuration]);
 
-  const statusConfig = {
-    active: {
-      color: 'var(--amber)',
-      bgColor: 'rgba(245, 158, 11, 0.1)',
-      borderColor: 'rgba(245, 158, 11, 0.2)',
-      pulse: false,
-    },
-    ending: {
-      color: 'var(--amber)',
-      bgColor: 'rgba(245, 158, 11, 0.1)',
-      borderColor: 'rgba(245, 158, 11, 0.2)',
-      pulse: true,
-    },
-    ended: {
-      color: 'var(--red)',
-      bgColor: 'rgba(239, 68, 68, 0.1)',
-      borderColor: 'rgba(239, 68, 68, 0.2)',
-      pulse: false,
-    },
-    finalizing: {
-      color: 'var(--emerald)',
-      bgColor: 'rgba(16, 185, 129, 0.1)',
-      borderColor: 'rgba(16, 185, 129, 0.2)',
-      pulse: false,
-    },
-  };
+  const progress = totalDuration > 0 ? (secondsLeft / totalDuration) * 100 : 0;
+  const config = STATUS_CONFIG[status];
 
-  const config = statusConfig[status];
-
-  const getProgress = (): number => {
-    if (totalDuration === 0) return 0;
-    return (secondsLeft / totalDuration) * 100;
-  };
+  const statusLabel = status === 'active' ? 'Active'
+    : status === 'ending' ? 'Ending Soon'
+    : status === 'ended' ? 'Ended'
+    : 'Finalized';
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2">
-        <span className="font-ibm-plex-mono text-sm" style={{ color: config.color }}>
+      <div className="sb-timer-compact">
+        <span className={`sb-timer-compact__text ${config.cls}`}>
           {timeLeft}
         </span>
         {secondsLeft > 0 && (
-          <div className="w-16 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-            <div 
-              className="h-full transition-all duration-1000"
-              style={{ 
-                width: `${getProgress()}%`,
-                background: 'linear-gradient(135deg, var(--amber), var(--cyan))'
-              }}
-            />
+          <div className="sb-timer-compact__bar">
+            <div className="sb-timer-compact__fill" style={{ width: `${progress}%` }} />
           </div>
         )}
       </div>
@@ -133,42 +90,22 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {config.pulse && (
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--amber)' }}></span>
-              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: 'var(--amber)' }}></span>
+    <div className="sb-timer">
+      <div className="sb-timer__row">
+        <div className="sb-timer__left">
+          {status === 'ending' && (
+            <span className="sb-timer__ping">
+              <span className="sb-timer__ping-dot sb-timer__ping-dot--outer" />
+              <span className="sb-timer__ping-dot sb-timer__ping-dot--inner" />
             </span>
           )}
-          <span 
-            className="font-ibm-plex-mono text-2xl font-bold"
-            style={{ color: config.color }}
-          >
-            {timeLeft}
-          </span>
+          <span className={`sb-timer__value ${config.cls}`}>{timeLeft}</span>
         </div>
-        <span 
-          className="px-3 py-1 rounded-full text-xs font-medium border"
-          style={{ 
-            background: config.bgColor,
-            color: config.color,
-            borderColor: config.borderColor
-          }}
-        >
-          {status === 'active' ? 'Active' : status === 'ending' ? 'Ending Soon' : status === 'ended' ? 'Ended' : 'Finalized'}
-        </span>
+        <span className={`sb-timer__badge ${config.cls}`}>{statusLabel}</span>
       </div>
       {secondsLeft > 0 && (
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-          <div 
-            className="h-full transition-all duration-1000"
-            style={{ 
-              width: `${getProgress()}%`,
-              background: 'linear-gradient(135deg, var(--amber), var(--cyan))'
-            }}
-          />
+        <div className="sb-timer__progress">
+          <div className="sb-timer__progress-fill" style={{ width: `${progress}%` }} />
         </div>
       )}
     </div>
