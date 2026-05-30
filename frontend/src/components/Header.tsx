@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, ExternalLink } from 'lucide-react';
+import { Menu, X, ExternalLink } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { SHADOWBID_ADDRESS } from '../constants/contracts';
 
@@ -45,7 +45,7 @@ export default function Header() {
           <Link to="/" className="sb-logo">
             <div className="sb-logo__icon">
               <div className="sb-logo__shimmer" />
-              <Zap size={20} color="#f59e0b" />
+              <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" />
             </div>
             <div className="sb-logo__text">
               <span className="sb-logo__name">
@@ -103,7 +103,7 @@ export default function Header() {
             <div className="sb-drawer__head">
               <Link to="/" className="sb-logo sb-logo--sm" onClick={() => setMobileOpen(false)}>
                 <div className="sb-logo__icon sb-logo__icon--sm">
-                  <Zap size={16} color="#f59e0b" />
+                  <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" />
                 </div>
                 <span className="sb-logo__name sb-logo__name--sm">
                   Shadow<span className="sb-logo__name--accent">Bid</span>

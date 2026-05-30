@@ -9,12 +9,12 @@
   "background_color": "#030305",
   "icons": [
     {
-      "src": "/shadowbid2.png",
+      "src": "/shadowbid.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/shadowbid2.png",
+      "src": "/shadowbid.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

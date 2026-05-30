@@ -328,6 +328,14 @@ h1, h2, h3, h4 {
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
+.sb-logo__image {
+  height: 30px;
+  object-fit: contain;
+  position: relative;
+  width: 30px;
+  z-index: 1;
+}
+
 .sb-logo:hover .sb-logo__icon {
   border-color: rgba(245, 158, 11, 0.45);
   box-shadow: 0 0 16px rgba(245, 158, 11, 0.12);
@@ -379,6 +387,10 @@ h1, h2, h3, h4 {
   width: 32px;
   height: 32px;
   border-radius: 8px;
+}
+.sb-logo__icon--sm .sb-logo__image {
+  height: 24px;
+  width: 24px;
 }
 .sb-logo__name--sm {
   font-size: 16px;
