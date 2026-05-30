@@ -5,11 +5,26 @@ import { useCofheClient } from '@cofhe/react';
 import { Encryptable, FheTypes } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import type { Auction } from '../types';
+
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const WEI_PER_ETH = 1_000_000_000_000_000_000n;
+
+function formatEth(value: bigint) {
+  const whole = value / WEI_PER_ETH;
+  const fraction = value % WEI_PER_ETH;
+  if (fraction === 0n) return whole.toString();
+  const padded = fraction.toString().padStart(18, '0').slice(0, 4);
+  return `${whole}.${padded.replace(/0+$/, '')}`;
+}
+
+function shortAddress(value: string) {
+  return `${value.slice(0, 8)}...${value.slice(-6)}`;
+}
 
 export function AuctionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -107,16 +122,16 @@ export function AuctionDetail() {
     isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
     hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
     isWinning = !!decryptedBidder && !!address && decryptedBidder.toLowerCase() === address.toLowerCase();
-    isWinner = auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' &&
+    isWinner = auctionData.revealedWinner !== ZERO_ADDRESS &&
                !!address && auctionData.revealedWinner.toLowerCase() === address.toLowerCase();
     canClaimRefund = hasBid && !isWinner && auctionData.finalized &&
-                     auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' &&
+                     auctionData.revealedWinner !== ZERO_ADDRESS &&
                      userDepositAmount > 0n;
   }
 
   const shouldTriggerConfetti =
     !!auctionData?.finalized &&
-    auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' &&
+    auctionData.revealedWinner !== ZERO_ADDRESS &&
     !hasTriggeredConfetti;
 
   useEffect(() => {
@@ -155,7 +170,7 @@ export function AuctionDetail() {
   }, [auctionData, isSeller, writeContract, auctionId]);
 
   const handleReveal = useCallback(async () => {
-    if (!auctionData?.finalized || auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000') return;
+    if (!auctionData?.finalized || auctionData.revealedWinner !== ZERO_ADDRESS) return;
     try {
       if (!cofheClient) { setError('Cofhe client not initialized'); return; }
       const bidResult = await cofheClient.decryptForView(highestBidCtHash as `0x${string}`, FheTypes.Uint64).execute();
@@ -190,6 +205,9 @@ export function AuctionDetail() {
   }, [txError]);
 
   const isLoading = isEncrypting || isTxPending || isConfirming;
+  const bidCountNumber = Number(bidCount || 0);
+  const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Live bidding' : 'Bidding ended';
+  const statusClass = auctionData?.finalized ? 'sb-detail-status--finalized' : isBiddingActive ? 'sb-detail-status--active' : 'sb-detail-status--ended';
 
   if (auctionLoading) {
     return (
@@ -227,17 +245,14 @@ export function AuctionDetail() {
         {/* Left Column */}
         <div className="sb-detail-left">
           {/* Auction Info */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card sb-detail-info">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="sb-detail-info">
             <div className="sb-detail-info__header">
               <div>
+                <div className="sb-detail-kicker"><ShieldCheck size={16} /> Auction #{auctionId.toString()} on Arbitrum Sepolia</div>
                 <h1 className="sb-detail-info__title responsive-title">{auctionData.title}</h1>
                 <div className="sb-detail-info__tag"><Lock size={16} /> Encrypted Sealed-Bid Auction</div>
               </div>
-              <div>
-                {auctionData.finalized && <span className="badge badge-ended">Finalized</span>}
-                {!auctionData.finalized && isBiddingActive && <span className="badge badge-active">Active</span>}
-                {!auctionData.finalized && !isBiddingActive && <span className="badge badge-ended">Ended</span>}
-              </div>
+              <span className={`sb-detail-status ${statusClass}`}>{statusLabel}</span>
             </div>
 
             <div className="sb-detail-stats">
@@ -247,12 +262,12 @@ export function AuctionDetail() {
               </div>
               <div className="stats-card">
                 <div className="sb-detail-stat-label"><Users size={16} /> Bidders</div>
-                <p className="sb-detail-stat-value">{Number(bidCount || 0)}</p>
+                <p className="sb-detail-stat-value">{bidCountNumber}</p>
               </div>
               <div className="stats-card sb-detail-stats--wide">
                 <div className="sb-detail-stat-label"><Lock size={16} /> Seller</div>
                 <p className="sb-detail-stat-value sb-detail-stat-value--seller">
-                  {auctionData.seller.slice(0, 8)}...{auctionData.seller.slice(-6)}
+                  {shortAddress(auctionData.seller)}
                   {isSeller && <span className="sb-detail-you">(You)</span>}
                 </p>
               </div>
@@ -260,21 +275,21 @@ export function AuctionDetail() {
           </motion.div>
 
           {/* Highest Bid */}
-          {Number(bidCount || 0) > 0 && (
+          {bidCountNumber > 0 ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card sb-detail-highest">
               <h2 className="sb-detail-highest__title"><Trophy size={24} /> Current Highest Bid</h2>
 
-              {auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' ? (
+              {auctionData.revealedWinner !== ZERO_ADDRESS ? (
                 <div className="sb-detail-highest__revealed">
                   <div className="sb-detail-highest__amount">
                     <p className="sb-detail-highest__amount-label">Winning Bid</p>
-                    <p className="sb-detail-highest__amount-value gradient-text">{Number(auctionData.revealedBid) / 1e18} ETH</p>
+                    <p className="sb-detail-highest__amount-value gradient-text">{formatEth(auctionData.revealedBid)} ETH</p>
                   </div>
                   <div className="sb-detail-highest__winner">
                     <div className="sb-detail-trophy-circle"><Trophy size={24} /></div>
                     <div>
                       <p className="sb-detail-highest__winner-label">Winner</p>
-                      <p className="sb-detail-mono">{auctionData.revealedWinner.slice(0, 8)}...{auctionData.revealedWinner.slice(-6)}</p>
+                      <p className="sb-detail-mono">{shortAddress(auctionData.revealedWinner)}</p>
                     </div>
                   </div>
                 </div>
@@ -283,12 +298,12 @@ export function AuctionDetail() {
                   <div className="sb-detail-highest__amount">
                     <p className="sb-detail-highest__amount-label">Highest Bid (Encrypted)</p>
                     <p className="sb-detail-highest__amount-value gradient-text encrypted-blur">
-                      {decryptedBid ? `${(BigInt(decryptedBid) / BigInt(1e18)).toString()} ETH` : '••••• ETH'}
+                      {decryptedBid ? `${formatEth(BigInt(decryptedBid))} ETH` : 'Sealed ETH'}
                     </p>
                   </div>
                   {isWinning && (
                     <div className="sb-detail-winning-box">
-                      <Trophy size={20} /> 🎉 You are currently winning!
+                      <Trophy size={20} /> You are currently winning.
                     </div>
                   )}
                   {decryptedBidder && !isWinning && (
@@ -296,12 +311,20 @@ export function AuctionDetail() {
                       <div className="sb-detail-lock-circle"><Lock size={20} /></div>
                       <div>
                         <p className="sb-detail-highest__winner-label">Highest Bidder</p>
-                        <p className="sb-detail-mono">{decryptedBidder.slice(0, 8)}...{decryptedBidder.slice(-6)}</p>
+                        <p className="sb-detail-mono">{shortAddress(decryptedBidder)}</p>
                       </div>
                     </div>
                   )}
                 </div>
               )}
+            </motion.div>
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card sb-detail-empty-bids">
+              <div className="sb-detail-lock-circle"><Gavel size={20} /></div>
+              <div>
+                <h2>No bids yet</h2>
+                <p>Be the first bidder. Your amount stays sealed until the auction closes.</p>
+              </div>
             </motion.div>
           )}
 
@@ -348,9 +371,7 @@ export function AuctionDetail() {
                   <Lock size={20} />
                   <div>
                     <p>You have already placed a bid on this auction.</p>
-                    {userDepositAmount > 0n && (
-                      <p className="sb-detail-deposit-info">Your deposit: {Number(userDepositAmount / BigInt(1e18))} ETH</p>
-                    )}
+                    {userDepositAmount > 0n && <p className="sb-detail-deposit-info">Your deposit: {formatEth(userDepositAmount)} ETH</p>}
                   </div>
                 </div>
               </ActionPanel>
@@ -367,7 +388,7 @@ export function AuctionDetail() {
             )}
 
             {/* Reveal */}
-            {auctionData.finalized && auctionData.revealedWinner === '0x0000000000000000000000000000000000000000' && (
+            {auctionData.finalized && auctionData.revealedWinner === ZERO_ADDRESS && (
               <ActionPanel title="Reveal Winner">
                 <p className="sb-detail-action-desc">The auction has been finalized. Reveal the winner and winning bid.</p>
                 <button onClick={handleReveal} disabled={isLoading} className="btn-primary sb-detail-action-btn">Reveal Winner</button>
@@ -375,10 +396,10 @@ export function AuctionDetail() {
             )}
 
             {/* Claim Payment */}
-            {isSeller && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && !auctionData.paymentClaimed && (
+            {isSeller && auctionData.finalized && auctionData.revealedWinner !== ZERO_ADDRESS && !auctionData.paymentClaimed && (
               <ActionPanel title={<><Wallet size={20} /> Claim Payment</>}>
                 <p className="sb-detail-action-desc">The auction has ended and the winner has been revealed. You can now claim the winning bid amount.</p>
-                <div className="sb-detail-green-box">Winning bid: {Number(auctionData.revealedBid) / 1e18} ETH</div>
+                <div className="sb-detail-green-box">Winning bid: {formatEth(auctionData.revealedBid)} ETH</div>
                 <button onClick={handleClaimPayment} disabled={isLoading} className="btn-primary sb-detail-action-btn">
                   <ArrowDownToLine size={20} /> {isTxPending || isConfirming ? 'Processing...' : 'Claim Payment'}
                 </button>
@@ -391,7 +412,7 @@ export function AuctionDetail() {
             )}
 
             {/* Winner */}
-            {isWinner && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && (
+            {isWinner && auctionData.finalized && auctionData.revealedWinner !== ZERO_ADDRESS && (
               <div className="sb-detail-winner-box">
                 <div className="sb-detail-winner-box__header">
                   <div className="sb-detail-trophy-circle"><Trophy size={24} /></div>
@@ -408,7 +429,7 @@ export function AuctionDetail() {
             {canClaimRefund && (
               <ActionPanel title={<><ArrowDownToLine size={20} /> Claim Refund</>}>
                 <p className="sb-detail-action-desc">Unfortunately, you didn't win this auction. You can claim a full refund of your deposited ETH.</p>
-                <div className="sb-detail-amber-box">Your deposit: {Number(userDepositAmount / BigInt(1e18))} ETH</div>
+                <div className="sb-detail-amber-box">Your deposit: {formatEth(userDepositAmount)} ETH</div>
                 <button onClick={handleClaimRefund} disabled={isLoading} className="btn-primary sb-detail-action-btn">
                   <ArrowDownToLine size={20} /> {isTxPending || isConfirming ? 'Processing...' : 'Claim Refund'}
                 </button>
@@ -416,7 +437,7 @@ export function AuctionDetail() {
             )}
 
             {/* Refund Claimed */}
-            {hasBid && !isWinner && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && userDepositAmount === 0n && (
+            {hasBid && !isWinner && auctionData.finalized && auctionData.revealedWinner !== ZERO_ADDRESS && userDepositAmount === 0n && (
               <div className="sb-detail-success-box"><Gift size={20} /> Refund has been claimed!</div>
             )}
           </div>
