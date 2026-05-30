@@ -51,7 +51,7 @@ export function CreateAuction() {
   useEffect(() => {
     if (txError) {
       console.error('[CreateAuction] TX error:', txError);
-      toast.error(txError.shortMessage || txError.message || 'Transaction failed');
+      toast.error((txError as Error & { shortMessage?: string }).shortMessage || txError.message || 'Transaction failed');
     }
   }, [txError]);
 

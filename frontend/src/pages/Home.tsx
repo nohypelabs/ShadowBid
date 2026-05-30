@@ -51,7 +51,7 @@ export function Home() {
       </div>
 
       <div className="sb-page__content">
-        <HeroSection displayCount={displayCount} isLoadingCounter={isLoadingCounter} totalAuctions={totalAuctions} />
+        <HeroSection />
 
         <StatsSection displayCount={displayCount} isLoadingCounter={isLoadingCounter} totalAuctions={totalAuctions} />
 
@@ -274,6 +274,13 @@ function EmptyState() {
 }
 
 function AuctionItem({ auctionId }: { auctionId: number }) {
+  const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(BigInt(Math.floor(Date.now() / 1000))), 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -314,7 +321,6 @@ function AuctionItem({ auctionId }: { auctionId: number }) {
     revealedWinner: (auction as unknown[])[9] as string,
   };
 
-  const now = BigInt(Math.floor(Date.now() / 1000));
   const isActive = auctionData.biddingEnd > now && !auctionData.finalized;
   const isEnded = auctionData.finalized || auctionData.biddingEnd <= now;
   const bidderCount = Number(bidCount || 0);

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
+import { Encryptable, FheTypes } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine } from 'lucide-react';
@@ -58,14 +59,25 @@ export function AuctionDetail() {
   const [decryptedBid, setDecryptedBid] = useState<string | null>(null);
   const [decryptedBidder, setDecryptedBidder] = useState<string | null>(null);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
+  const userDepositAmount = typeof userDeposit === 'bigint' ? userDeposit : 0n;
 
   useEffect(() => {
     async function tryDecrypt() {
       if (highestBidCtHash && address && cofheClient) {
-        try { const r = await cofheClient.decrypt.decryptUint64(highestBidCtHash); if (r) setDecryptedBid(r.toString()); } catch {}
+        try {
+          const r = await cofheClient.decryptForView(highestBidCtHash as `0x${string}`, FheTypes.Uint64).execute();
+          setDecryptedBid(r.toString());
+        } catch (err) {
+          console.debug('[AuctionDetail] Unable to decrypt highest bid yet:', err);
+        }
       }
       if (highestBidderCtHash && address && cofheClient) {
-        try { const r = await cofheClient.decrypt.decryptAddress(highestBidderCtHash); if (r) setDecryptedBidder(r); } catch {}
+        try {
+          const r = await cofheClient.decryptForView(highestBidderCtHash as `0x${string}`, FheTypes.Uint160).execute();
+          setDecryptedBidder(r);
+        } catch (err) {
+          console.debug('[AuctionDetail] Unable to decrypt highest bidder yet:', err);
+        }
       }
     }
     tryDecrypt();
@@ -99,15 +111,20 @@ export function AuctionDetail() {
                !!address && auctionData.revealedWinner.toLowerCase() === address.toLowerCase();
     canClaimRefund = hasBid && !isWinner && auctionData.finalized &&
                      auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' &&
-                     userDeposit && (userDeposit as bigint) > 0n;
+                     userDepositAmount > 0n;
   }
 
+  const shouldTriggerConfetti =
+    !!auctionData?.finalized &&
+    auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' &&
+    !hasTriggeredConfetti;
+
   useEffect(() => {
-    if (auctionData?.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && !hasTriggeredConfetti) {
+    if (shouldTriggerConfetti) {
       confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#8b5cf6', '#10b981'] });
-      setHasTriggeredConfetti(true);
+      window.setTimeout(() => setHasTriggeredConfetti(true), 0);
     }
-  }, [auctionData, hasTriggeredConfetti]);
+  }, [shouldTriggerConfetti]);
 
   // Handlers
   const handlePlaceBid = useCallback(async (e: React.FormEvent) => {
@@ -121,9 +138,12 @@ export function AuctionDetail() {
     if (!cofheClient) { setError('Cofhe client not initialized'); return; }
     try {
       setIsEncrypting(true);
-      const encrypted = await cofheClient.encrypt.encryptUint64(BigInt(Math.round(bidValue * 1e18)));
+      const encryptedResults = await cofheClient.encryptInputs([
+        Encryptable.uint64(BigInt(Math.round(bidValue * 1e18))),
+      ]).execute();
       setIsEncrypting(false);
-      const inEuint64 = { ctHash: BigInt(encrypted.ctHash), securityZone: encrypted.securityZone, utype: encrypted.utype, signature: encrypted.signature as `0x${string}` };
+      const encrypted = encryptedResults[0];
+      const inEuint64 = { ctHash: encrypted.ctHash, securityZone: encrypted.securityZone, utype: encrypted.utype, signature: encrypted.signature as `0x${string}` };
       const bidWei = BigInt(Math.round(bidValue * 1e18));
       writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'placeBid', args: [auctionId, inEuint64], value: bidWei });
     } catch (err) { setIsEncrypting(false); setError(err instanceof Error ? err.message : 'Failed to encrypt bid'); }
@@ -138,8 +158,8 @@ export function AuctionDetail() {
     if (!auctionData?.finalized || auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000') return;
     try {
       if (!cofheClient) { setError('Cofhe client not initialized'); return; }
-      const bidResult = await cofheClient.decrypt.decryptUint64(highestBidCtHash!);
-      const winnerResult = await cofheClient.decrypt.decryptAddress(highestBidderCtHash!);
+      const bidResult = await cofheClient.decryptForView(highestBidCtHash as `0x${string}`, FheTypes.Uint64).execute();
+      const winnerResult = await cofheClient.decryptForView(highestBidderCtHash as `0x${string}`, FheTypes.Uint160).execute();
       if (bidResult && winnerResult) setError('Reveal requires Threshold Network signatures. Please use the official SDK flow.');
     } catch (err) { setError(err instanceof Error ? err.message : 'Failed to decrypt results'); }
   }, [auctionData, cofheClient, highestBidCtHash, highestBidderCtHash]);
@@ -154,9 +174,20 @@ export function AuctionDetail() {
     writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'claimRefund', args: [auctionId] });
   }, [canClaimRefund, writeContract, auctionId]);
 
-  if (hash) toast.loading('Processing transaction...', { id: hash });
-  if (isConfirmed && hash) { toast.success('Transaction confirmed!', { id: hash }); refetch(); }
-  if (txError) toast.error(txError.message || 'Transaction failed');
+  useEffect(() => {
+    if (hash) toast.loading('Processing transaction...', { id: hash });
+  }, [hash]);
+
+  useEffect(() => {
+    if (isConfirmed && hash) {
+      toast.success('Transaction confirmed!', { id: hash });
+      refetch();
+    }
+  }, [isConfirmed, hash, refetch]);
+
+  useEffect(() => {
+    if (txError) toast.error(txError.message || 'Transaction failed');
+  }, [txError]);
 
   const isLoading = isEncrypting || isTxPending || isConfirming;
 
@@ -317,8 +348,8 @@ export function AuctionDetail() {
                   <Lock size={20} />
                   <div>
                     <p>You have already placed a bid on this auction.</p>
-                    {userDeposit && (userDeposit as bigint) > 0n && (
-                      <p className="sb-detail-deposit-info">Your deposit: {Number((userDeposit as bigint) / BigInt(1e18))} ETH</p>
+                    {userDepositAmount > 0n && (
+                      <p className="sb-detail-deposit-info">Your deposit: {Number(userDepositAmount / BigInt(1e18))} ETH</p>
                     )}
                   </div>
                 </div>
@@ -377,7 +408,7 @@ export function AuctionDetail() {
             {canClaimRefund && (
               <ActionPanel title={<><ArrowDownToLine size={20} /> Claim Refund</>}>
                 <p className="sb-detail-action-desc">Unfortunately, you didn't win this auction. You can claim a full refund of your deposited ETH.</p>
-                <div className="sb-detail-amber-box">Your deposit: {Number((userDeposit as bigint) / BigInt(1e18))} ETH</div>
+                <div className="sb-detail-amber-box">Your deposit: {Number(userDepositAmount / BigInt(1e18))} ETH</div>
                 <button onClick={handleClaimRefund} disabled={isLoading} className="btn-primary sb-detail-action-btn">
                   <ArrowDownToLine size={20} /> {isTxPending || isConfirming ? 'Processing...' : 'Claim Refund'}
                 </button>
@@ -385,7 +416,7 @@ export function AuctionDetail() {
             )}
 
             {/* Refund Claimed */}
-            {hasBid && !isWinner && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && userDeposit && (userDeposit as bigint) === 0n && (
+            {hasBid && !isWinner && auctionData.finalized && auctionData.revealedWinner !== '0x0000000000000000000000000000000000000000' && userDepositAmount === 0n && (
               <div className="sb-detail-success-box"><Gift size={20} /> Refund has been claimed!</div>
             )}
           </div>

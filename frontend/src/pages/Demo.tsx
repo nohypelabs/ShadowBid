@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Gift, Diamond, Clock, AlertCircle } from 'lucide-react';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
+
+type DemoEncryptionInput = {
+  items: Array<{
+    value: bigint;
+    type: 'uint64';
+    label: string;
+  }>;
+};
 
 const DEMO_TEMPLATES = [
   {
@@ -39,7 +47,8 @@ export function Demo() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const encryptInputsAsync = async (_input: any) => {
+  const encryptInputsAsync = async (input: DemoEncryptionInput) => {
+    void input;
     return [{
       ctHash: '0x' + '0'.repeat(64),
       securityZone: 0,
@@ -83,14 +92,22 @@ export function Demo() {
     }
   };
 
-  if (hash) toast.loading('Creating demo auctions...', { id: hash });
-  if (isConfirmed && hash) {
-    toast.success('Demo auctions created successfully!', { id: hash });
-    setTimeout(() => setIsCreating(false), 1000);
-  }
-  if (txError) toast.error(txError.message || 'Failed to create demo auctions');
+  useEffect(() => {
+    if (hash) toast.loading('Creating demo auctions...', { id: hash });
+  }, [hash]);
 
-  const useTemplate = (template: typeof DEMO_TEMPLATES[0]) => {
+  useEffect(() => {
+    if (isConfirmed && hash) {
+      toast.success('Demo auctions created successfully!', { id: hash });
+      window.setTimeout(() => setIsCreating(false), 1000);
+    }
+  }, [isConfirmed, hash]);
+
+  useEffect(() => {
+    if (txError) toast.error(txError.message || 'Failed to create demo auctions');
+  }, [txError]);
+
+  const handleUseTemplate = (template: typeof DEMO_TEMPLATES[0]) => {
     navigate('/create', { state: { title: template.title, duration: template.durationHours.toString(), minimumBid: template.minBid.toString() } });
   };
 
@@ -171,7 +188,7 @@ export function Demo() {
               <p className="sb-template-card__desc">{template.description}</p>
 
               {/* Use Button */}
-              <button onClick={() => useTemplate(template)} className="sb-template-card__btn">
+              <button onClick={() => handleUseTemplate(template)} className="sb-template-card__btn">
                 Use Template →
               </button>
             </motion.div>

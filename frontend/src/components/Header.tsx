@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, ExternalLink, ChevronDown } from 'lucide-react';
+import { Menu, X, Zap, ExternalLink } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const NAV_LINKS = [
@@ -14,20 +14,12 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Hide header on auction detail pages
-  if (location.pathname.startsWith('/auction/')) return null;
-
   // Scroll detection
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -39,6 +31,9 @@ export default function Header() {
     (href: string) => (href === '/' ? location.pathname === '/' : location.pathname.startsWith(href)),
     [location.pathname],
   );
+
+  // Hide header on auction detail pages
+  if (location.pathname.startsWith('/auction/')) return null;
 
   return (
     <>

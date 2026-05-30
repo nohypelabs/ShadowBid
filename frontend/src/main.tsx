@@ -1,11 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { WagmiProvider, useWalletClient, usePublicClient } from "wagmi";
+import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CofheProvider, createCofheConfig } from "@cofhe/react";
-import { Toaster } from "sonner";
+import { CofheBridge } from "./components/CofheBridge";
 import { config } from "./config/wagmi";
 import App from "./App";
 
@@ -13,32 +12,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "./index.css";
 
 const queryClient = new QueryClient();
-
-const cofheConfig = createCofheConfig({
-  supportedChains: [
-    {
-      id: 421614,
-      name: "Arbitrum Sepolia",
-      network: "arb-sepolia",
-      coFheUrl: "https://testnet-cofhe.fhenix.zone",
-      verifierUrl: "https://testnet-cofhe-vrf.fhenix.zone",
-      thresholdNetworkUrl: "https://testnet-cofhe-tn.fhenix.zone",
-      environment: "TESTNET",
-    },
-  ],
-});
-
-function CofheBridge({ children }: { children: React.ReactNode }) {
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-
-  return (
-    <CofheProvider config={cofheConfig} walletClient={walletClient} publicClient={publicClient}>
-      {children}
-      <Toaster position="bottom-right" richColors theme="dark" />
-    </CofheProvider>
-  );
-}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

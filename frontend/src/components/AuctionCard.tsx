@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Clock, Lock } from 'lucide-react';
+import { Clock, Lock, Users } from 'lucide-react';
 import { CountdownTimer } from './CountdownTimer';
 import type { AuctionWithId } from '../types';
 
@@ -12,10 +13,16 @@ interface AuctionCardProps {
 
 export function AuctionCard({ auction, bidCount, isLoading = false }: AuctionCardProps) {
   const navigate = useNavigate();
+  const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(BigInt(Math.floor(Date.now() / 1000))), 1000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   if (isLoading) return <AuctionCardSkeleton />;
 
-  const isEnded = auction.finalized || auction.biddingEnd < BigInt(Math.floor(Date.now() / 1000));
+  const isEnded = auction.finalized || auction.biddingEnd < now;
 
   const statusBadge = auction.finalized
     ? <span className="badge badge-ended">Finalized</span>
@@ -55,8 +62,8 @@ export function AuctionCard({ auction, bidCount, isLoading = false }: AuctionCar
 
         {/* Seller */}
         <div className="sb-card__seller">
-          <Lock size={16} />
-          <span>{auction.seller.slice(0, 6)}...{auction.seller.slice(-4)}</span>
+          <Users size={16} />
+          <span>{bidCount} bidder{bidCount === 1 ? '' : 's'}</span>
         </div>
 
         {/* CTA */}
