@@ -9,7 +9,7 @@ function App() {
       <div style={{
         position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
         width: '100%', height: '50vh', pointerEvents: 'none', zIndex: 0,
-        background: 'radial-gradient(ellipse 60% 40% at 50% -20%, rgba(245,158,11,0.08) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse 60% 40% at 50% -20%, rgba(245,158,11,0.12) 0%, transparent 60%)',
       }} />
 
       <Header />
