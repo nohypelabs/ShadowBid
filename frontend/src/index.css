@@ -809,12 +809,15 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
 }
 
 .sb-timer__left {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .sb-timer__ping {
@@ -850,8 +853,10 @@ h1, h2, h3, h4 {
 
 .sb-timer__value {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
 }
 
 .sb-timer__badge {
@@ -860,6 +865,8 @@ h1, h2, h3, h4 {
   font-size: 12px;
   font-weight: 500;
   border: 1px solid;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .sb-timer__badge.sb-timer--active    { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); }
@@ -2344,16 +2351,18 @@ h1, h2, h3, h4 {
 
 .sb-detail-stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
-@media (min-width: 640px) {
-  .sb-detail-stats { grid-template-columns: repeat(4, 1fr); }
+@media (min-width: 700px) {
+  .sb-detail-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .sb-detail-stats--wide {
-  grid-column: span 2;
+  grid-column: auto;
 }
 
 .sb-detail .stats-card,
@@ -2387,8 +2396,13 @@ h1, h2, h3, h4 {
 
 .sb-detail .stats-card {
   border-radius: 14px;
-  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 128px;
+  min-width: 0;
   padding: 18px;
+  text-align: left;
 }
 
 .sb-detail-stat-label {
@@ -2398,6 +2412,8 @@ h1, h2, h3, h4 {
   color: #94a3b8;
   font-size: 12px;
   margin-bottom: 8px;
+  min-width: 0;
+  text-transform: uppercase;
 }
 
 .sb-detail-stat-value {
@@ -2406,13 +2422,16 @@ h1, h2, h3, h4 {
   font-size: 24px;
   letter-spacing: -0.03em;
   color: #f1f5f9;
+  margin: 0;
 }
 
 .sb-detail-stat-value--seller {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 16px;
   font-weight: 400;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sb-detail-you {

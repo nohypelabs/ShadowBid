@@ -264,7 +264,7 @@ export function AuctionDetail() {
                 <div className="sb-detail-stat-label"><Users size={16} /> Bidders</div>
                 <p className="sb-detail-stat-value">{bidCountNumber}</p>
               </div>
-              <div className="stats-card sb-detail-stats--wide">
+              <div className="stats-card">
                 <div className="sb-detail-stat-label"><Lock size={16} /> Seller</div>
                 <p className="sb-detail-stat-value sb-detail-stat-value--seller">
                   {shortAddress(auctionData.seller)}
