@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useReadContract } from 'wagmi';
 import { motion } from 'framer-motion';
 import {
-  Lock, ShieldCheck, Trophy, Clock, Users,
+  Lock, ShieldCheck, Trophy, Clock, Users, ArrowRight,
   Zap, Plus, Activity, ChevronRight, Eye, Radio,
 } from 'lucide-react';
 import { CountdownTimer } from '../components';
@@ -57,6 +57,8 @@ export function Home() {
         <DashboardGrid totalAuctions={totalAuctions} />
 
         <ProtocolStrip />
+
+        <FooterCTA />
       </div>
     </div>
   );
@@ -445,6 +447,30 @@ function ProtocolStrip() {
               <p>All bids decrypt simultaneously. Highest bidder wins</p>
             </div>
           </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ───────────────────── Footer CTA ───────────────────── */
+
+function FooterCTA() {
+  return (
+    <section className="sb-footer-cta-section">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        className="sb-footer-cta"
+      >
+        <div className="sb-footer-cta__grid" />
+        <div className="sb-footer-cta__content">
+          <h3 className="sb-footer-cta__title">Ready to Bid Privately?</h3>
+          <p className="sb-footer-cta__desc">Join the future of fair auctions with FHE encryption</p>
+          <Link to="/create" className="btn-primary sb-footer-cta__btn">
+            Get Started <ArrowRight size={18} />
+          </Link>
         </div>
       </motion.div>
     </section>
