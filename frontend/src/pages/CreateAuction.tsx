@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useBalance, usePublicClient, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
 import { Encryptable } from '@cofhe/sdk';
 import { toast } from 'sonner';
@@ -27,10 +27,13 @@ const STEP_PROGRESS: Record<string, number> = {
   initTfhe: 10, fetchKeys: 30, pack: 50, prove: 75, verify: 95,
 };
 
+const FEE_BUFFER_PERCENT = 120n;
+
 export function CreateAuction() {
   const navigate = useNavigate();
   const location = useLocation();
   const { address, isConnected } = useAccount();
+  const publicClient = usePublicClient();
   const { data: walletBalance, isLoading: isBalanceLoading } = useBalance({
     address,
     query: { enabled: !!address },
@@ -107,12 +110,20 @@ export function CreateAuction() {
         utype: encrypted.utype,
         signature: encrypted.signature,
       };
+      const fees = await publicClient?.estimateFeesPerGas();
+      const bufferedFees = fees?.maxFeePerGas !== undefined && fees.maxPriorityFeePerGas !== undefined
+        ? {
+            maxFeePerGas: (fees.maxFeePerGas * FEE_BUFFER_PERCENT) / 100n,
+            maxPriorityFeePerGas: (fees.maxPriorityFeePerGas * FEE_BUFFER_PERCENT) / 100n,
+          }
+        : {};
 
       writeContract({
         address: SHADOWBID_ADDRESS,
         abi: SHADOWBID_ABI,
         functionName: 'createAuction',
         args: [title.trim(), BigInt(duration * 3600), inEuint64, BigInt(Math.round(minBid * 1e18))],
+        ...bufferedFees,
       });
     } catch (err) {
       setIsEncrypting(false);
