@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { Header } from './components';
+import { Header, Footer } from './components';
 import { Home, CreateAuction, AuctionDetail, ActiveAuctions, Demo } from './pages';
 
 function App() {
@@ -24,6 +24,8 @@ function App() {
           <Route path="/demo" element={<Demo />} />
         </Routes>
       </main>
+
+      <Footer />
 
       {/* CSS */}
       <style>{`
