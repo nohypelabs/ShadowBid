@@ -419,7 +419,6 @@ function ProtocolStrip() {
         <h2 className="sb-protocol__title">How ShadowBid Works</h2>
         <div className="sb-protocol__steps">
           <div className="sb-protocol__step">
-            <div className="sb-protocol__step-num" style={{ color: '#f59e0b' }}>01</div>
             <div className="sb-protocol__step-icon" style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.2)' }}>
               <Lock size={18} color="#f59e0b" />
             </div>
@@ -430,7 +429,6 @@ function ProtocolStrip() {
           </div>
           <div className="sb-protocol__arrow">&rarr;</div>
           <div className="sb-protocol__step">
-            <div className="sb-protocol__step-num" style={{ color: '#06b6d4' }}>02</div>
             <div className="sb-protocol__step-icon" style={{ background: 'rgba(6,182,212,0.1)', borderColor: 'rgba(6,182,212,0.2)' }}>
               <Activity size={18} color="#06b6d4" />
             </div>
@@ -441,7 +439,6 @@ function ProtocolStrip() {
           </div>
           <div className="sb-protocol__arrow">&rarr;</div>
           <div className="sb-protocol__step">
-            <div className="sb-protocol__step-num" style={{ color: '#8b5cf6' }}>03</div>
             <div className="sb-protocol__step-icon" style={{ background: 'rgba(139,92,246,0.1)', borderColor: 'rgba(139,92,246,0.2)' }}>
               <Trophy size={18} color="#8b5cf6" />
             </div>

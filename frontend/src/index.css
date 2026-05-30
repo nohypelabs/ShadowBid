@@ -1661,17 +1661,6 @@ h1, h2, h3, h4 {
   flex: 1;
   min-width: 200px;
   max-width: 280px;
-  position: relative;
-}
-
-.sb-protocol__step-num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  position: absolute;
-  top: -4px;
-  left: 44px;
-  opacity: 0.5;
 }
 
 .sb-protocol__step-icon {
