@@ -18,7 +18,16 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider theme={darkTheme({ accentColor: '#14B8A6' })} modalSize="compact">
+          <RainbowKitProvider
+            theme={darkTheme({
+              accentColor: '#f59e0b',
+              accentColorForeground: '#030305',
+              borderRadius: 'large',
+              fontStack: 'system',
+              overlayBlur: 'small',
+            })}
+            modalSize="compact"
+          >
             <CofheBridge>
               <App />
             </CofheBridge>

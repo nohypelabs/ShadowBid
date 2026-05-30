@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ExternalLink } from 'lucide-react';
+import { ChevronDown, ExternalLink, Menu, Wallet, X } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useBalance } from 'wagmi';
 import { SHADOWBID_ADDRESS } from '../constants/contracts';
 
 const NAV_LINKS = [
@@ -13,6 +14,11 @@ const NAV_LINKS = [
 
 export default function Header() {
   const location = useLocation();
+  const { address } = useAccount();
+  const { data: walletBalance, isLoading: isBalanceLoading } = useBalance({
+    address,
+    query: { enabled: !!address },
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -36,6 +42,70 @@ export default function Header() {
 
   // Hide header on auction detail pages
   if (location.pathname.startsWith('/auction/')) return null;
+
+  const renderWalletButton = (compact = false) => (
+    <ConnectButton.Custom>
+      {({
+        account,
+        chain,
+        mounted,
+        openAccountModal,
+        openChainModal,
+        openConnectModal,
+      }) => {
+        const ready = mounted;
+        const connected = ready && account && chain;
+        const wrongNetwork = connected && chain.unsupported;
+        const balance = isBalanceLoading
+          ? 'Loading'
+          : walletBalance
+            ? `${Number(walletBalance.formatted).toFixed(4)} ${walletBalance.symbol}`
+            : account?.displayBalance;
+
+        if (!connected) {
+          return (
+            <button
+              className={`sb-wallet-button ${compact ? 'sb-wallet-button--compact' : ''}`}
+              onClick={openConnectModal}
+              type="button"
+            >
+              <Wallet size={16} />
+              {!compact && <span>Connect Wallet</span>}
+            </button>
+          );
+        }
+
+        if (wrongNetwork) {
+          return (
+            <button
+              className={`sb-wallet-button sb-wallet-button--warning ${compact ? 'sb-wallet-button--compact' : ''}`}
+              onClick={openChainModal}
+              type="button"
+            >
+              <span className="sb-wallet-button__status" />
+              {!compact && <span>Switch Network</span>}
+              {compact && <Wallet size={16} />}
+            </button>
+          );
+        }
+
+        return (
+          <button
+            className={`sb-wallet-button sb-wallet-button--connected ${compact ? 'sb-wallet-button--compact' : ''}`}
+            onClick={openAccountModal}
+            type="button"
+          >
+            <span className="sb-wallet-button__status" />
+            <span className="sb-wallet-button__main">
+              <span className="sb-wallet-button__address">{account.displayName}</span>
+              {!compact && balance && <span className="sb-wallet-button__balance">{balance}</span>}
+            </span>
+            {!compact && <ChevronDown size={15} />}
+          </button>
+        );
+      }}
+    </ConnectButton.Custom>
+  );
 
   return (
     <>
@@ -77,12 +147,12 @@ export default function Header() {
             </div>
 
             {/* Wallet */}
-            <ConnectButton showBalance={false} chainStatus="none" accountStatus="address" />
+            {renderWalletButton()}
           </nav>
 
           {/* ── Mobile Actions ── */}
           <div className="sb-header__mobile">
-            <ConnectButton showBalance={false} chainStatus="none" accountStatus="avatar" />
+            {renderWalletButton(true)}
             <button
               className="sb-burger"
               onClick={() => setMobileOpen((v) => !v)}
