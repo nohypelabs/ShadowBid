@@ -6,6 +6,7 @@ import { SHADOWBID_ADDRESS } from '../constants/contracts';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/', icon: '◈' },
+  { label: 'Auctions', href: '/auctions', icon: '◇' },
   { label: 'Create', href: '/create', icon: '✦' },
   { label: 'Demo', href: '/demo', icon: '⚡' },
 ] as const;

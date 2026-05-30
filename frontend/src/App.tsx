@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { Header } from './components';
-import { Home, CreateAuction, AuctionDetail, Demo } from './pages';
+import { Home, CreateAuction, AuctionDetail, ActiveAuctions, Demo } from './pages';
 
 function App() {
   return (
@@ -18,6 +18,7 @@ function App() {
       <main style={{ position: 'relative', zIndex: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/auctions" element={<ActiveAuctions />} />
           <Route path="/create" element={<CreateAuction />} />
           <Route path="/auction/:id" element={<AuctionDetail />} />
           <Route path="/demo" element={<Demo />} />
