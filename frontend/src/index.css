@@ -2210,17 +2210,20 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail {
-  max-width: 1240px;
+  box-sizing: border-box;
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  padding: 24px 18px 56px;
+  width: min(100%, 1160px);
 }
 
 @media (min-width: 640px) {
-  .sb-detail { padding: 40px 24px 64px; }
+  .sb-detail { padding: 34px 24px 72px; }
 }
 
 .sb-detail-header {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .sb-detail-main {
@@ -2232,8 +2235,8 @@ h1, h2, h3, h4 {
 @media (min-width: 1024px) {
   .sb-detail-main {
     align-items: start;
-    gap: 28px;
-    grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.8fr);
+    gap: 24px;
+    grid-template-columns: minmax(0, 1.38fr) minmax(320px, 0.72fr);
   }
 }
 
@@ -2246,20 +2249,21 @@ h1, h2, h3, h4 {
 /* Auction Info Card */
 .sb-detail-info {
   background:
-    linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(6, 182, 212, 0.07) 48%, rgba(15, 23, 42, 0.82)),
-    rgba(2, 6, 23, 0.78);
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 18px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
+    linear-gradient(120deg, rgba(245, 158, 11, 0.1), rgba(6, 182, 212, 0.06) 54%, rgba(15, 23, 42, 0.7));
+  backdrop-filter: blur(22px);
+  border: 1px solid rgba(226, 232, 240, 0.16);
+  border-radius: 20px;
+  box-shadow: 0 22px 60px rgba(2, 6, 23, 0.3);
   overflow: hidden;
-  padding: 28px;
+  padding: 26px;
   position: relative;
 }
 
 .sb-detail-info::before {
-  background: linear-gradient(90deg, #f59e0b, #06b6d4, transparent);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.9), rgba(6, 182, 212, 0.75), transparent);
   content: "";
-  height: 3px;
+  height: 1px;
   inset: 0 0 auto;
   position: absolute;
 }
@@ -2269,15 +2273,15 @@ h1, h2, h3, h4 {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .sb-detail-info__title {
   color: #f8fafc;
-  font-size: clamp(32px, 4vw, 58px);
-  line-height: 0.96;
-  margin-bottom: 8px;
-  max-width: 760px;
+  font-size: clamp(30px, 3.4vw, 48px);
+  line-height: 1.03;
+  margin-bottom: 10px;
+  max-width: 680px;
 }
 
 .sb-detail-info__tag {
@@ -2295,7 +2299,7 @@ h1, h2, h3, h4 {
   font-size: 12px;
   font-weight: 700;
   gap: 8px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -2308,7 +2312,7 @@ h1, h2, h3, h4 {
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
-  padding: 8px 12px;
+  padding: 8px 11px;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -2338,6 +2342,41 @@ h1, h2, h3, h4 {
 
 .sb-detail-stats--wide {
   grid-column: span 2;
+}
+
+.sb-detail .stats-card,
+.sb-detail-highest,
+.sb-detail-empty-bids,
+.sb-detail-info-box,
+.sb-detail-action-panel,
+.sb-detail-success-box,
+.sb-detail-winner-box {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
+    rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  box-shadow: 0 14px 42px rgba(2, 6, 23, 0.22);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.sb-detail .stats-card:hover,
+.sb-detail-highest:hover,
+.sb-detail-empty-bids:hover,
+.sb-detail-info-box:hover,
+.sb-detail-action-panel:hover {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.052)),
+    rgba(15, 23, 42, 0.66);
+  border-color: rgba(245, 158, 11, 0.28);
+  box-shadow: 0 18px 55px rgba(2, 6, 23, 0.32), 0 0 34px rgba(245, 158, 11, 0.12);
+  transform: translateY(-2px);
+}
+
+.sb-detail .stats-card {
+  border-radius: 14px;
+  min-height: 118px;
+  padding: 18px;
 }
 
 .sb-detail-stat-label {
@@ -2372,14 +2411,14 @@ h1, h2, h3, h4 {
 
 /* Highest Bid Card */
 .sb-detail-highest {
-  border-radius: 16px;
-  padding: 28px;
+  border-radius: 18px;
+  padding: 24px;
 }
 
 .sb-detail-highest__title {
-  font-size: 24px;
-  letter-spacing: -0.03em;
-  margin-bottom: 24px;
+  font-size: 22px;
+  letter-spacing: 0;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2396,10 +2435,10 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail-highest__amount {
-  background: rgba(255,255,255,0.045);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(2, 6, 23, 0.34);
+  border: 1px solid rgba(226, 232, 240, 0.1);
   border-radius: 14px;
-  padding: 22px;
+  padding: 20px;
 }
 
 .sb-detail-highest__amount-label {
@@ -2411,8 +2450,8 @@ h1, h2, h3, h4 {
 .sb-detail-highest__amount-value {
   font-family: 'Inter', sans-serif;
   font-weight: 800;
-  font-size: 36px;
-  letter-spacing: -0.03em;
+  font-size: 34px;
+  letter-spacing: 0;
 }
 
 .sb-detail-highest__winner,
@@ -2477,6 +2516,7 @@ h1, h2, h3, h4 {
   align-items: center;
   display: flex;
   gap: 14px;
+  border-radius: 18px;
   padding: 22px;
 }
 
@@ -2496,10 +2536,9 @@ h1, h2, h3, h4 {
 
 /* Info Box */
 .sb-detail-info-box {
-  border-radius: 16px;
+  border-left: 1px solid rgba(245,158,11,0.35);
+  border-radius: 18px;
   padding: 22px;
-  border-left: 3px solid rgba(245,158,11,0.35);
-  background: rgba(245,158,11,0.05);
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -2524,16 +2563,16 @@ h1, h2, h3, h4 {
 .sb-detail-actions {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 18px;
 }
 
 .sb-detail-action-panel {
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 22px;
 }
 
 .sb-detail-action-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: 0;
   margin-bottom: 16px;
@@ -2545,7 +2584,20 @@ h1, h2, h3, h4 {
 
 .sb-detail-action-title svg { color: #f59e0b; }
 .sb-detail-action-desc { color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
-.sb-detail-action-btn { width: 100%; padding: 16px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.sb-detail-action-btn {
+  border-radius: 12px;
+  box-shadow: 0 14px 35px rgba(245, 158, 11, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 16px;
+  width: 100%;
+}
+
+.sb-detail-action-btn:hover:not(:disabled) {
+  box-shadow: 0 18px 44px rgba(245, 158, 11, 0.28), 0 0 28px rgba(6, 182, 212, 0.12);
+}
 
 /* Forms */
 .sb-detail-form {
@@ -2561,10 +2613,10 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail-deposit-notice {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 16px;
-  background: rgba(245,158,11,0.05);
-  border: 1px solid rgba(245,158,11,0.2);
+  background: rgba(245, 158, 11, 0.075);
+  border: 1px solid rgba(245, 158, 11, 0.18);
 }
 
 .sb-detail-deposit-notice__header {
@@ -2616,7 +2668,7 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail-green-box {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 16px;
   background: rgba(16,185,129,0.1);
   border: 1px solid rgba(16,185,129,0.2);
@@ -2626,7 +2678,7 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail-amber-box {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 16px;
   background: rgba(245,158,11,0.1);
   border: 1px solid rgba(245,158,11,0.2);
@@ -2636,10 +2688,8 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail-success-box {
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 24px;
-  background: rgba(16,185,129,0.1);
-  border: 1px solid rgba(16,185,129,0.2);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2648,10 +2698,8 @@ h1, h2, h3, h4 {
 }
 
 .sb-detail-winner-box {
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 24px;
-  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(6,182,212,0.1));
-  border: 1px solid rgba(245,158,11,0.35);
 }
 
 .sb-detail-winner-box__header {
@@ -2680,8 +2728,12 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 760px) {
+  .sb-detail {
+    padding-inline: 14px;
+  }
+
   .sb-detail-info {
-    padding: 22px;
+    padding: 20px;
   }
 
   .sb-detail-info__header {
@@ -2703,7 +2755,7 @@ h1, h2, h3, h4 {
   .sb-detail-highest,
   .sb-detail-action-panel,
   .sb-detail-info-box {
-    padding: 20px;
+    padding: 18px;
   }
 
   .sb-detail-highest__amount-value {
