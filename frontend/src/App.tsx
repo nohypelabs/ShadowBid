@@ -4,7 +4,7 @@ import { Home, CreateAuction, AuctionDetail, ActiveAuctions, Demo } from './page
 
 function App() {
   return (
-    <div style={{ minHeight: '100vh', overflowX: 'hidden', backgroundColor: 'var(--bg-void)', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-void)', position: 'relative' }}>
       {/* Top Gradient Glow */}
       <div style={{
         position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
