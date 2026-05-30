@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
 import { Encryptable } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, Wallet } from 'lucide-react';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 
 type CreateAuctionTemplateState = {
@@ -30,6 +30,11 @@ const STEP_PROGRESS: Record<string, number> = {
 export function CreateAuction() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { address, isConnected } = useAccount();
+  const { data: walletBalance, isLoading: isBalanceLoading } = useBalance({
+    address,
+    query: { enabled: !!address },
+  });
   const templateState = (location.state || {}) as CreateAuctionTemplateState;
   const [title, setTitle] = useState(templateState.title || '');
   const [description, setDescription] = useState(templateState.description || '');
@@ -123,6 +128,14 @@ export function CreateAuction() {
   const loadingText = isEncrypting && encryptStep
     ? STEP_LABELS[encryptStep] || encryptStep
     : isEncrypting ? 'Encrypting...' : 'Waiting for confirmation...';
+  const hasNoGasBalance = isConnected && walletBalance?.value === 0n;
+  const balanceLabel = !isConnected
+    ? 'Connect wallet'
+    : isBalanceLoading
+      ? 'Loading...'
+      : walletBalance
+        ? `${Number(walletBalance.formatted).toFixed(4)} ${walletBalance.symbol}`
+        : 'Unavailable';
 
   return (
     <div className="sb-create-page">
@@ -223,7 +236,14 @@ export function CreateAuction() {
             <div><dt>Minimum bid</dt><dd>{startingPrice || '0.1'} ETH</dd></div>
             <div><dt>Duration</dt><dd>{durationHours || '24'}h</dd></div>
             <div><dt>Network</dt><dd>Arbitrum Sepolia</dd></div>
+            <div><dt>Wallet balance</dt><dd>{balanceLabel}</dd></div>
           </dl>
+          {hasNoGasBalance && (
+            <div className="sb-create-warning">
+              <Wallet size={18} />
+              <p>Your connected wallet has no ETH on Arbitrum Sepolia for gas.</p>
+            </div>
+          )}
           <div className="sb-create-info">
             <Lock size={20} />
             <p>Minimum bid encryption happens in-browser before the transaction is submitted.</p>
