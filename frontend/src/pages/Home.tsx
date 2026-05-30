@@ -75,27 +75,25 @@ function MarketOverview({ displayCount, isLoadingCounter, totalAuctions }: {
         transition={{ duration: 0.5 }}
         className="sb-overview__inner"
       >
-        <div className="sb-overview__copy">
-          <div className="sb-overview__kicker">
-            <ShieldCheck size={14} color="#f59e0b" />
-            <span>Encrypted Auction Market</span>
-          </div>
-          <h1 className="sb-overview__title">
-            ShadowBid <span className="sb-overview__title--accent">Market</span>
-          </h1>
-          <p className="sb-overview__sub">
-            Sealed-bid auctions protected by Fully Homomorphic Encryption on Arbitrum
-          </p>
-          <div className="sb-overview__actions">
-            <Link to="/create" className="btn-primary sb-overview__btn">
-              <Plus size={18} />
-              Create Auction
-            </Link>
-            <Link to="/auctions" className="btn-ghost sb-overview__btn">
-              <Eye size={18} />
-              Explore Auctions
-            </Link>
-          </div>
+        <div className="sb-overview__kicker">
+          <ShieldCheck size={14} color="#f59e0b" />
+          <span>Encrypted Auction Market</span>
+        </div>
+        <h1 className="sb-overview__title">
+          ShadowBid <span className="sb-overview__title--accent">Market</span>
+        </h1>
+        <p className="sb-overview__sub">
+          Sealed-bid auctions protected by Fully Homomorphic Encryption on Arbitrum
+        </p>
+        <div className="sb-overview__actions">
+          <Link to="/create" className="btn-primary sb-overview__btn">
+            <Plus size={18} />
+            Create Auction
+          </Link>
+          <Link to="/auctions" className="btn-ghost sb-overview__btn">
+            <Eye size={18} />
+            Explore Auctions
+          </Link>
         </div>
 
         <div className="sb-overview__metrics">
