@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
 import { Encryptable } from '@cofhe/sdk';
@@ -7,6 +7,13 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock } from 'lucide-react';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
+
+type CreateAuctionTemplateState = {
+  title?: string;
+  description?: string;
+  duration?: string;
+  minimumBid?: string;
+};
 
 const STEP_LABELS: Record<string, string> = {
   initTfhe: 'Initializing FHE engine...',
@@ -22,10 +29,12 @@ const STEP_PROGRESS: Record<string, number> = {
 
 export function CreateAuction() {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [startingPrice, setStartingPrice] = useState('');
-  const [durationHours, setDurationHours] = useState('24');
+  const location = useLocation();
+  const templateState = (location.state || {}) as CreateAuctionTemplateState;
+  const [title, setTitle] = useState(templateState.title || '');
+  const [description, setDescription] = useState(templateState.description || '');
+  const [startingPrice, setStartingPrice] = useState(templateState.minimumBid || '');
+  const [durationHours, setDurationHours] = useState(templateState.duration || '24');
   const [revealDelayHours, setRevealDelayHours] = useState('1');
   const [error, setError] = useState<string | null>(null);
 
@@ -42,11 +51,17 @@ export function CreateAuction() {
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-  if (hash) toast.loading('Creating auction...', { id: hash });
-  if (isConfirmed && hash) {
-    toast.success('Auction created successfully!', { id: hash });
-    setTimeout(() => navigate('/'), 2000);
-  }
+  useEffect(() => {
+    if (hash) toast.loading('Creating auction...', { id: hash });
+  }, [hash]);
+
+  useEffect(() => {
+    if (isConfirmed && hash) {
+      toast.success('Auction created successfully!', { id: hash });
+      const timer = window.setTimeout(() => navigate('/'), 2000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [hash, isConfirmed, navigate]);
 
   useEffect(() => {
     if (txError) {
@@ -120,88 +135,101 @@ export function CreateAuction() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="sb-create-title-block">
         <h1 className="sb-create-title">Create Sealed Auction</h1>
-        <p className="sb-create-subtitle">Create a new sealed-bid auction. Your minimum bid will be encrypted using FHE.</p>
+        <p className="sb-create-subtitle">Review the auction details, encrypt the minimum bid locally, then deploy to Arbitrum Sepolia.</p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card sb-create-form-card responsive-form-card"
-      >
-        <form onSubmit={handleSubmit}>
-          <FormField label="Title">
-            <input
-              type="text" id="title" value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="e.g., Rare NFT Collection"
-              className="sb-input" disabled={isLoading}
-            />
-          </FormField>
+      <div className="sb-create-layout">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-card sb-create-form-card responsive-form-card"
+        >
+          <form onSubmit={handleSubmit}>
+            <FormField label="Title">
+              <input
+                type="text" id="title" value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g., Rare NFT Collection"
+                className="sb-input" disabled={isLoading}
+              />
+            </FormField>
 
-          <FormField label="Description">
-            <textarea
-              id="description" value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Describe your auction item..." rows={3}
-              className="sb-input sb-input--textarea" disabled={isLoading}
-            />
-          </FormField>
+            <FormField label="Description">
+              <textarea
+                id="description" value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Describe your auction item..." rows={3}
+                className="sb-input sb-input--textarea" disabled={isLoading}
+              />
+            </FormField>
 
-          <FormField label="Starting Price (ETH)">
-            <input
-              type="number" id="startingPrice" value={startingPrice}
-              onChange={e => setStartingPrice(e.target.value)}
-              placeholder="0.1" step="0.0001" min="0.0001"
-              className="sb-input sb-input--mono" disabled={isLoading}
-            />
-          </FormField>
+            <div className="sb-create-field-grid">
+              <FormField label="Starting Price (ETH)">
+                <input
+                  type="number" id="startingPrice" value={startingPrice}
+                  onChange={e => setStartingPrice(e.target.value)}
+                  placeholder="0.1" step="0.0001" min="0.0001"
+                  className="sb-input sb-input--mono" disabled={isLoading}
+                />
+              </FormField>
 
-          <FormField label="Duration (hours)">
-            <input
-              type="number" id="duration" value={durationHours}
-              onChange={e => setDurationHours(e.target.value)}
-              min="1" max="720" placeholder="24"
-              className="sb-input sb-input--mono" disabled={isLoading}
-            />
-          </FormField>
-
-          <FormField label="Reveal Delay (hours)">
-            <input
-              type="number" id="revealDelay" value={revealDelayHours}
-              onChange={e => setRevealDelayHours(e.target.value)}
-              min="1" max="168" placeholder="1"
-              className="sb-input sb-input--mono" disabled={isLoading}
-            />
-          </FormField>
-
-          {error && (
-            <div className="sb-create-error">
-              <Lock size={20} />
-              <p>{error}</p>
+              <FormField label="Duration (hours)">
+                <input
+                  type="number" id="duration" value={durationHours}
+                  onChange={e => setDurationHours(e.target.value)}
+                  min="1" max="720" placeholder="24"
+                  className="sb-input sb-input--mono" disabled={isLoading}
+                />
+              </FormField>
             </div>
-          )}
 
-          <button type="submit" disabled={isLoading} className="sb-create-submit">
-            {isLoading ? (
-              <span className="sb-create-loading">
-                <span className="sb-create-loading-text">
-                  {loadingText}
-                  {isEncrypting && encryptStep && <span className="encrypt-dots" />}
-                </span>
-                <span className="sb-create-progress-bar">
-                  <span className="sb-create-progress-fill" style={{ width: `${progressPercent}%` }} />
-                </span>
-              </span>
-            ) : 'Deploy Auction →'}
-          </button>
-        </form>
+            <FormField label="Reveal Delay (hours)">
+              <input
+                type="number" id="revealDelay" value={revealDelayHours}
+                onChange={e => setRevealDelayHours(e.target.value)}
+                min="1" max="168" placeholder="1"
+                className="sb-input sb-input--mono" disabled={isLoading}
+              />
+            </FormField>
 
-        <div className="sb-create-info">
-          <Lock size={20} />
-          <p>Bids will be encrypted with FHE-256 on-chain</p>
-        </div>
-      </motion.div>
+            {error && (
+              <div className="sb-create-error">
+                <Lock size={20} />
+                <p>{error}</p>
+              </div>
+            )}
+
+            <button type="submit" disabled={isLoading} className="sb-create-submit">
+              {isLoading ? (
+                <span className="sb-create-loading">
+                  <span className="sb-create-loading-text">
+                    {loadingText}
+                    {isEncrypting && encryptStep && <span className="encrypt-dots" />}
+                  </span>
+                  <span className="sb-create-progress-bar">
+                    <span className="sb-create-progress-fill" style={{ width: `${progressPercent}%` }} />
+                  </span>
+                </span>
+              ) : 'Encrypt & Deploy Auction'}
+            </button>
+          </form>
+        </motion.div>
+
+        <aside className="sb-create-summary" aria-label="Auction deployment summary">
+          <div className="sb-create-summary__eyebrow">Deployment Preview</div>
+          <h2>{title.trim() || 'Untitled sealed auction'}</h2>
+          <dl>
+            <div><dt>Minimum bid</dt><dd>{startingPrice || '0.1'} ETH</dd></div>
+            <div><dt>Duration</dt><dd>{durationHours || '24'}h</dd></div>
+            <div><dt>Network</dt><dd>Arbitrum Sepolia</dd></div>
+          </dl>
+          <div className="sb-create-info">
+            <Lock size={20} />
+            <p>Minimum bid encryption happens in-browser before the transaction is submitted.</p>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

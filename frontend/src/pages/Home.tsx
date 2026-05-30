@@ -237,13 +237,7 @@ function ActiveAuctionsSection({ searchQuery, setSearchQuery, totalAuctions }: {
                   <AuctionItem auctionId={i} />
                 </motion.div>
               ))}
-              {totalAuctions > 8 && (
-                <div className="sb-auctions-more">
-                  <Link to="/auctions" className="sb-auctions-more__link">
-                    View All Auctions <ChevronRight size={16} />
-                  </Link>
-                </div>
-              )}
+              {totalAuctions > 8 && <p className="sb-auctions-more-note">Showing the latest 8 auctions</p>}
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Zap, ExternalLink } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { SHADOWBID_ADDRESS } from '../constants/contracts';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/', icon: '◈' },
@@ -141,7 +142,7 @@ export default function Header() {
             {/* Footer Links */}
             <div className="sb-drawer__footer">
               <a
-                href="https://sepolia.arbiscan.io/address/0x2BccEa43CE4D32dbfE813c5FEdd39C396E75072c"
+                href={`https://sepolia.arbiscan.io/address/${SHADOWBID_ADDRESS}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="sb-drawer__ext"
