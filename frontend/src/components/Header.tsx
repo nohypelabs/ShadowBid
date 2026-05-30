@@ -114,7 +114,6 @@ export default function Header() {
           {/* ── Logo ── */}
           <Link to="/" className="sb-logo">
             <div className="sb-logo__icon">
-              <div className="sb-logo__shimmer" />
               <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" />
             </div>
             <div className="sb-logo__text">
