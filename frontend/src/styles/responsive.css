@@ -11,8 +11,8 @@
   }
 }
 
-/* ── 900px ── */
-@media (max-width: 900px) {
+/* ── 768px ── */
+@media (max-width: 768px) {
   .sb-create-layout { grid-template-columns: 1fr; }
   .sb-active-hero { grid-template-columns: 1fr; }
   .sb-create-summary { order: -1; position: static; }
