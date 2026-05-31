@@ -1,6 +1,11 @@
-import { Search, Wallet, ChevronDown, Menu } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Wallet, ChevronDown, Menu, X } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useReadContract } from 'wagmi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
+import { parseAuction } from '../utils/auction';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -8,10 +13,48 @@ interface TopbarProps {
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const { address } = useAccount();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   const { data: walletBalance, isLoading: isBalanceLoading } = useBalance({
     address,
     query: { enabled: !!address },
   });
+
+  const { data: auctionCounter } = useReadContract({
+    address: SHADOWBID_ADDRESS,
+    abi: SHADOWBID_ABI,
+    functionName: 'auctionCounter',
+  });
+
+  const totalAuctions = auctionCounter ? Number(auctionCounter) : 0;
+
+  // Build list of auction IDs
+  const auctionIds = useMemo(
+    () => Array.from({ length: Math.min(totalAuctions, 50) }, (_, i) => totalAuctions - 1 - i),
+    [totalAuctions],
+  );
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (id: number) => {
+    setQuery('');
+    setIsFocused(false);
+    navigate(`/auction/${id}`);
+  };
+
+  const showDropdown = isFocused && query.length > 0;
 
   return (
     <header className="sb-topbar">
@@ -23,14 +66,41 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       )}
 
       {/* Search */}
-      <div className="sb-topbar__search">
+      <div className="sb-topbar__search" ref={searchRef}>
         <Search size={15} className="sb-topbar__search-icon" />
         <input
           type="text"
           placeholder="Search auctions..."
           className="sb-topbar__search-input"
           aria-label="Search auctions"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setIsFocused(true)}
         />
+        {query && (
+          <button className="sb-topbar__search-clear" onClick={() => setQuery('')} aria-label="Clear search">
+            <X size={14} />
+          </button>
+        )}
+
+        {/* Search Results Dropdown */}
+        <AnimatePresence>
+          {showDropdown && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="sb-topbar__search-results"
+            >
+              {auctionIds.length === 0 ? (
+                <div className="sb-topbar__search-empty">No auctions yet</div>
+              ) : (
+                <SearchResults ids={auctionIds} query={query} onSelect={handleSelect} />
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Right section */}
@@ -85,5 +155,40 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         </ConnectButton.Custom>
       </div>
     </header>
+  );
+}
+
+// Search results component - fetches each auction and filters by title
+function SearchResults({ ids, query, onSelect }: { ids: number[]; query: string; onSelect: (id: number) => void }) {
+  return (
+    <>
+      {ids.map((id) => (
+        <SearchResultRow key={id} id={id} query={query} onSelect={onSelect} />
+      ))}
+    </>
+  );
+}
+
+function SearchResultRow({ id, query, onSelect }: { id: number; query: string; onSelect: (id: number) => void }) {
+  const { data: auction } = useReadContract({
+    address: SHADOWBID_ADDRESS,
+    abi: SHADOWBID_ABI,
+    functionName: 'auctions',
+    args: [BigInt(id)],
+  });
+
+  if (!auction) return null;
+
+  const data = parseAuction(auction as unknown[], id);
+  if (!data) return null;
+
+  const matchesQuery = data.title.toLowerCase().includes(query.toLowerCase());
+  if (!matchesQuery) return null;
+
+  return (
+    <button className="sb-topbar__search-item" onClick={() => onSelect(id)}>
+      <span className="sb-topbar__search-item-title">{data.title}</span>
+      <span className="sb-topbar__search-item-id">#{id}</span>
+    </button>
   );
 }
