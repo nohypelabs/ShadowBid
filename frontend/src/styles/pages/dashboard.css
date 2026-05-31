@@ -434,3 +434,13 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 420px) {
+  .sb-dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-dashboard-stat__value {
+    font-size: 22px;
+  }
+}
