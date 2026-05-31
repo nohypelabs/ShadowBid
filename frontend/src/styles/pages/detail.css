@@ -97,10 +97,9 @@
 
 /* Auction Info Card */
 .sb-detail-info {
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
   overflow: hidden;
   padding: 32px;
   position: relative;
@@ -200,11 +199,9 @@
 .sb-detail-action-panel,
 .sb-detail-success-box,
 .sb-detail-winner-box {
-  background: var(--glass);
-  backdrop-filter: var(--glass-blur);
+  background: var(--bg-surface);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: var(--shadow-card), var(--glass-inset);
   transition: border-color var(--dur-normal) var(--ease);
 }
 
@@ -233,7 +230,7 @@
 
 /* Settlement Result Card */
 .sb-detail-highest {
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  background: var(--bg-surface);
   border-radius: 16px;
   padding: 28px;
 }
@@ -315,7 +312,7 @@
 /* Empty Bids Card - Improved */
 .sb-detail-empty-bids {
   align-items: center;
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  background: var(--bg-surface);
   display: flex;
   gap: 16px;
   border-radius: 16px;
@@ -351,9 +348,9 @@
   margin: 0;
 }
 
-/* Info Box */
+/* Info Box — match dashboard card */
 .sb-detail-info-box {
-  background: var(--glass);
+  background: var(--bg-surface);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 24px;
@@ -385,7 +382,7 @@
 }
 
 .sb-detail-action-panel {
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  background: var(--bg-surface);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 28px;
@@ -525,7 +522,7 @@
 }
 
 .sb-detail-winner-box {
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  background: var(--bg-surface);
   border: 1px solid rgba(45,212,191,0.15);
   border-radius: 16px;
   padding: 28px;
