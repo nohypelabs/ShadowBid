@@ -289,7 +289,7 @@ function LiveAuctionsTable({ totalAuctions, now }: { totalAuctions: number; now:
     <div className="sb-dashboard-table-card">
       <div className="sb-dashboard-table-header">
         <span className="sb-dashboard-table-title">
-          <Gavel size={14} className="icon-gold" /> Active Auctions
+          <Gavel size={14} className="icon-cipher" /> Active Auctions
         </span>
         {totalAuctions > 5 && (
           <Link to="/auctions" className="sb-panel__link">View all <ChevronRight size={14} /></Link>
@@ -379,7 +379,7 @@ function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: num
     return (
       <div className="sb-dashboard-table-card">
         <div className="sb-dashboard-table-header">
-          <span className="sb-dashboard-table-title"><Lock size={14} className="icon-gold" /> My Sealed Bid Status</span>
+          <span className="sb-dashboard-table-title"><Lock size={14} className="icon-cipher" /> My Sealed Bid Status</span>
         </div>
         <div className="sb-table-empty">
           Connect wallet to see your bids
@@ -394,7 +394,7 @@ function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: num
   return (
     <div className="sb-dashboard-table-card">
       <div className="sb-dashboard-table-header">
-        <span className="sb-dashboard-table-title"><Lock size={14} className="icon-gold" /> My Sealed Bid Status</span>
+        <span className="sb-dashboard-table-title"><Lock size={14} className="icon-cipher" /> My Sealed Bid Status</span>
         <Link to="/my-bids" className="sb-panel__link">View all <ChevronRight size={14} /></Link>
       </div>
       <table className="sb-dashboard-table">

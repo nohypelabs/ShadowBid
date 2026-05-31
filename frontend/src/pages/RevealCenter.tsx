@@ -31,7 +31,7 @@ export function RevealCenter() {
         animate={{ opacity: 1, y: 0 }}
         className="sb-page-new__header"
       >
-        <Eye size={24} className="icon-gold" />
+        <Eye size={24} className="icon-cipher" />
         <div>
           <h1 className="sb-page-new__title">Reveal Center</h1>
           <p className="sb-page-new__sub">Auctions awaiting bid reveals — decrypt and prove your bid</p>

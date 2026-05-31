@@ -14,7 +14,7 @@ export function NotFound() {
         <div className="sb-404__glow" />
 
         <div className="sb-404__icon-wrap">
-          <Search size={32} className="icon-gold" />
+          <Search size={32} className="icon-cipher" />
         </div>
 
         <h1 className="sb-404__code">404</h1>

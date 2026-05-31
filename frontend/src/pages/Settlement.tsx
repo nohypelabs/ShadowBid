@@ -29,7 +29,7 @@ export function Settlement() {
         animate={{ opacity: 1, y: 0 }}
         className="sb-page-new__header"
       >
-        <Banknote size={24} className="icon-gold" />
+        <Banknote size={24} className="icon-cipher" />
         <div>
           <h1 className="sb-page-new__title">Settlement</h1>
           <p className="sb-page-new__sub">Claim payments and refunds from concluded auctions</p>

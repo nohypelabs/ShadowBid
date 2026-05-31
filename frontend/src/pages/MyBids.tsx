@@ -31,7 +31,7 @@ export function MyBids() {
         animate={{ opacity: 1, y: 0 }}
         className="sb-page-new__header"
       >
-        <FileKey size={24} className="icon-gold" />
+        <FileKey size={24} className="icon-cipher" />
         <div>
           <h1 className="sb-page-new__title">My Bids</h1>
           <p className="sb-page-new__sub">Track your sealed bids across all auctions</p>
