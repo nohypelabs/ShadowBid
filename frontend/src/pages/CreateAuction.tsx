@@ -11,9 +11,22 @@ import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 type CreateAuctionTemplateState = {
   title?: string;
   description?: string;
+  category?: string;
   duration?: string;
   reservePrice?: string;
 };
+
+const CATEGORIES = [
+  'Digital Art',
+  'Collectibles',
+  'Photography',
+  'Music',
+  'Domain Names',
+  'Software',
+  'Real Estate',
+  'Procurement',
+  'Other',
+] as const;
 
 const STEP_LABELS: Record<string, string> = {
   initTfhe: 'Initializing FHE engine...',
@@ -41,6 +54,9 @@ export function CreateAuction() {
   const templateState = (location.state || {}) as CreateAuctionTemplateState;
   const [title, setTitle] = useState(templateState.title || '');
   const [description, setDescription] = useState(templateState.description || '');
+  const [category, setCategory] = useState(templateState.category || '');
+  const [imageURI, setImageURI] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [reservePrice, setReservePrice] = useState(templateState.reservePrice || '');
   const [durationHours, setDurationHours] = useState(templateState.duration || '24');
   const [revealDelayHours, setRevealDelayHours] = useState('1');
@@ -80,11 +96,24 @@ export function CreateAuction() {
 
   const isLoading = isEncrypting || isTxPending || isConfirming;
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // For MVP, use a data URL for preview. In production, upload to IPFS.
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+      setImageURI(reader.result as string); // TODO: Upload to IPFS
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!title.trim()) { setError('Please enter an auction title'); return; }
+    if (!category) { setError('Please select a category'); return; }
 
     const duration = parseInt(durationHours);
     if (isNaN(duration) || duration < 1 || duration > 720) { setError('Duration must be between 1 and 720 hours'); return; }
@@ -170,6 +199,25 @@ export function CreateAuction() {
           className="glass-card sb-create-form-card"
         >
           <form onSubmit={handleSubmit}>
+            {/* Asset Image */}
+            <FormField label="Asset Image">
+              <div className="sb-create-image-upload">
+                {imagePreview ? (
+                  <div className="sb-create-image-preview">
+                    <img src={imagePreview} alt="Preview" />
+                    <button type="button" className="sb-create-image-remove" onClick={() => { setImagePreview(null); setImageURI(''); }}>
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <label className="sb-create-image-dropzone">
+                    <input type="file" accept="image/*" onChange={handleImageChange} disabled={isLoading} />
+                    <span>Click to upload or drag image</span>
+                  </label>
+                )}
+              </div>
+            </FormField>
+
             <FormField label="Title">
               <input
                 type="text" id="title" value={title}
@@ -186,6 +234,19 @@ export function CreateAuction() {
                 placeholder="Describe your auction item..." rows={3}
                 className="sb-input sb-input--textarea" disabled={isLoading}
               />
+            </FormField>
+
+            <FormField label="Category">
+              <select
+                id="category" value={category}
+                onChange={e => setCategory(e.target.value)}
+                className="sb-input" disabled={isLoading}
+              >
+                <option value="">Select category...</option>
+                {CATEGORIES.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
             </FormField>
 
             <div className="sb-create-field-grid">
@@ -242,13 +303,22 @@ export function CreateAuction() {
 
         <aside className="sb-create-summary" aria-label="Auction deployment summary">
           <div className="sb-create-summary__eyebrow">Deployment Preview</div>
-          <h2>{title.trim() || 'Untitled sealed auction'}</h2>
+          {imagePreview && (
+            <img src={imagePreview} alt="Asset" className="sb-create-summary__image" />
+          )}
+          <h2>{title.trim() || 'Untitled auction'}</h2>
+          {category && <span className="sb-create-summary__category">{category}</span>}
           <dl>
             <div><dt>Reserve price</dt><dd>{reservePrice || '0.1'} ETH</dd></div>
             <div><dt>Duration</dt><dd>{durationHours || '24'}h</dd></div>
             <div><dt>Network</dt><dd>Arbitrum Sepolia</dd></div>
             <div><dt>Wallet balance</dt><dd>{balanceLabel}</dd></div>
           </dl>
+          <div className="sb-create-summary__badges">
+            <span className="sb-badge sb-badge--active">Public Asset</span>
+            <span className="sb-badge sb-badge--ended-warn">Encrypted Reserve</span>
+            <span className="sb-badge sb-badge--finalized">Sealed Bids</span>
+          </div>
           {hasNoGasBalance && (
             <div className="sb-create-warning">
               <Wallet size={18} />
