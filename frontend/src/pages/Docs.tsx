@@ -59,6 +59,7 @@ export function Docs() {
         </div>
         <h1 className="sb-docs__title">ShadowBid Protocol</h1>
         <p className="sb-docs__subtitle">
+          Public asset. Private bids. Verifiable settlement.<br />
           Confidential sealed-bid auctions powered by Fully Homomorphic Encryption on Arbitrum.
         </p>
       </motion.div>

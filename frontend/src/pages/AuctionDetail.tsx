@@ -369,12 +369,31 @@ export function AuctionDetail() {
             </motion.div>
           )}
 
-          {/* Privacy Notice */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sb-detail-info-box">
-            <Lock size={18} />
-            <div>
-              <h3>Privacy Guarantee</h3>
-              <p>Your bid amount remains encrypted and hidden from other participants. No one—including the seller or other bidders—can see your bid until settlement is finalized.</p>
+          {/* Privacy Model */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sb-detail-privacy-model">
+            <h3><Lock size={16} /> Privacy Model</h3>
+            <div className="sb-detail-privacy-grid">
+              <div className="sb-detail-privacy-item sb-detail-privacy-item--public">
+                <Eye size={14} />
+                <div>
+                  <strong>Public</strong>
+                  <span>Asset, timing, bidder count</span>
+                </div>
+              </div>
+              <div className="sb-detail-privacy-item sb-detail-privacy-item--private">
+                <Lock size={14} />
+                <div>
+                  <strong>Private</strong>
+                  <span>Your bid, reserve price</span>
+                </div>
+              </div>
+              <div className="sb-detail-privacy-item sb-detail-privacy-item--verified">
+                <ShieldCheck size={14} />
+                <div>
+                  <strong>Verified</strong>
+                  <span>Winner via Threshold proof</span>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>

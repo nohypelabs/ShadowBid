@@ -41,8 +41,38 @@ export function Home() {
       >
         <h1 className="sb-dashboard-page__title">Sealed-Bid Auctions on FHE</h1>
         <p className="sb-dashboard-page__sub">
-          Asset visible. Bid encrypted. Winner verifiable.
+          Public asset. Private bids. Verifiable settlement.
         </p>
+      </motion.div>
+
+      {/* Privacy Model */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.03 }}
+        className="sb-privacy-model"
+      >
+        <div className="sb-privacy-model__item sb-privacy-model__item--public">
+          <Eye size={16} />
+          <div>
+            <strong>Public</strong>
+            <span>Asset details, auction timing, bidder count</span>
+          </div>
+        </div>
+        <div className="sb-privacy-model__item sb-privacy-model__item--private">
+          <Lock size={16} />
+          <div>
+            <strong>Private</strong>
+            <span>Bid amounts, reserve price, winner identity</span>
+          </div>
+        </div>
+        <div className="sb-privacy-model__item sb-privacy-model__item--verified">
+          <ShieldCheck size={16} />
+          <div>
+            <strong>Verified</strong>
+            <span>Winner revealed via Threshold Network proof</span>
+          </div>
+        </div>
       </motion.div>
 
       {/* Quick Actions */}

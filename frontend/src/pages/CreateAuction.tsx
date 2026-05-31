@@ -314,6 +314,7 @@ export function CreateAuction() {
             <span className="sb-badge sb-badge--active">Public Asset</span>
             <span className="sb-badge sb-badge--ended-warn">Encrypted Reserve</span>
             <span className="sb-badge sb-badge--finalized">Sealed Bids</span>
+            <span className="sb-badge sb-badge--active">Verified Result</span>
           </div>
           {hasNoGasBalance && (
             <div className="sb-create-warning">
