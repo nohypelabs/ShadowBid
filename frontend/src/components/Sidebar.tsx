@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Gavel, FileKey, Eye, Banknote,
-  ShieldCheck, ChevronLeft, ChevronRight, ExternalLink,
+  ShieldCheck, ChevronLeft, ChevronRight, ExternalLink, BookOpen,
 } from 'lucide-react';
 import { SHADOWBID_ADDRESS } from '../constants/contracts';
 
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: 'Reveal Center', href: '/reveal', icon: Eye },
   { label: 'Settlement', href: '/settlement', icon: Banknote },
   { label: 'Verification', href: '/verification', icon: ShieldCheck },
+  { label: 'Docs', href: '/docs', icon: BookOpen },
 ] as const;
 
 interface SidebarProps {
