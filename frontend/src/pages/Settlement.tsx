@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract, useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
-import { Banknote, ChevronRight, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
+import { Banknote, ChevronRight, Wallet, Gavel } from 'lucide-react';
+import { EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
 import { formatEth, shortAddr } from '../utils/format';
@@ -37,14 +38,17 @@ export function Settlement() {
       </motion.div>
 
       {!address ? (
-        <div className="sb-page-new__coming-soon">
-          <ShieldCheck size={32} className="icon-muted" />
-          <p style={{ marginTop: '12px' }}>Connect your wallet to check settlement status</p>
-        </div>
+        <EmptyState
+          icon={Wallet}
+          title="Wallet not connected"
+          description="Connect your wallet to check settlement status and claim payments."
+        />
       ) : totalAuctions === 0 ? (
-        <div className="sb-page-new__coming-soon">
-          <p>No auctions yet</p>
-        </div>
+        <EmptyState
+          icon={Gavel}
+          title="No auctions yet"
+          description="Settled auctions will appear here once winners are revealed."
+        />
       ) : (
         <div className="sb-dashboard-table-card">
           <table className="sb-dashboard-table">

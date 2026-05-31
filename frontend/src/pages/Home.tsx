@@ -4,9 +4,9 @@ import { useReadContract, useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
 import {
   Plus, Gavel, Lock, Clock, Users, ShieldCheck, Eye,
-  CheckCircle2, Circle, Zap, ChevronRight, ArrowRight,
+  CheckCircle2, Circle, Zap, ChevronRight, ArrowRight, Wallet,
 } from 'lucide-react';
-import { CountdownTimer } from '../components';
+import { CountdownTimer, EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { shortAddr, formatEth } from '../utils/format';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
@@ -296,9 +296,12 @@ function LiveAuctionsTable({ totalAuctions, now }: { totalAuctions: number; now:
         )}
       </div>
       {totalAuctions === 0 ? (
-        <div className="sb-table-empty">
-          No auctions yet
-        </div>
+        <EmptyState
+          icon={Gavel}
+          title="No auctions yet"
+          description="Be the first to create a sealed-bid auction on ShadowBid."
+          action={{ label: 'Create Auction', href: '/create' }}
+        />
       ) : (
         <table className="sb-dashboard-table">
           <thead>
@@ -381,9 +384,11 @@ function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: num
         <div className="sb-dashboard-table-header">
           <span className="sb-dashboard-table-title"><Lock size={14} className="icon-cipher" /> My Sealed Bid Status</span>
         </div>
-        <div className="sb-table-empty">
-          Connect wallet to see your bids
-        </div>
+        <EmptyState
+          icon={Wallet}
+          title="Wallet not connected"
+          description="Connect your wallet to track your sealed bids across auctions."
+        />
       </div>
     );
   }

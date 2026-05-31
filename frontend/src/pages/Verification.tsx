@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract } from 'wagmi';
 import { motion } from 'framer-motion';
-import { ShieldCheck, CheckCircle2, Circle, Lock, Zap, Trophy } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Circle, Lock, Zap, Trophy, Gavel } from 'lucide-react';
+import { EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
 import { shortAddr } from '../utils/format';
@@ -35,9 +36,11 @@ export function Verification() {
       </motion.div>
 
       {totalAuctions === 0 ? (
-        <div className="sb-page-new__coming-soon">
-          <p>No verification events yet</p>
-        </div>
+        <EmptyState
+          icon={Gavel}
+          title="No verification events yet"
+          description="Verification events will appear here as auctions are created, bid, and settled."
+        />
       ) : (
         <div className="sb-verification-feed">
           <div className="sb-dashboard-table-header">

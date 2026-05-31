@@ -13,6 +13,7 @@
 @import url('./styles/components/stat-card.css');
 @import url('./styles/components/overflow-fix.css');
 @import url('./styles/components/focus.css');
+@import url('./styles/components/empty-state.css');
 @import url('./styles/pages/dashboard.css');
 @import url('./styles/pages/home.css');
 @import url('./styles/pages/create.css');

@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract, useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
-import { Eye, Lock, Clock, ChevronRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Eye, Lock, Clock, ChevronRight, Wallet, Gavel } from 'lucide-react';
+import { EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
 import { shortAddr } from '../utils/format';
@@ -39,14 +40,17 @@ export function RevealCenter() {
       </motion.div>
 
       {!address ? (
-        <div className="sb-page-new__coming-soon">
-          <ShieldCheck size={32} className="icon-muted" />
-          <p style={{ marginTop: '12px' }}>Connect your wallet to check reveal status</p>
-        </div>
+        <EmptyState
+          icon={Wallet}
+          title="Wallet not connected"
+          description="Connect your wallet to check reveal status and decrypt winners."
+        />
       ) : totalAuctions === 0 ? (
-        <div className="sb-page-new__coming-soon">
-          <p>No auctions yet</p>
-        </div>
+        <EmptyState
+          icon={Gavel}
+          title="No auctions yet"
+          description="Auctions will appear here once they are finalized and ready for reveal."
+        />
       ) : (
         <div className="sb-dashboard-table-card">
           <table className="sb-dashboard-table">
