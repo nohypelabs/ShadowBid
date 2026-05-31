@@ -1,43 +1,58 @@
-import { Routes, Route } from 'react-router-dom';
-import { Header, Footer } from './components';
-import { Home, CreateAuction, AuctionDetail, ActiveAuctions, Demo } from './pages';
+import { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Header, Footer, BackToTop } from './components';
+import { Home, CreateAuction, AuctionDetail, ActiveAuctions, Demo, NotFound } from './pages';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
+function PageWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+        <Route path="/auctions" element={<PageWrapper><ActiveAuctions /></PageWrapper>} />
+        <Route path="/create" element={<PageWrapper><CreateAuction /></PageWrapper>} />
+        <Route path="/auction/:id" element={<PageWrapper><AuctionDetail /></PageWrapper>} />
+        <Route path="/demo" element={<PageWrapper><Demo /></PageWrapper>} />
+        <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
 
 function App() {
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-void)', position: 'relative' }}>
-      {/* Top Gradient Glow */}
-      <div style={{
-        position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
-        width: '100%', height: '50vh', pointerEvents: 'none', zIndex: 0,
-        background: 'radial-gradient(ellipse 60% 40% at 50% -20%, rgba(245,158,11,0.12) 0%, transparent 60%)',
-      }} />
+    <div className="sb-app">
+      <div className="sb-app__glow" />
 
       <Header />
+      <ScrollToTop />
 
-      {/* Main Content */}
-      <main style={{ position: 'relative', zIndex: 1 }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auctions" element={<ActiveAuctions />} />
-          <Route path="/create" element={<CreateAuction />} />
-          <Route path="/auction/:id" element={<AuctionDetail />} />
-          <Route path="/demo" element={<Demo />} />
-        </Routes>
+      <main className="sb-app__main">
+        <AnimatedRoutes />
       </main>
 
       <Footer />
-
-      {/* CSS */}
-      <style>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        /* Override RainbowKit button to match ShadowBid style */
-        [data-rk] button {
-          font-family: 'Inter', sans-serif !important;
-        }
-      `}</style>
+      <BackToTop />
     </div>
   );
 }

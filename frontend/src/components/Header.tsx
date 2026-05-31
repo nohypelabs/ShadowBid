@@ -35,6 +35,16 @@ export default function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  // Close drawer on Escape key
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen]);
+
   const isActive = useCallback(
     (href: string) => (href === '/' ? location.pathname === '/' : location.pathname.startsWith(href)),
     [location.pathname],
@@ -114,7 +124,7 @@ export default function Header() {
           {/* ── Logo ── */}
           <Link to="/" className="sb-logo">
             <div className="sb-logo__icon">
-              <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" />
+              <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" loading="lazy" />
             </div>
             <div className="sb-logo__text">
               <span className="sb-logo__name">
@@ -125,7 +135,7 @@ export default function Header() {
           </Link>
 
           {/* ── Desktop Nav ── */}
-          <nav className="sb-nav sb-nav--desktop">
+          <nav className="sb-nav sb-nav--desktop" aria-label="Main navigation">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -172,7 +182,7 @@ export default function Header() {
             <div className="sb-drawer__head">
               <Link to="/" className="sb-logo sb-logo--sm" onClick={() => setMobileOpen(false)}>
                 <div className="sb-logo__icon sb-logo__icon--sm">
-                  <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" />
+                  <img src="/shadowbid.png" alt="ShadowBid" className="sb-logo__image" loading="lazy" />
                 </div>
                 <span className="sb-logo__name sb-logo__name--sm">
                   Shadow<span className="sb-logo__name--accent">Bid</span>
@@ -184,7 +194,7 @@ export default function Header() {
             </div>
 
             {/* Drawer Nav */}
-            <nav className="sb-drawer__nav">
+            <nav className="sb-drawer__nav" aria-label="Mobile navigation">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}

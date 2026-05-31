@@ -29,7 +29,7 @@ function shortAddress(value: string) {
 export function AuctionDetail() {
   const { id } = useParams<{ id: string }>();
   const { address } = useAccount();
-  const auctionId = id ? BigInt(id) : BigInt(0);
+  const auctionId = id && /^\d+$/.test(id) ? BigInt(id) : null;
 
   const [bidAmount, setBidAmount] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -42,31 +42,35 @@ export function AuctionDetail() {
   }, []);
 
   const { data: auction, isLoading: auctionLoading, refetch } = useReadContract({
-    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'auctions', args: [auctionId],
+    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'auctions', args: auctionId !== null ? [auctionId] : undefined,
+    query: { enabled: auctionId !== null },
   });
 
   const { data: bidCount } = useReadContract({
-    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getBidderCount', args: [auctionId],
+    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getBidderCount', args: auctionId !== null ? [auctionId] : undefined,
+    query: { enabled: auctionId !== null },
   });
 
   const { data: userBid } = useReadContract({
     address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'bids',
-    args: [auctionId, address || '0x0000000000000000000000000000000000000000'],
-    query: { enabled: !!address },
+    args: auctionId !== null ? [auctionId, address || '0x0000000000000000000000000000000000000000'] : undefined,
+    query: { enabled: !!address && auctionId !== null },
   });
 
   const { data: userDeposit } = useReadContract({
     address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getBidderDeposit',
-    args: [auctionId, address || '0x0000000000000000000000000000000000000000'],
-    query: { enabled: !!address },
+    args: auctionId !== null ? [auctionId, address || '0x0000000000000000000000000000000000000000'] : undefined,
+    query: { enabled: !!address && auctionId !== null },
   });
 
   const { data: highestBidCtHash } = useReadContract({
-    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getHighestBidCtHash', args: [auctionId],
+    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getHighestBidCtHash', args: auctionId !== null ? [auctionId] : undefined,
+    query: { enabled: auctionId !== null },
   });
 
   const { data: highestBidderCtHash } = useReadContract({
-    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getHighestBidderCtHash', args: [auctionId],
+    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getHighestBidderCtHash', args: auctionId !== null ? [auctionId] : undefined,
+    query: { enabled: auctionId !== null },
   });
 
   const cofheClient = useCofheClient();
@@ -148,6 +152,7 @@ export function AuctionDetail() {
     if (!address) { setError('Please connect your wallet'); return; }
     if (!auctionData || !isBiddingActive) { setError('Bidding is not active for this auction'); return; }
     if (hasBid) { setError('You have already placed a bid on this auction'); return; }
+    if (auctionId === null) { setError('Invalid auction ID'); return; }
     const bidValue = parseFloat(bidAmount);
     if (isNaN(bidValue) || bidValue <= 0) { setError('Please enter a valid bid amount'); return; }
     if (!cofheClient) { setError('Cofhe client not initialized'); return; }
@@ -165,7 +170,7 @@ export function AuctionDetail() {
   }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, writeContract, auctionId]);
 
   const handleFinalize = useCallback(() => {
-    if (!auctionData || !isSeller) return;
+    if (!auctionData || !isSeller || auctionId === null) return;
     writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'finalize', args: [auctionId] });
   }, [auctionData, isSeller, writeContract, auctionId]);
 
@@ -180,12 +185,12 @@ export function AuctionDetail() {
   }, [auctionData, cofheClient, highestBidCtHash, highestBidderCtHash]);
 
   const handleClaimPayment = useCallback(() => {
-    if (!auctionData || !isSeller) return;
+    if (!auctionData || !isSeller || auctionId === null) return;
     writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'claimPayment', args: [auctionId] });
   }, [auctionData, isSeller, writeContract, auctionId]);
 
   const handleClaimRefund = useCallback(() => {
-    if (!canClaimRefund) return;
+    if (!canClaimRefund || auctionId === null) return;
     writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'claimRefund', args: [auctionId] });
   }, [canClaimRefund, writeContract, auctionId]);
 
@@ -209,7 +214,21 @@ export function AuctionDetail() {
   const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Live bidding' : 'Bidding ended';
   const statusClass = auctionData?.finalized ? 'sb-detail-status--finalized' : isBiddingActive ? 'sb-detail-status--active' : 'sb-detail-status--ended';
 
-  if (auctionLoading) {
+  if (auctionLoading || auctionId === null) {
+    if (auctionId === null) {
+      return (
+        <div className="sb-detail-notfound">
+          <header className="sb-detail-notfound-header">
+            <Link to="/" className="sb-back-link"><ArrowLeft size={16} /> Back to Home</Link>
+          </header>
+          <main className="sb-detail-notfound-body">
+            <h2>Invalid auction ID</h2>
+            <p>The auction ID "{id}" is not valid.</p>
+            <Link to="/">Return to Home</Link>
+          </main>
+        </div>
+      );
+    }
     return (
       <div className="sb-detail-loading">
         <svg className="sb-detail-spinner" viewBox="0 0 24 24" fill="none">
@@ -248,7 +267,7 @@ export function AuctionDetail() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="sb-detail-info">
             <div className="sb-detail-info__header">
               <div>
-                <div className="sb-detail-kicker"><ShieldCheck size={16} /> Auction #{auctionId.toString()} on Arbitrum Sepolia</div>
+                <div className="sb-detail-kicker"><ShieldCheck size={16} /> Auction #{auctionId!.toString()} on Arbitrum Sepolia</div>
                 <h1 className="sb-detail-info__title responsive-title">{auctionData.title}</h1>
                 <div className="sb-detail-info__tag"><Lock size={16} /> Encrypted Sealed-Bid Auction</div>
               </div>

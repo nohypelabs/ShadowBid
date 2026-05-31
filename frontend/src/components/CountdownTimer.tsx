@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type AuctionStatus = 'active' | 'ending' | 'ended' | 'finalizing';
 
@@ -21,6 +21,11 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
   const [status, setStatus] = useState<AuctionStatus>('active');
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
   const [totalDuration, setTotalDuration] = useState<number>(0);
+  const onCompleteCalledRef = useRef(false);
+
+  useEffect(() => {
+    onCompleteCalledRef.current = false;
+  }, [endTime]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -32,7 +37,10 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
         setTimeLeft('Ended');
         setStatus('ended');
         setSecondsLeft(0);
-        onComplete?.();
+        if (!onCompleteCalledRef.current) {
+          onCompleteCalledRef.current = true;
+          onComplete?.();
+        }
         return;
       }
 

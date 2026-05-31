@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { ShieldCheck, ExternalLink } from 'lucide-react';
 
 export function Footer() {
@@ -13,9 +14,9 @@ export function Footer() {
         </div>
 
         <div className="sb-footer__links">
-          <a href="/auctions" className="sb-footer__link">Auctions</a>
-          <a href="/create" className="sb-footer__link">Create</a>
-          <a href="/demo" className="sb-footer__link">Demo</a>
+          <Link to="/auctions" className="sb-footer__link">Auctions</Link>
+          <Link to="/create" className="sb-footer__link">Create</Link>
+          <Link to="/demo" className="sb-footer__link">Demo</Link>
         </div>
 
         <div className="sb-footer__right">

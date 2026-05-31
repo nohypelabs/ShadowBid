@@ -10,6 +10,13 @@ import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import type { AuctionWithId } from '../types';
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+function shortAddr(addr: string) {
+  if (!addr || addr === ZERO_ADDRESS) return 'No seller';
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
+
 export function Home() {
   const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
@@ -102,13 +109,13 @@ function MarketOverview({ displayCount, isLoadingCounter, totalAuctions }: {
           <MetricChip
             icon={<Radio size={14} color="#10b981" />}
             label="Live"
-            value={isLoadingCounter ? '...' : displayCount.toString()}
+            value={isLoadingCounter ? undefined : displayCount.toString()}
             color="#10b981"
           />
           <MetricChip
             icon={<Users size={14} color="#06b6d4" />}
             label="Total Bids"
-            value={isLoadingCounter ? '...' : totalAuctions.toString()}
+            value={isLoadingCounter ? undefined : totalAuctions.toString()}
             color="#06b6d4"
           />
           <MetricChip
@@ -130,7 +137,7 @@ function MarketOverview({ displayCount, isLoadingCounter, totalAuctions }: {
 }
 
 function MetricChip({ icon, label, value, color }: {
-  icon: React.ReactNode; label: string; value: string; color: string;
+  icon: React.ReactNode; label: string; value?: string; color: string;
 }) {
   return (
     <div className="sb-metric-chip" style={{ borderColor: `${color}25` }}>
@@ -139,7 +146,11 @@ function MetricChip({ icon, label, value, color }: {
       </div>
       <div className="sb-metric-chip__text">
         <span className="sb-metric-chip__label">{label}</span>
-        <span className="sb-metric-chip__value">{value}</span>
+        {value !== undefined ? (
+          <span className="sb-metric-chip__value">{value}</span>
+        ) : (
+          <span className="sb-metric-chip__skeleton" />
+        )}
       </div>
     </div>
   );
@@ -282,7 +293,7 @@ function DashboardAuctionRow({ auctionId }: { auctionId: number }) {
         <div className="sb-dash-row__meta">
           <span><Users size={12} /> {bidderCount} bidders</span>
           <span><Clock size={12} /> {isActive ? <CountdownTimer endTime={auctionData.biddingEnd} compact /> : 'Ended'}</span>
-          <span className="sb-dash-row__addr">{auctionData.seller.slice(0, 6)}...{auctionData.seller.slice(-4)}</span>
+          <span className="sb-dash-row__addr">{shortAddr(auctionData.seller)}</span>
         </div>
       </div>
       <ChevronRight size={16} className="sb-dash-row__chevron" />
