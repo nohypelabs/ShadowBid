@@ -3983,3 +3983,70 @@ h1, h2, h3, h4 {
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════
+   PANEL OVERFLOW FIX — prevents horizontal bleed on mobile
+   ═══════════════════════════════════════════ */
+
+/* Grid children must be allowed to shrink below content size */
+.sb-dashboard__main,
+.sb-dashboard__side {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Panel itself must not exceed its grid cell */
+.sb-panel {
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* Activity item text must truncate not push panel wider */
+.sb-activity-item {
+  min-width: 0;
+}
+
+.sb-activity-item__content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sb-activity-item__action {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dashboard row text must truncate */
+.sb-dash-row {
+  min-width: 0;
+}
+
+.sb-dash-row__info {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sb-dash-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sb-dash-row__meta {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Ensure the page itself never scrolls horizontally */
+.sb-page {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+.sb-page__content {
+  overflow-x: hidden;
+  max-width: 100%;
+}
