@@ -15,6 +15,28 @@
   overflow: hidden;
 }
 
+/* Table horizontal scroll on mobile */
+@media (max-width: 640px) {
+  .sb-dashboard-table-card {
+    overflow-x: auto;
+  }
+
+  .sb-dashboard-table {
+    min-width: 480px;
+  }
+
+  .sb-detail-stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* Verification feed text wrap */
+  .sb-verification-feed__item {
+    font-size: 11px;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+}
+
 /* Page overflow */
 .sb-dashboard-layout__content {
   overflow-x: hidden;
