@@ -2664,7 +2664,7 @@ h1, h2, h3, h4 {
 
   .sb-create-form-card,
   .sb-create-summary {
-    padding: 22px;
+    padding: 16px;
   }
 
   .sb-create-field-grid {
@@ -3315,11 +3315,11 @@ h1, h2, h3, h4 {
 
 @media (max-width: 760px) {
   .sb-detail {
-    padding-inline: 14px;
+    padding-inline: 16px;
   }
 
   .sb-detail-info {
-    padding: 20px;
+    padding: 16px;
   }
 
   .sb-detail-info__header {
@@ -3341,7 +3341,7 @@ h1, h2, h3, h4 {
   .sb-detail-highest,
   .sb-detail-action-panel,
   .sb-detail-info-box {
-    padding: 18px;
+    padding: 16px;
   }
 
   .sb-detail-highest__amount-value {
@@ -3586,14 +3586,14 @@ h1, h2, h3, h4 {
 
 @media (max-width: 760px) {
   .sb-active-page {
-    padding: 96px 14px 48px;
+    padding: 96px 16px 48px;
   }
 
   .sb-active-hero__copy,
   .sb-active-hero__panel,
   .sb-active-toolbar,
   .sb-active-row {
-    padding: 18px;
+    padding: 16px;
   }
 
   .sb-active-toolbar {
@@ -3763,11 +3763,11 @@ h1, h2, h3, h4 {
 
   /* -- Active auctions page -- */
   .sb-active-page {
-    padding: 80px 14px 48px;
+    padding: 80px 16px 48px;
   }
 
   .sb-active-hero__copy {
-    padding: 20px;
+    padding: 16px;
   }
 
   .sb-active-hero h1 {
@@ -3780,7 +3780,7 @@ h1, h2, h3, h4 {
   }
 
   .sb-active-hero__panel {
-    padding: 20px;
+    padding: 16px;
     min-height: auto;
     gap: 12px;
   }
@@ -3810,7 +3810,7 @@ h1, h2, h3, h4 {
   }
 
   .sb-active-row {
-    padding: 14px;
+    padding: 16px;
     gap: 12px;
     align-items: flex-start;
   }
@@ -3839,7 +3839,7 @@ h1, h2, h3, h4 {
 
   /* -- Create auction page -- */
   .sb-create-page {
-    padding: 80px 14px 48px;
+    padding: 80px 16px 48px;
   }
 
   .sb-create-title {
@@ -3857,7 +3857,7 @@ h1, h2, h3, h4 {
 
   .sb-create-form-card,
   .sb-create-summary {
-    padding: 18px;
+    padding: 16px;
   }
 
   .sb-create-summary {
@@ -3876,11 +3876,11 @@ h1, h2, h3, h4 {
 
   /* -- Auction detail page -- */
   .sb-detail {
-    padding: 80px 14px 48px;
+    padding: 80px 16px 48px;
   }
 
   .sb-detail-info {
-    padding: 18px;
+    padding: 16px;
   }
 
   .sb-detail-info__header {
