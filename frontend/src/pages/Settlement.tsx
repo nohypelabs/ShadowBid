@@ -119,11 +119,11 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
       </td>
       <td>
         {claimed ? (
-          <span className="sb-td--mono sb-td--success" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className="sb-td--mono sb-td--success sb-status-inline">
             <CheckCircle2 size={14} /> Claimed
           </span>
         ) : isWinner || isSeller ? (
-          <span className="sb-td--mono sb-td--warning" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className="sb-td--mono sb-td--warning sb-status-inline">
             <Clock size={14} /> Claimable
           </span>
         ) : (

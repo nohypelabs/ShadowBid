@@ -280,7 +280,7 @@ export function CreateAuction() {
               </div>
             )}
 
-            <button type="submit" disabled={isLoading || !client} className="sb-create-submit">
+            <button type="submit" disabled={isLoading || !client} className="btn-primary sb-create-submit">
               {isLoading ? (
                 <span className="sb-create-loading">
                   <span className="sb-create-loading-text">

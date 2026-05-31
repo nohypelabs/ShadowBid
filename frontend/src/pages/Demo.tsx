@@ -66,7 +66,7 @@ export function Demo() {
           <span><PlayCircle size={14} /> Guided templates</span>
         </div>
 
-        <button onClick={() => handleUseTemplate(featuredTemplate)} className="sb-demo-cta">
+        <button onClick={() => handleUseTemplate(featuredTemplate)} className="btn-primary sb-demo-cta">
           Start Guided Demo
           <ArrowRight size={16} />
         </button>
