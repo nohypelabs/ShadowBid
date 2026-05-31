@@ -277,20 +277,20 @@ export function AuctionDetail() {
             )}
 
             <div className="sb-detail-stats">
-              <div className="stats-card">
-                <div className="sb-detail-stat-label"><Clock size={14} /> Time Left</div>
+              <div className="sb-dashboard-stat">
+                <span className="sb-dashboard-stat__label"><Clock size={14} /> Time Left</span>
                 <CountdownTimer endTime={auctionData.biddingEnd} onComplete={() => refetch()} />
               </div>
-              <div className="stats-card">
-                <div className="sb-detail-stat-label"><Users size={14} /> Bidders</div>
-                <p className="sb-detail-stat-value">{bidCountNumber}</p>
+              <div className="sb-dashboard-stat">
+                <span className="sb-dashboard-stat__label"><Users size={14} /> Bidders</span>
+                <span className="sb-dashboard-stat__value">{bidCountNumber}</span>
               </div>
-              <div className="stats-card">
-                <div className="sb-detail-stat-label"><Lock size={14} /> Seller</div>
-                <p className="sb-detail-stat-value sb-detail-stat-value--seller">
+              <div className="sb-dashboard-stat">
+                <span className="sb-dashboard-stat__label"><Lock size={14} /> Seller</span>
+                <span className="sb-dashboard-stat__value sb-detail-stat-value--seller">
                   {shortAddr(auctionData.seller)}
                   {isSeller && <span className="sb-detail-you">(You)</span>}
-                </p>
+                </span>
               </div>
             </div>
           </motion.div>
