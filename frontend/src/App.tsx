@@ -12,6 +12,7 @@ const RevealCenter = lazy(() => import('./pages/RevealCenter'));
 const Settlement = lazy(() => import('./pages/Settlement'));
 const Verification = lazy(() => import('./pages/Verification'));
 const Demo = lazy(() => import('./pages/Demo'));
+const Docs = lazy(() => import('./pages/Docs'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function ScrollToTop() {
@@ -57,6 +58,7 @@ function AnimatedRoutes() {
           <Route path="/verification" element={<PageWrapper><Suspense fallback={<PageLoader />}><Verification /></Suspense></PageWrapper>} />
         </Route>
         <Route path="/demo" element={<PageWrapper><Suspense fallback={<PageLoader />}><Demo /></Suspense></PageWrapper>} />
+        <Route path="/docs" element={<PageWrapper><Suspense fallback={<PageLoader />}><Docs /></Suspense></PageWrapper>} />
         <Route path="*" element={<PageWrapper><Suspense fallback={<PageLoader />}><NotFound /></Suspense></PageWrapper>} />
       </Routes>
     </AnimatePresence>
