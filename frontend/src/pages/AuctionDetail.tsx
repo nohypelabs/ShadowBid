@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount, useBalance } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
 import { Encryptable, FheTypes } from '@cofhe/sdk';
 import { toast } from 'sonner';
@@ -17,6 +17,11 @@ export function AuctionDetail() {
   const { id } = useParams<{ id: string }>();
   const { address } = useAccount();
   const auctionId = id && /^\d+$/.test(id) ? BigInt(id) : null;
+
+  const { data: walletBalance } = useBalance({
+    address,
+    query: { enabled: !!address },
+  });
 
   const [bidAmount, setBidAmount] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -146,7 +151,7 @@ export function AuctionDetail() {
       setError(`Bid must be at least ${formatEth(minimumBidWei)} ETH (seller's minimum deposit)`);
       return;
     }
-    if (!cofheClient) { setError('Cofhe client not initialized'); return; }
+    if (!cofheClient) { setError('FHE encryption client not loaded. Please wait a moment and try again.'); return; }
     // Show confirmation
     setShowBidConfirm(true);
   }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, auctionId, minimumBidWei]);
@@ -157,14 +162,37 @@ export function AuctionDetail() {
     const bidWei = BigInt(Math.round(bidValue * 1e18));
     try {
       setIsEncrypting(true);
-      const encryptedResults = await cofheClient!.encryptInputs([
-        Encryptable.uint64(BigInt(Math.round(bidValue * 1e18))),
-      ]).execute();
+      setError(null);
+
+      // Step 1: Encrypt bid
+      let encryptedResults;
+      try {
+        encryptedResults = await cofheClient!.encryptInputs([
+          Encryptable.uint64(BigInt(Math.round(bidValue * 1e18))),
+        ]).execute();
+      } catch (encryptErr) {
+        const msg = encryptErr instanceof Error ? encryptErr.message : String(encryptErr);
+        if (msg.includes('TFHE') || msg.includes('WASM') || msg.includes('tfhe')) {
+          throw new Error('FHE encryption failed — the TFHE library could not load. This is a testnet limitation. Please refresh and try again.');
+        }
+        if (msg.includes('network') || msg.includes('fetch') || msg.includes('connection')) {
+          throw new Error('Network error during encryption. Please check your connection and try again.');
+        }
+        throw new Error(`Encryption failed: ${msg}`);
+      }
+
       setIsEncrypting(false);
       const encrypted = encryptedResults[0];
       const inEuint64 = { ctHash: encrypted.ctHash, securityZone: encrypted.securityZone, utype: encrypted.utype, signature: encrypted.signature as `0x${string}` };
+
+      // Step 2: Submit transaction
       writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'placeBid', args: [auctionId, inEuint64], value: bidWei });
-    } catch (err) { setIsEncrypting(false); setError(err instanceof Error ? err.message : 'Failed to encrypt bid'); }
+    } catch (err) {
+      setIsEncrypting(false);
+      const message = err instanceof Error ? err.message : 'Failed to submit bid';
+      setError(message);
+      console.error('[PlaceBid] Error:', err);
+    }
   }, [bidAmount, cofheClient, writeContract, auctionId]);
 
   const handleFinalize = useCallback(() => {

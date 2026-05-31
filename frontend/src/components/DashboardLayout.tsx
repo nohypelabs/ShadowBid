@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
@@ -6,32 +6,57 @@ import { ExternalLink } from 'lucide-react';
 
 export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 769);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 769);
-    check();
+    const check = () => {
+      const mobile = window.innerWidth < 769;
+      setIsMobile(mobile);
+      if (!mobile) setMobileOpen(false);
+    };
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // On mobile, sidebar is always collapsed (hidden)
-  const effectiveCollapsed = isMobile || sidebarCollapsed;
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [mobileOpen]);
+
+  const handleMobileToggle = useCallback(() => {
+    setMobileOpen((v) => !v);
+  }, []);
+
+  const handleMobileClose = useCallback(() => {
+    setMobileOpen(false);
+  }, []);
+
+  const handleDesktopToggle = useCallback(() => {
+    setSidebarCollapsed((v) => !v);
+  }, []);
+
+  // Desktop: collapsed = sidebar small (icon only)
+  // Mobile: sidebar always hidden unless mobileOpen
+  const sidebarCollapsedValue = isMobile ? !mobileOpen : sidebarCollapsed;
 
   return (
     <div className="sb-dashboard-layout">
       {/* Mobile overlay */}
-      {isMobile && !sidebarCollapsed && (
-        <button className="sb-sidebar-overlay" onClick={() => setSidebarCollapsed(true)} aria-label="Close navigation menu" type="button" />
+      {mobileOpen && (
+        <button className="sb-sidebar-overlay" onClick={handleMobileClose} aria-label="Close navigation menu" type="button" />
       )}
 
       <Sidebar
-        collapsed={effectiveCollapsed}
-        onToggle={() => setSidebarCollapsed((v) => !v)}
+        collapsed={sidebarCollapsedValue}
+        onToggle={isMobile ? handleMobileToggle : handleDesktopToggle}
       />
 
-      <div className={`sb-dashboard-layout__main ${effectiveCollapsed ? 'sb-dashboard-layout__main--collapsed' : ''}`}>
-        <Topbar onMenuClick={isMobile ? () => setSidebarCollapsed(false) : undefined} />
+      <div className={`sb-dashboard-layout__main ${sidebarCollapsedValue ? 'sb-dashboard-layout__main--collapsed' : ''}`}>
+        <Topbar onMenuClick={isMobile ? handleMobileToggle : undefined} />
         <main className="sb-dashboard-layout__content" id="main-content">
           <Outlet />
         </main>
