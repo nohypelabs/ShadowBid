@@ -21,6 +21,29 @@
 
 .sb-dashboard-layout__content {
   padding: 0;
+  min-height: calc(100vh - 64px);
+}
+
+/* Footer */
+.sb-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.sb-footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--dur-fast);
+}
+
+.sb-footer a:hover {
+  color: var(--text-primary);
 }
 
 /* ── Responsive ── */
