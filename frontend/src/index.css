@@ -3615,3 +3615,371 @@ h1, h2, h3, h4 {
     white-space: normal;
   }
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE LAYOUT FIXES (comprehensive)
+   Breakpoints: <=640px (phone), <=480px (small phone)
+   ═══════════════════════════════════════════ */
+
+/* ── 640px: General phone ── */
+@media (max-width: 640px) {
+
+  /* -- Page wrapper -- */
+  .sb-page__content {
+    padding: 0;
+  }
+
+  /* -- Overview hero -- */
+  .sb-overview {
+    padding: 80px 16px 28px;
+  }
+
+  .sb-overview__inner {
+    padding: 0;
+  }
+
+  .sb-overview__title {
+    font-size: 28px;
+  }
+
+  .sb-overview__sub {
+    font-size: 14px;
+    padding: 0 4px;
+  }
+
+  .sb-overview__actions {
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .sb-overview__btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
+
+  .sb-overview__metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .sb-metric-chip {
+    min-width: 0;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  /* -- Dashboard grid -- */
+  .sb-dashboard {
+    padding: 0 16px 40px;
+  }
+
+  .sb-dashboard__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* -- Dashboard auction rows -- */
+  .sb-dash-row {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .sb-dash-row__top {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sb-dash-row__title {
+    font-size: 14px;
+  }
+
+  .sb-dash-row__meta {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* -- Dashboard empty state -- */
+  .sb-dash-empty__actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .sb-dash-empty__btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* -- Protocol (how it works) -- */
+  .sb-protocol {
+    padding: 0 16px 40px;
+  }
+
+  .sb-protocol__inner {
+    padding: 20px 16px;
+  }
+
+  .sb-protocol__title {
+    font-size: 22px;
+  }
+
+  .sb-protocol__steps {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .sb-protocol__arrow {
+    transform: rotate(90deg);
+    font-size: 14px;
+  }
+
+  /* -- Footer CTA -- */
+  .sb-footer-cta-section {
+    padding: 0 16px 56px;
+  }
+
+  .sb-footer-cta {
+    padding: 36px 20px;
+    border-radius: 18px;
+  }
+
+  .sb-footer-cta__title {
+    font-size: 24px;
+  }
+
+  .sb-footer-cta__desc {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .sb-footer-cta__btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  /* -- Active auctions page -- */
+  .sb-active-page {
+    padding: 80px 14px 48px;
+  }
+
+  .sb-active-hero__copy {
+    padding: 20px;
+  }
+
+  .sb-active-hero h1 {
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  .sb-active-hero p {
+    font-size: 14px;
+  }
+
+  .sb-active-hero__panel {
+    padding: 20px;
+    min-height: auto;
+    gap: 12px;
+  }
+
+  .sb-active-hero__panel strong {
+    font-size: 42px;
+  }
+
+  .sb-active-hero__cta {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .sb-active-toolbar {
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .sb-active-toolbar h2 {
+    font-size: 18px;
+  }
+
+  .sb-active-search {
+    min-width: 100%;
+  }
+
+  .sb-active-row {
+    padding: 14px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .sb-active-row__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .sb-active-row__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .sb-active-row__head h3 {
+    font-size: 15px;
+    white-space: normal;
+  }
+
+  .sb-active-row__meta {
+    font-size: 12px;
+    gap: 6px 10px;
+  }
+
+  /* -- Create auction page -- */
+  .sb-create-page {
+    padding: 80px 14px 48px;
+  }
+
+  .sb-create-title {
+    font-size: 26px;
+  }
+
+  .sb-create-subtitle {
+    font-size: 14px;
+  }
+
+  .sb-create-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .sb-create-form-card,
+  .sb-create-summary {
+    padding: 18px;
+  }
+
+  .sb-create-summary {
+    order: -1;
+  }
+
+  .sb-create-field-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .sb-create-submit {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  /* -- Auction detail page -- */
+  .sb-detail {
+    padding: 80px 14px 48px;
+  }
+
+  .sb-detail-info {
+    padding: 18px;
+  }
+
+  .sb-detail-info__header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .sb-detail-info__title {
+    font-size: 24px;
+  }
+
+  .sb-detail-status {
+    align-self: flex-start;
+  }
+
+  .sb-detail-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .sb-detail .stats-card {
+    padding: 16px;
+  }
+
+  .sb-detail-highest,
+  .sb-detail-action-panel,
+  .sb-detail-info-box,
+  .sb-detail-empty-bids {
+    padding: 16px;
+  }
+
+  .sb-detail-highest__title {
+    font-size: 18px;
+  }
+
+  .sb-detail-highest__amount-value {
+    font-size: 24px;
+  }
+
+  .sb-detail-action-title {
+    font-size: 16px;
+  }
+
+  .sb-detail-action-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .sb-detail-form .sb-input {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  .sb-detail-deposit-notice {
+    padding: 12px;
+  }
+
+  .sb-detail-deposit-notice__header {
+    font-size: 13px;
+  }
+
+  /* -- Search input -- */
+  .sb-search__input {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ── 480px: Small phone ── */
+@media (max-width: 480px) {
+  .sb-overview__metrics {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .sb-metric-chip {
+    padding: 8px 10px;
+  }
+
+  .sb-overview__title {
+    font-size: 24px;
+  }
+
+  .sb-active-hero__panel strong {
+    font-size: 36px;
+  }
+
+  .sb-footer-cta__title {
+    font-size: 20px;
+  }
+
+  .sb-detail-info__title {
+    font-size: 20px;
+  }
+
+  .sb-dash-row__meta span {
+    font-size: 11px;
+  }
+
+  .sb-dash-row__addr {
+    display: none;
+  }
+}
