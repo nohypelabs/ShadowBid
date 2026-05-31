@@ -108,17 +108,20 @@ function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.04, 0.24) }}>
       <Link to={`/auction/${auctionId}`} className="sb-active-row">
-        <div className="sb-active-row__icon"><Zap size={20} /></div>
+        {auctionData.imageURI ? (
+          <img src={auctionData.imageURI} alt={auctionData.title} className="sb-active-row__image" />
+        ) : (
+          <div className="sb-active-row__icon"><Zap size={20} /></div>
+        )}
         <div className="sb-active-row__main">
           <div className="sb-active-row__head">
             <h3>{auctionData.title}</h3>
             <span className="sb-badge sb-badge--active">Active</span>
           </div>
           <div className="sb-active-row__meta">
-            <span><Activity size={13} /> Auction #{auctionId}</span>
-            <span><Users size={13} /> {Number(bidCount || 0)} bidders</span>
+            {auctionData.category && <span>{auctionData.category}</span>}
+            <span><Users size={13} /> {auctionData.sealedBidCount} sealed bids</span>
             <span><Clock size={13} /> <CountdownTimer endTime={auctionData.biddingEnd} compact /></span>
-            <span><Lock size={13} /> {auctionData.seller.slice(0, 6)}...{auctionData.seller.slice(-4)}</span>
           </div>
         </div>
         <ChevronRight size={18} />

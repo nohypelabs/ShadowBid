@@ -159,6 +159,15 @@
   width: 46px;
 }
 
+.sb-active-row__image {
+  width: 46px;
+  height: 46px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--glass-border);
+}
+
 .sb-active-row__main {
   min-width: 0;
   flex: 1;
