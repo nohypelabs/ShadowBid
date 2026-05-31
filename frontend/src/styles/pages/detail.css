@@ -200,37 +200,35 @@
   }
 }
 
-.sb-detail .stats-card,
 .sb-detail-highest,
 .sb-detail-empty-bids,
 .sb-detail-info-box,
 .sb-detail-action-panel,
 .sb-detail-success-box,
 .sb-detail-winner-box {
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+  box-shadow: var(--shadow-card), var(--glass-inset);
   transition: border-color var(--dur-normal) var(--ease);
 }
 
-.sb-detail .stats-card:hover,
 .sb-detail-highest:hover,
 .sb-detail-empty-bids:hover,
 .sb-detail-info-box:hover,
 .sb-detail-action-panel:hover {
-  border-color: rgba(45,212,191,0.28);
+  border-color: var(--glass-border-hover);
 }
 
+/* Stat cards — match dashboard sb-dashboard-stat */
 .sb-detail .stats-card {
+  background: var(--bg-surface);
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: auto;
   min-width: 0;
-  padding: 20px;
-  text-align: left;
-  background: var(--bg-surface);
   border: none;
   border-radius: 0;
   box-shadow: none;
@@ -238,22 +236,33 @@
   transition: background var(--dur-normal) var(--ease);
 }
 
+.sb-detail .stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: transparent;
+  transition: background var(--dur-slow), box-shadow var(--dur-slow);
+}
+
 .sb-detail .stats-card:hover {
   background: var(--bg-raised);
-  transform: none;
-  box-shadow: none;
+}
+
+.sb-detail .stats-card:hover::before {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
 }
 
 .sb-detail-stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--t3);
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--t3);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
   margin-bottom: 0;
   min-width: 0;
 }
@@ -264,8 +273,8 @@
 
 .sb-detail-stat-value {
   font-family: var(--font-display);
-  font-weight: 800;
   font-size: 28px;
+  font-weight: 800;
   color: var(--t1);
   margin: 0;
   line-height: 1;
