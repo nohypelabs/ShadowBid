@@ -259,10 +259,14 @@ export function AuctionDetail() {
             )}
             <div className="sb-detail-info__header">
               <div>
-                <div className="sb-detail-kicker"><ShieldCheck size={16} /> Auction #{auctionId!.toString()} on Arbitrum Sepolia</div>
+                <div className="sb-detail-kicker">
+                  <ShieldCheck size={14} />
+                  <span>#{auctionId!.toString()}</span>
+                  <span style={{ opacity: 0.4 }}>·</span>
+                  <span>{auctionData.category || 'Auction'}</span>
+                </div>
                 <h1 className="sb-detail-info__title">{auctionData.title}</h1>
-                {auctionData.category && <span className="sb-detail-info__category">{auctionData.category}</span>}
-                <div className="sb-detail-info__tag"><Lock size={16} /> Encrypted Sealed-Bid Auction</div>
+                <div className="sb-detail-info__tag"><Lock size={14} /> Encrypted Sealed-Bid</div>
               </div>
               <span className={`sb-badge ${statusClass}`}>{statusLabel}</span>
             </div>
@@ -273,15 +277,15 @@ export function AuctionDetail() {
 
             <div className="sb-detail-stats">
               <div className="stats-card">
-                <div className="sb-detail-stat-label"><Clock size={16} /> Time Left</div>
+                <div className="sb-detail-stat-label"><Clock size={14} /> Time Left</div>
                 <CountdownTimer endTime={auctionData.biddingEnd} onComplete={() => refetch()} />
               </div>
               <div className="stats-card">
-                <div className="sb-detail-stat-label"><Users size={16} /> Bidders</div>
+                <div className="sb-detail-stat-label"><Users size={14} /> Bidders</div>
                 <p className="sb-detail-stat-value">{bidCountNumber}</p>
               </div>
               <div className="stats-card">
-                <div className="sb-detail-stat-label"><Lock size={16} /> Seller</div>
+                <div className="sb-detail-stat-label"><Lock size={14} /> Seller</div>
                 <p className="sb-detail-stat-value sb-detail-stat-value--seller">
                   {shortAddr(auctionData.seller)}
                   {isSeller && <span className="sb-detail-you">(You)</span>}
@@ -292,15 +296,15 @@ export function AuctionDetail() {
 
           {/* Settlement Result — only shown after reveal */}
           {bidCountNumber > 0 && auctionData.revealedWinner !== ZERO_ADDRESS ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card sb-detail-highest">
-              <h2 className="sb-detail-highest__title"><Trophy size={24} /> Settlement Result</h2>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="sb-detail-highest">
+              <h2 className="sb-detail-highest__title"><Trophy size={20} /> Settlement Result</h2>
               <div className="sb-detail-highest__revealed">
                 <div className="sb-detail-highest__amount">
                   <p className="sb-detail-highest__amount-label">Winning Bid</p>
                   <p className="sb-detail-highest__amount-value gradient-text">{formatEth(auctionData.revealedBid)} ETH</p>
                 </div>
                 <div className="sb-detail-highest__winner">
-                  <div className="sb-detail-trophy-circle"><Trophy size={24} /></div>
+                  <div className="sb-detail-trophy-circle"><Trophy size={20} /></div>
                   <div>
                     <p className="sb-detail-highest__winner-label">Winner</p>
                     <p className="sb-detail-mono">{shortAddr(auctionData.revealedWinner)}</p>
@@ -309,21 +313,21 @@ export function AuctionDetail() {
               </div>
             </motion.div>
           ) : (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card sb-detail-empty-bids">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="sb-detail-empty-bids">
               <div className="sb-detail-lock-circle"><Gavel size={20} /></div>
               <div>
                 <h2>No bids yet</h2>
-                <p>Be the first bidder. Your amount stays sealed until the auction closes.</p>
+                <p>Be the first bidder. Your bid amount stays encrypted until the auction closes.</p>
               </div>
             </motion.div>
           )}
 
           {/* Privacy Notice */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sb-detail-info-box">
-            <Lock size={20} />
+            <Lock size={18} />
             <div>
               <h3>Privacy Guarantee</h3>
-              <p>Your bid amount remains encrypted and hidden from other participants during the auction. No one—including the seller or other bidders—can see your bid until settlement is finalized.</p>
+              <p>Your bid amount remains encrypted and hidden from other participants. No one—including the seller or other bidders—can see your bid until settlement is finalized.</p>
             </div>
           </motion.div>
         </div>

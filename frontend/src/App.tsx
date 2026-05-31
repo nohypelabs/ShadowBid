@@ -1,17 +1,31 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DashboardLayout, BackToTop } from './components';
-import {
-  Home, CreateAuction, AuctionDetail, ActiveAuctions,
-  MyBids, RevealCenter, Settlement, Verification,
-  Demo, NotFound,
-} from './pages';
+
+const Home = lazy(() => import('./pages/Home'));
+const CreateAuction = lazy(() => import('./pages/CreateAuction'));
+const AuctionDetail = lazy(() => import('./pages/AuctionDetail'));
+const ActiveAuctions = lazy(() => import('./pages/ActiveAuctions'));
+const MyBids = lazy(() => import('./pages/MyBids'));
+const RevealCenter = lazy(() => import('./pages/RevealCenter'));
+const Settlement = lazy(() => import('./pages/Settlement'));
+const Verification = lazy(() => import('./pages/Verification'));
+const Demo = lazy(() => import('./pages/Demo'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
+}
+
+function PageLoader() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', color: 'var(--t3)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
+      Loading...
+    </div>
+  );
 }
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -32,21 +46,18 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Dashboard layout routes */}
         <Route element={<DashboardLayout />}>
-          <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-          <Route path="/auctions" element={<PageWrapper><ActiveAuctions /></PageWrapper>} />
-          <Route path="/create" element={<PageWrapper><CreateAuction /></PageWrapper>} />
-          <Route path="/auction/:id" element={<PageWrapper><AuctionDetail /></PageWrapper>} />
-          <Route path="/my-bids" element={<PageWrapper><MyBids /></PageWrapper>} />
-          <Route path="/reveal" element={<PageWrapper><RevealCenter /></PageWrapper>} />
-          <Route path="/settlement" element={<PageWrapper><Settlement /></PageWrapper>} />
-          <Route path="/verification" element={<PageWrapper><Verification /></PageWrapper>} />
+          <Route path="/" element={<PageWrapper><Suspense fallback={<PageLoader />}><Home /></Suspense></PageWrapper>} />
+          <Route path="/auctions" element={<PageWrapper><Suspense fallback={<PageLoader />}><ActiveAuctions /></Suspense></PageWrapper>} />
+          <Route path="/create" element={<PageWrapper><Suspense fallback={<PageLoader />}><CreateAuction /></Suspense></PageWrapper>} />
+          <Route path="/auction/:id" element={<PageWrapper><Suspense fallback={<PageLoader />}><AuctionDetail /></Suspense></PageWrapper>} />
+          <Route path="/my-bids" element={<PageWrapper><Suspense fallback={<PageLoader />}><MyBids /></Suspense></PageWrapper>} />
+          <Route path="/reveal" element={<PageWrapper><Suspense fallback={<PageLoader />}><RevealCenter /></Suspense></PageWrapper>} />
+          <Route path="/settlement" element={<PageWrapper><Suspense fallback={<PageLoader />}><Settlement /></Suspense></PageWrapper>} />
+          <Route path="/verification" element={<PageWrapper><Suspense fallback={<PageLoader />}><Verification /></Suspense></PageWrapper>} />
         </Route>
-
-        {/* Standalone routes (no sidebar) */}
-        <Route path="/demo" element={<PageWrapper><Demo /></PageWrapper>} />
-        <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
+        <Route path="/demo" element={<PageWrapper><Suspense fallback={<PageLoader />}><Demo /></Suspense></PageWrapper>} />
+        <Route path="*" element={<PageWrapper><Suspense fallback={<PageLoader />}><NotFound /></Suspense></PageWrapper>} />
       </Routes>
     </AnimatePresence>
   );
