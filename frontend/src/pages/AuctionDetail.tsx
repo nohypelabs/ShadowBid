@@ -38,7 +38,7 @@ export function AuctionDetail() {
     query: { enabled: auctionId !== null },
   });
 
-  const { data: userBid } = useReadContract({
+  const { data: userBid, isLoading: isLoadingUserBid } = useReadContract({
     address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'bids',
     args: auctionId !== null ? [auctionId, address || '0x0000000000000000000000000000000000000000'] : undefined,
     query: { enabled: !!address && auctionId !== null },
@@ -246,7 +246,7 @@ export function AuctionDetail() {
     if (txError) toast.error(txError.message || 'Transaction failed');
   }, [txError]);
 
-  const isLoading = isEncrypting || isTxPending || isConfirming;
+  const isLoading = isEncrypting || isTxPending || isConfirming || isLoadingUserBid;
   const bidCountNumber = Number(bidCount || 0);
   const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Accepting bids' : 'Bidding ended';
   const statusClass = auctionData?.finalized ? 'sb-badge--finalized' : isBiddingActive ? 'sb-badge--active' : 'sb-badge--ended-warn';
@@ -383,7 +383,7 @@ export function AuctionDetail() {
         <div className="sb-detail-right">
           <div className="sb-detail-actions">
             {/* Place Bid */}
-            {isBiddingActive && !isSeller && !hasBid && (
+            {isBiddingActive && !isSeller && !hasBid && !isLoadingUserBid && (
               <ActionPanel title="Place Your Bid">
                 <form onSubmit={handlePlaceBid} className="sb-detail-form">
                   <div className="sb-form-field">

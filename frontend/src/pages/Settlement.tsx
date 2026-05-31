@@ -83,7 +83,7 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
     args: [BigInt(auctionId)],
   });
 
-  const { data: paymentClaimed } = useReadContract({
+  const { data: paymentClaimed, isLoading: isLoadingClaimed } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'isPaymentClaimed',
@@ -124,7 +124,9 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
         {formatEth(data.revealedBid)} ETH
       </td>
       <td>
-        {claimed ? (
+        {isLoadingClaimed ? (
+          <span className="sb-td--mono sb-td--muted">...</span>
+        ) : claimed ? (
           <span className="sb-td--mono sb-td--success sb-status-inline">
             <CheckCircle2 size={14} /> Claimed
           </span>
