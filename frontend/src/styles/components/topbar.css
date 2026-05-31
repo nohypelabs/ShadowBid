@@ -159,3 +159,30 @@
   --rk-colors-accentColor: var(--gold);
   --rk-colors-accentColorForeground: var(--bg-void);
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .sb-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .sb-topbar__search {
+    max-width: none;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sb-topbar__network {
+    display: none;
+  }
+
+  .sb-topbar__wallet {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  .sb-topbar__wallet-bal {
+    display: none;
+  }
+}
