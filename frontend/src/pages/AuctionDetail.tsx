@@ -33,7 +33,7 @@ export function AuctionDetail() {
     query: { enabled: auctionId !== null },
   });
 
-  const { data: bidCount } = useReadContract({
+  const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getBidderCount', args: auctionId !== null ? [auctionId] : undefined,
     query: { enabled: auctionId !== null },
   });
@@ -247,7 +247,7 @@ export function AuctionDetail() {
   }, [txError]);
 
   const isLoading = isEncrypting || isTxPending || isConfirming || isLoadingUserBid;
-  const bidCountNumber = Number(bidCount || 0);
+  const bidCountNumber = isLoadingBidCount ? undefined : Number(bidCount || 0);
   const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Accepting bids' : 'Bidding ended';
   const statusClass = auctionData?.finalized ? 'sb-badge--finalized' : isBiddingActive ? 'sb-badge--active' : 'sb-badge--ended-warn';
 
@@ -329,7 +329,7 @@ export function AuctionDetail() {
               </div>
               <div className="sb-dashboard-stat">
                 <span className="sb-dashboard-stat__label"><Users size={14} /> Bidders</span>
-                <span className="sb-dashboard-stat__value">{bidCountNumber}</span>
+                <span className="sb-dashboard-stat__value">{bidCountNumber === undefined ? '...' : bidCountNumber}</span>
               </div>
               <div className="sb-dashboard-stat">
                 <span className="sb-dashboard-stat__label"><Lock size={14} /> Seller</span>
@@ -406,7 +406,7 @@ export function AuctionDetail() {
                     <AlertCircle size={12} /> Bids below the seller's encrypted minimum will be silently rejected. Your ETH deposit is still required.
                   </p>
                   {error && <div className="sb-detail-error" role="alert"><AlertCircle size={20} /><p>{error}</p></div>}
-                  <button type="submit" disabled={isLoading || isEncrypting} className="btn-primary sb-detail-action-btn">
+                  <button type="submit" disabled={isLoading || isEncrypting || !cofheClient} className="btn-primary sb-detail-action-btn">
                     {isEncrypting ? 'Encrypting...' : isTxPending || isConfirming ? 'Processing...' : 'Encrypt & Submit Bid'}
                   </button>
                   <p className="sb-detail-form-note">Your bid is encrypted before leaving your browser</p>

@@ -166,7 +166,7 @@ function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { 
     query: { enabled: totalAuctions > 0 },
   });
 
-  const { data: bidCount } = useReadContract({
+  const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'getBidderCount',
@@ -192,8 +192,8 @@ function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { 
 
   if (isLoading || !auction) return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
 
-  const bidders = Number(bidCount || 0);
-  const data = parseAuction(auction as unknown[], totalAuctions - 1, bidders);
+  const bidders = isLoadingBidCount ? undefined : Number(bidCount || 0);
+  const data = parseAuction(auction as unknown[], totalAuctions - 1, bidders ?? 0);
   if (!data) return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
 
   const isActive = data.status === 'ACTIVE';
@@ -217,7 +217,7 @@ function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { 
         <div className="sb-featured-card__meta-row">
           <Users size={14} className="icon-muted" />
           <span className="sb-featured-card__meta-label">Bids</span>
-          <span>{bidders} sealed</span>
+          <span>{bidders === undefined ? '...' : `${bidders} sealed`}</span>
         </div>
         <div className="sb-featured-card__meta-row">
           <Clock size={14} className="icon-muted" />
@@ -339,7 +339,7 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
     args: [BigInt(auctionId)],
   });
 
-  const { data: bidCount } = useReadContract({
+  const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'getBidderCount',
@@ -357,8 +357,8 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
     );
   }
 
-  const bidders = typeof bidCount === 'bigint' ? Number(bidCount) : 0;
-  const data = parseAuction(auction as unknown[], auctionId, bidders);
+  const bidders = isLoadingBidCount ? undefined : (typeof bidCount === 'bigint' ? Number(bidCount) : 0);
+  const data = parseAuction(auction as unknown[], auctionId, bidders ?? 0);
   if (!data) return null;
 
   const isActive = data.status === 'ACTIVE';
@@ -380,7 +380,7 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
         </span>
       </td>
       <td>{remaining > 0n ? `${Math.floor(hours)}h ${Math.floor((Number(remaining) % 3600) / 60)}m` : 'Done'}</td>
-      <td>{Number(bidCount || 0)}</td>
+      <td>{isLoadingBidCount ? '...' : Number(bidCount || 0)}</td>
     </tr>
   );
 }
