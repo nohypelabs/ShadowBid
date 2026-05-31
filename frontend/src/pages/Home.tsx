@@ -23,7 +23,7 @@ export function Home() {
     functionName: 'auctionCounter',
   });
 
-  const { data: totalEscrowed } = useReadContract({
+  const { data: totalEscrowed, isLoading: isLoadingEscrowed } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'totalEscrowed',
@@ -75,7 +75,7 @@ export function Home() {
         />
         <DashboardStat
           label="Total Locked"
-          value={totalEscrowed ? `${formatEth(totalEscrowed as bigint)} ETH` : '0 ETH'}
+          value={isLoadingEscrowed ? '...' : totalEscrowed ? `${formatEth(totalEscrowed as bigint)} ETH` : '0 ETH'}
           sub="in escrow"
           accent="gold"
         />
@@ -95,8 +95,8 @@ export function Home() {
         transition={{ delay: 0.15 }}
         className="sb-dashboard-grid"
       >
-        <FeaturedAuction totalAuctions={totalAuctions} now={now} />
-        <AuctionPhaseTimeline totalAuctions={totalAuctions} now={now} />
+        <FeaturedAuction totalAuctions={totalAuctions} now={now} isLoading={isLoadingCounter} />
+        <AuctionPhaseTimeline totalAuctions={totalAuctions} now={now} isLoading={isLoadingCounter} />
       </motion.div>
 
       {/* Live Auctions Table + My Bids */}
@@ -106,7 +106,7 @@ export function Home() {
         transition={{ delay: 0.2 }}
         className="sb-dashboard-grid"
       >
-        <LiveAuctionsTable totalAuctions={totalAuctions} now={now} />
+        <LiveAuctionsTable totalAuctions={totalAuctions} now={now} isLoading={isLoadingCounter} />
         <MySealedBidStatus totalAuctions={totalAuctions} address={address} now={now} />
       </motion.div>
 
@@ -157,7 +157,7 @@ function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: big
   return <DashboardStat label="Reveal Due" value={display} sub={remaining > 0n ? 'until bidding ends' : 'bidding concluded'} accent="gold" />;
 }
 
-function FeaturedAuction({ totalAuctions, now }: { totalAuctions: number; now: bigint }) {
+function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -173,6 +173,10 @@ function FeaturedAuction({ totalAuctions, now }: { totalAuctions: number; now: b
     args: totalAuctions > 0 ? [BigInt(totalAuctions - 1)] : undefined,
     query: { enabled: totalAuctions > 0 },
   });
+
+  if (isLoadingCounter) {
+    return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
+  }
 
   if (totalAuctions === 0) {
     return (
@@ -228,7 +232,7 @@ function FeaturedAuction({ totalAuctions, now }: { totalAuctions: number; now: b
   );
 }
 
-function AuctionPhaseTimeline({ totalAuctions, now }: { totalAuctions: number; now: bigint }) {
+function AuctionPhaseTimeline({ totalAuctions, now, isLoading: isLoadingCounter }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
   const { data: auction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -236,6 +240,8 @@ function AuctionPhaseTimeline({ totalAuctions, now }: { totalAuctions: number; n
     args: totalAuctions > 0 ? [BigInt(totalAuctions - 1)] : undefined,
     query: { enabled: totalAuctions > 0 },
   });
+
+  if (isLoadingCounter) return <div className="sb-timeline"><p className="sb-timeline__title">Loading...</p></div>;
 
   if (!auction) return <div className="sb-timeline"><p className="sb-timeline__title">No auction data</p></div>;
 
@@ -282,7 +288,7 @@ function AuctionPhaseTimeline({ totalAuctions, now }: { totalAuctions: number; n
   );
 }
 
-function LiveAuctionsTable({ totalAuctions, now }: { totalAuctions: number; now: bigint }) {
+function LiveAuctionsTable({ totalAuctions, now, isLoading }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
   const displayCount = Math.min(totalAuctions, 5);
 
   return (
@@ -295,7 +301,9 @@ function LiveAuctionsTable({ totalAuctions, now }: { totalAuctions: number; now:
           <Link to="/auctions" className="sb-panel__link">View all <ChevronRight size={14} /></Link>
         )}
       </div>
-      {totalAuctions === 0 ? (
+      {isLoading ? (
+        <div className="sb-table-empty">Loading...</div>
+      ) : totalAuctions === 0 ? (
         <EmptyState
           icon={Gavel}
           title="No auctions yet"

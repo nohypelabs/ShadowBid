@@ -60,10 +60,15 @@ export function ActiveAuctions() {
       </section>
 
       <div className="sb-active-list">
-        {totalAuctions === 0 && <ActiveEmptyState />}
-        {totalAuctions > 0 && auctionIds.map((auctionId, index) => (
-          <ActiveAuctionRow key={auctionId} auctionId={auctionId} searchQuery={searchQuery} index={index} now={now} />
-        ))}
+        {isLoadingCounter ? (
+          <div className="sb-table-empty">Loading...</div>
+        ) : totalAuctions === 0 ? (
+          <ActiveEmptyState />
+        ) : (
+          auctionIds.map((auctionId, index) => (
+            <ActiveAuctionRow key={auctionId} auctionId={auctionId} searchQuery={searchQuery} index={index} now={now} />
+          ))
+        )}
       </div>
     </div>
   );

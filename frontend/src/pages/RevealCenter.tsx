@@ -13,7 +13,7 @@ export function RevealCenter() {
   const { address } = useAccount();
   const now = useCurrentTimestamp();
 
-  const { data: auctionCounter } = useReadContract({
+  const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctionCounter',
@@ -45,6 +45,8 @@ export function RevealCenter() {
           title="Wallet not connected"
           description="Connect your wallet to check reveal status and decrypt winners."
         />
+      ) : isLoadingCounter ? (
+        <div className="sb-table-empty">Loading...</div>
       ) : totalAuctions === 0 ? (
         <EmptyState
           icon={Gavel}

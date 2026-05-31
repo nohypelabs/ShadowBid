@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract, useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
-import { Banknote, ChevronRight, Wallet, Gavel } from 'lucide-react';
+import { Banknote, ChevronRight, Wallet, Gavel, CheckCircle2, Clock } from 'lucide-react';
 import { EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
@@ -11,7 +11,7 @@ import { formatEth, shortAddr } from '../utils/format';
 export function Settlement() {
   const { address } = useAccount();
 
-  const { data: auctionCounter } = useReadContract({
+  const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctionCounter',
@@ -43,6 +43,8 @@ export function Settlement() {
           title="Wallet not connected"
           description="Connect your wallet to check settlement status and claim payments."
         />
+      ) : isLoadingCounter ? (
+        <div className="sb-table-empty">Loading...</div>
       ) : totalAuctions === 0 ? (
         <EmptyState
           icon={Gavel}

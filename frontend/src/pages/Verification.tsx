@@ -9,7 +9,7 @@ import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
 import { shortAddr } from '../utils/format';
 export function Verification() {
 
-  const { data: auctionCounter } = useReadContract({
+  const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctionCounter',
@@ -35,7 +35,9 @@ export function Verification() {
         </div>
       </motion.div>
 
-      {totalAuctions === 0 ? (
+      {isLoadingCounter ? (
+        <div className="sb-table-empty">Loading...</div>
+      ) : totalAuctions === 0 ? (
         <EmptyState
           icon={Gavel}
           title="No verification events yet"

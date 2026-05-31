@@ -12,7 +12,7 @@ export function MyBids() {
   const { address } = useAccount();
   const now = useCurrentTimestamp();
 
-  const { data: auctionCounter } = useReadContract({
+  const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctionCounter',
@@ -44,6 +44,8 @@ export function MyBids() {
           title="Wallet not connected"
           description="Connect your wallet to track your sealed bids across auctions."
         />
+      ) : isLoadingCounter ? (
+        <div className="sb-table-empty">Loading...</div>
       ) : totalAuctions === 0 ? (
         <EmptyState
           icon={Gavel}
