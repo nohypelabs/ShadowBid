@@ -192,14 +192,18 @@ function FeaturedAuction({ totalAuctions, now }: { totalAuctions: number; now: b
 
   return (
     <div className="sb-featured-card">
+      {data.imageURI && (
+        <img src={data.imageURI} alt={data.title} className="sb-featured-card__image" />
+      )}
       <div className="sb-featured-card__badge">
         <Zap size={12} /> Featured Active Auction
       </div>
       <h3 className="sb-featured-card__title">{data.title}</h3>
+      {data.category && <span className="sb-featured-card__category">{data.category}</span>}
       <div className="sb-featured-card__meta">
         <div className="sb-featured-card__meta-row">
           <Lock size={14} className="icon-muted" />
-          <span className="sb-featured-card__meta-label">Floor/Reserve</span>
+          <span className="sb-featured-card__meta-label">Reserve</span>
           <span>Hidden (encrypted)</span>
         </div>
         <div className="sb-featured-card__meta-row">
