@@ -653,6 +653,10 @@
     padding: 16px;
   }
 
+  .sb-detail-info__image {
+    max-height: 160px;
+  }
+
   .sb-detail-info__header {
     flex-direction: column;
   }
@@ -665,6 +669,11 @@
     grid-template-columns: 1fr;
   }
 
+  .sb-detail .stats-card {
+    min-height: auto;
+    padding: 16px;
+  }
+
   .sb-detail-highest,
   .sb-detail-action-panel,
   .sb-detail-info-box {
@@ -672,6 +681,16 @@
   }
 
   .sb-detail-highest__amount-value {
-    font-size: 30px;
+    font-size: 28px;
+  }
+
+  .sb-detail-trophy-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sb-detail-winner-box,
+  .sb-detail-success-box {
+    padding: 16px;
   }
 }
