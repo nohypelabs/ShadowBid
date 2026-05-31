@@ -108,7 +108,7 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
 
   const isWinner = data.revealedWinner.toLowerCase() === address.toLowerCase();
   const isSeller = data.seller.toLowerCase() === address.toLowerCase();
-  const claimed = paymentClaimed === true;
+  const claimed = isLoadingClaimed ? undefined : paymentClaimed === true;
 
   return (
     <tr>

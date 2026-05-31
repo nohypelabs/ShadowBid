@@ -67,7 +67,7 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
     args: [BigInt(auctionId)],
   });
 
-  const { data: bidCount } = useReadContract({
+  const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'getBidderCount',
@@ -81,7 +81,7 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
     </div>
   );
 
-  const bidders = Number(bidCount || 0);
+  const bidders = isLoadingBidCount ? undefined : Number(bidCount || 0);
   const data = parseAuction(auction as unknown[], auctionId, bidders);
   if (!data) return null;
 

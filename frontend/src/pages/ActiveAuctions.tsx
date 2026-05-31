@@ -93,7 +93,7 @@ function ActiveAuctionRow({ auctionId, searchQuery, index, now }: { auctionId: n
     args: [BigInt(auctionId)],
   });
 
-  const { data: bidCount } = useReadContract({
+  const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'getBidderCount',
@@ -103,7 +103,7 @@ function ActiveAuctionRow({ auctionId, searchQuery, index, now }: { auctionId: n
   if (isLoading) return <ActiveAuctionSkeleton />;
   if (!auction || !Array.isArray(auction)) return null;
 
-  const bidders = Number(bidCount || 0);
+  const bidders = isLoadingBidCount ? undefined : Number(bidCount || 0);
   const auctionData = parseAuction(auction as unknown[], auctionId, bidders);
   if (!auctionData) return null;
 

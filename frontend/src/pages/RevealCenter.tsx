@@ -85,7 +85,7 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
     args: [BigInt(auctionId)],
   });
 
-  const { data: bidCount } = useReadContract({
+  const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'getBidderCount',
@@ -108,7 +108,7 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
   // Only show finalized auctions that need reveal or are settled
   if (data.status === 'ACTIVE') return null;
 
-  const bidders = Number(bidCount || 0);
+  const bidders = isLoadingBidCount ? undefined : Number(bidCount || 0);
 
   return (
     <tr>
