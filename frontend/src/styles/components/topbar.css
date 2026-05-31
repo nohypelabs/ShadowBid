@@ -6,15 +6,15 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  height: 56px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: rgba(2,3,10,0.82);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border-bottom: 1px solid var(--glass-border);
+  background: rgba(5,6,8,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   gap: 16px;
 }
 
@@ -24,20 +24,21 @@
   align-items: center;
   gap: 8px;
   padding: 7px 14px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
   flex: 1;
   max-width: 360px;
   transition: border-color var(--dur-fast);
 }
 
 .sb-topbar__search:focus-within {
-  border-color: var(--gold);
+  border-color: rgba(45,212,191,0.55);
+  box-shadow: 0 0 0 3px rgba(45,212,191,0.10);
 }
 
 .sb-topbar__search-icon {
-  color: var(--t3);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -45,15 +46,15 @@
   background: transparent;
   border: none;
   outline: none;
-  color: var(--t1);
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   width: 100%;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 .sb-topbar__search-input::placeholder {
-  color: var(--t3);
+  color: var(--text-muted);
 }
 
 /* Right section */
@@ -69,26 +70,26 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  background: var(--cipher-dim);
-  border: 1px solid rgba(26,255,228,0.14);
-  border-radius: 3px;
+  padding: 6px 12px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
 }
 
 .sb-topbar__network-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--cipher);
-  box-shadow: 0 0 6px var(--cipher);
+  background: var(--accent);
   animation: pulse 2s infinite;
 }
 
 .sb-topbar__network-label {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--cipher);
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--accent);
+  font-weight: 500;
 }
 
 /* Wallet button */
@@ -96,21 +97,21 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 4px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
   cursor: pointer;
   transition: background var(--dur-fast), border-color var(--dur-fast);
-  color: var(--t1);
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
 .sb-topbar__wallet:hover {
-  background: var(--glass-hover);
-  border-color: rgba(201,146,42,0.3);
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
 }
 
 .sb-topbar__wallet--connected {
@@ -118,22 +119,20 @@
 }
 
 .sb-topbar__wallet--warning {
-  background: rgba(201,146,42,0.1);
-  border-color: rgba(201,146,42,0.3);
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.3);
 }
 
 .sb-topbar__wallet-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--cipher);
-  box-shadow: 0 0 6px var(--cipher-glow);
+  background: var(--accent);
   flex-shrink: 0;
 }
 
 .sb-topbar__wallet--warning .sb-topbar__wallet-dot {
-  background: var(--gold);
-  box-shadow: 0 0 6px var(--gold-glow);
+  background: var(--warning);
 }
 
 .sb-topbar__wallet-info {
@@ -144,20 +143,20 @@
 }
 
 .sb-topbar__wallet-addr {
-  font-size: 11px;
-  color: var(--t1);
+  font-size: 13px;
+  color: var(--text-primary);
 }
 
 .sb-topbar__wallet-bal {
-  font-size: 9px;
-  color: var(--gold);
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0;
 }
 
 /* RainbowKit overrides for topbar context */
 .sb-topbar [data-rk] {
-  --rk-colors-accentColor: var(--gold);
-  --rk-colors-accentColorForeground: var(--bg-void);
+  --rk-colors-accentColor: var(--accent);
+  --rk-colors-accentColorForeground: var(--bg-main);
 }
 
 /* ── Responsive ── */
@@ -179,7 +178,7 @@
 
   .sb-topbar__wallet {
     padding: 6px 10px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .sb-topbar__wallet-bal {

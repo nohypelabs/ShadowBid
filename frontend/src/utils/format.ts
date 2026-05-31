@@ -16,6 +16,7 @@ export function shortAddr(addr: string, prefixLen = 6, suffixLen = 4): string {
  * Shows up to 4 decimal places, trailing zeros stripped.
  */
 export function formatEth(value: bigint): string {
+  if (typeof value !== 'bigint') return '0';
   const whole = value / WEI_PER_ETH;
   const fraction = value % WEI_PER_ETH;
   if (fraction === 0n) return whole.toString();

@@ -39,9 +39,9 @@ export function Home() {
         animate={{ opacity: 1, y: 0 }}
         className="sb-dashboard-page__header"
       >
-        <h1 className="sb-dashboard-page__title">Confidential Auction Command Center</h1>
+        <h1 className="sb-dashboard-page__title">Sealed-Bid Auctions on FHE</h1>
         <p className="sb-dashboard-page__sub">
-          Private sealed-bid auctions with verifiable settlement
+          Asset visible. Bid encrypted. Winner verifiable.
         </p>
       </motion.div>
 
@@ -70,7 +70,7 @@ export function Home() {
         <DashboardStat
           label="Active Auctions"
           value={isLoadingCounter ? '...' : totalAuctions.toString()}
-          sub="live on-chain"
+          sub="on Arbitrum Sepolia"
           accent="cipher"
         />
         <DashboardStat
@@ -107,7 +107,7 @@ export function Home() {
         className="sb-dashboard-grid"
       >
         <LiveAuctionsTable totalAuctions={totalAuctions} now={now} />
-        <MySealedBidStatus totalAuctions={totalAuctions} address={address} />
+        <MySealedBidStatus totalAuctions={totalAuctions} address={address} now={now} />
       </motion.div>
 
       {/* Verification Feed */}
@@ -148,6 +148,8 @@ function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: big
   if (!latestAuction) return <DashboardStat label="Reveal Due" value="—" sub="no auctions" accent="gold" />;
 
   const data = parseAuction(latestAuction as unknown[], totalAuctions - 1);
+  if (!data) return <DashboardStat label="Reveal Due" value="—" sub="no auctions" accent="gold" />;
+
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
   const display = remaining > 0n ? `${Math.floor(hours)}h ${Math.floor((Number(remaining) % 3600) / 60)}m` : 'Ended';
@@ -188,6 +190,8 @@ function FeaturedAuction({ totalAuctions, now }: { totalAuctions: number; now: b
 
   const bidders = Number(bidCount || 0);
   const data = parseAuction(auction as unknown[], totalAuctions - 1, bidders);
+  if (!data) return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
+
   const isActive = data.status === 'ACTIVE';
 
   return (
@@ -236,6 +240,8 @@ function AuctionPhaseTimeline({ totalAuctions, now }: { totalAuctions: number; n
   if (!auction) return <div className="sb-timeline"><p className="sb-timeline__title">No auction data</p></div>;
 
   const data = parseAuction(auction as unknown[], totalAuctions - 1);
+  if (!data) return <div className="sb-timeline"><p className="sb-timeline__title">No auction data</p></div>;
+
   const isCommit = data.status === 'ACTIVE';
   const isReveal = data.status === 'SETTLEMENT';
   const isSettle = data.status === 'FINALIZED';
@@ -283,7 +289,7 @@ function LiveAuctionsTable({ totalAuctions, now }: { totalAuctions: number; now:
     <div className="sb-dashboard-table-card">
       <div className="sb-dashboard-table-header">
         <span className="sb-dashboard-table-title">
-          <Gavel size={14} className="icon-gold" /> Live Auctions
+          <Gavel size={14} className="icon-gold" /> Active Auctions
         </span>
         {totalAuctions > 5 && (
           <Link to="/auctions" className="sb-panel__link">View all <ChevronRight size={14} /></Link>
@@ -329,11 +335,24 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
     args: [BigInt(auctionId)],
   });
 
-  if (!auction) return null;
+  if (!auction) {
+    return (
+      <tr className="sb-table-row--loading">
+        <td><div className="sb-skeleton__bar sb-skeleton__bar--sm" /></td>
+        <td><div className="sb-skeleton__bar sb-skeleton__bar--xs" /></td>
+        <td><div className="sb-skeleton__bar sb-skeleton__bar--xs" /></td>
+        <td><div className="sb-skeleton__bar sb-skeleton__bar--xs" /></td>
+      </tr>
+    );
+  }
 
-  const bidders = Number(bidCount || 0);
+  const bidders = typeof bidCount === 'bigint' ? Number(bidCount) : 0;
   const data = parseAuction(auction as unknown[], auctionId, bidders);
-  const phase = data.status === 'ACTIVE' ? 'Commit' : data.status === 'SETTLEMENT' ? 'Reveal' : 'Settled';
+  if (!data) return null;
+
+  const isActive = data.status === 'ACTIVE';
+  const isSettle = data.status === 'FINALIZED';
+  const phase = isActive ? 'Commit' : data.status === 'SETTLEMENT' ? 'Reveal' : 'Settled';
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
 
@@ -355,7 +374,7 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
   );
 }
 
-function MySealedBidStatus({ totalAuctions, address }: { totalAuctions: number; address: string | undefined }) {
+function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: number; address: string | undefined; now: bigint }) {
   if (!address) {
     return (
       <div className="sb-dashboard-table-card">
@@ -388,7 +407,7 @@ function MySealedBidStatus({ totalAuctions, address }: { totalAuctions: number; 
         </thead>
         <tbody>
           {recentIds.map((id) => (
-            <MyBidRow key={id} auctionId={id} address={address} />
+            <MyBidRow key={id} auctionId={id} address={address} now={now} />
           ))}
         </tbody>
       </table>
@@ -396,7 +415,7 @@ function MySealedBidStatus({ totalAuctions, address }: { totalAuctions: number; 
   );
 }
 
-function MyBidRow({ auctionId, address }: { auctionId: number; address: string }) {
+function MyBidRow({ auctionId, address, now }: { auctionId: number; address: string; now: bigint }) {
   const { data: auction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -414,6 +433,8 @@ function MyBidRow({ auctionId, address }: { auctionId: number; address: string }
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
+  if (!data) return null;
+
   const hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
@@ -473,6 +494,8 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
+  if (!data) return null;
+
   const isActive = data.status === 'ACTIVE';
 
   return (

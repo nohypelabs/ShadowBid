@@ -5,7 +5,7 @@ import { useCofheClient } from '@cofhe/react';
 import { Encryptable, FheTypes } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel } from 'lucide-react';
+import { Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
@@ -56,6 +56,11 @@ export function AuctionDetail() {
     query: { enabled: auctionId !== null },
   });
 
+  const { data: minimumBidWei } = useReadContract({
+    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getMinimumBidWei', args: auctionId !== null ? [auctionId] : undefined,
+    query: { enabled: auctionId !== null },
+  });
+
   const cofheClient = useCofheClient();
 
   const [decryptedBid, setDecryptedBid] = useState<string | null>(null);
@@ -99,15 +104,17 @@ export function AuctionDetail() {
 
   if (auction && Array.isArray(auction)) {
     auctionData = parseAuction(auction as unknown[], auctionId ?? 0);
-    isBiddingActive = auctionData.status === 'ACTIVE';
-    isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
-    hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
-    isWinning = !!decryptedBidder && !!address && decryptedBidder.toLowerCase() === address.toLowerCase();
-    isWinner = auctionData.revealedWinner !== ZERO_ADDRESS &&
-               !!address && auctionData.revealedWinner.toLowerCase() === address.toLowerCase();
-    canClaimRefund = hasBid && !isWinner && auctionData.finalized &&
-                     auctionData.revealedWinner !== ZERO_ADDRESS &&
-                     userDepositAmount > 0n;
+    if (auctionData) {
+      isBiddingActive = auctionData.status === 'ACTIVE';
+      isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
+      hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
+      isWinning = !!decryptedBidder && !!address && decryptedBidder.toLowerCase() === address.toLowerCase();
+      isWinner = auctionData.revealedWinner !== ZERO_ADDRESS &&
+                 !!address && auctionData.revealedWinner.toLowerCase() === address.toLowerCase();
+      canClaimRefund = hasBid && !isWinner && auctionData.finalized &&
+                       auctionData.revealedWinner !== ZERO_ADDRESS &&
+                       userDepositAmount > 0n;
+    }
   }
 
   const shouldTriggerConfetti =
@@ -132,6 +139,11 @@ export function AuctionDetail() {
     if (auctionId === null) { setError('Invalid auction ID'); return; }
     const bidValue = parseFloat(bidAmount);
     if (isNaN(bidValue) || bidValue <= 0) { setError('Please enter a valid bid amount'); return; }
+    const bidWei = BigInt(Math.round(bidValue * 1e18));
+    if (minimumBidWei && typeof minimumBidWei === 'bigint' && bidWei < minimumBidWei) {
+      setError(`Bid must be at least ${formatEth(minimumBidWei)} ETH (seller's minimum deposit)`);
+      return;
+    }
     if (!cofheClient) { setError('Cofhe client not initialized'); return; }
     try {
       setIsEncrypting(true);
@@ -141,10 +153,9 @@ export function AuctionDetail() {
       setIsEncrypting(false);
       const encrypted = encryptedResults[0];
       const inEuint64 = { ctHash: encrypted.ctHash, securityZone: encrypted.securityZone, utype: encrypted.utype, signature: encrypted.signature as `0x${string}` };
-      const bidWei = BigInt(Math.round(bidValue * 1e18));
       writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'placeBid', args: [auctionId, inEuint64], value: bidWei });
     } catch (err) { setIsEncrypting(false); setError(err instanceof Error ? err.message : 'Failed to encrypt bid'); }
-  }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, writeContract, auctionId]);
+  }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, writeContract, auctionId, minimumBidWei]);
 
   const handleFinalize = useCallback(() => {
     if (!auctionData || !isSeller || auctionId === null) return;
@@ -155,11 +166,22 @@ export function AuctionDetail() {
     if (!auctionData?.finalized || auctionData.revealedWinner !== ZERO_ADDRESS) return;
     try {
       if (!cofheClient) { setError('Cofhe client not initialized'); return; }
-      const bidResult = await cofheClient.decryptForView(highestBidCtHash as `0x${string}`, FheTypes.Uint64).execute();
-      const winnerResult = await cofheClient.decryptForView(highestBidderCtHash as `0x${string}`, FheTypes.Uint160).execute();
-      if (bidResult && winnerResult) setError('Reveal requires Threshold Network signatures. Please use the official SDK flow.');
-    } catch (err) { setError(err instanceof Error ? err.message : 'Failed to decrypt results'); }
-  }, [auctionData, cofheClient, highestBidCtHash, highestBidderCtHash]);
+      // Try decryptForTx (produces Threshold Network signatures)
+      if (typeof cofheClient.decryptForTx === 'function') {
+        const bidResult = await cofheClient.decryptForTx(highestBidCtHash as `0x${string}`).withoutPermit().execute();
+        const winnerResult = await cofheClient.decryptForTx(highestBidderCtHash as `0x${string}`).withoutPermit().execute();
+        if (bidResult && winnerResult) {
+          const winnerAddress = '0x' + BigInt(winnerResult.decryptedValue).toString(16).padStart(40, '0');
+          writeContract({
+            address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'revealWinner',
+            args: [auctionId, bidResult.ctHash, bidResult.decryptedValue, bidResult.signature, winnerResult.ctHash, winnerAddress, winnerResult.signature],
+          });
+        }
+      } else {
+        toast.info('Use Reveal Center to reveal winners with Threshold Network signatures');
+      }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Failed to reveal winner'); }
+  }, [auctionData, cofheClient, highestBidCtHash, highestBidderCtHash, writeContract, auctionId]);
 
   const handleClaimPayment = useCallback(() => {
     if (!auctionData || !isSeller || auctionId === null) return;
@@ -188,16 +210,13 @@ export function AuctionDetail() {
 
   const isLoading = isEncrypting || isTxPending || isConfirming;
   const bidCountNumber = Number(bidCount || 0);
-  const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Live bidding' : 'Bidding ended';
+  const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Accepting bids' : 'Bidding ended';
   const statusClass = auctionData?.finalized ? 'sb-detail-status--finalized' : isBiddingActive ? 'sb-detail-status--active' : 'sb-detail-status--ended';
 
   if (auctionLoading || auctionId === null) {
     if (auctionId === null) {
       return (
         <div className="sb-detail-notfound">
-          <header className="sb-detail-notfound-header">
-            <Link to="/" className="sb-back-link"><ArrowLeft size={16} /> Back to Home</Link>
-          </header>
           <main className="sb-detail-notfound-body">
             <h2>Invalid auction ID</h2>
             <p>The auction ID "{id}" is not valid.</p>
@@ -220,9 +239,6 @@ export function AuctionDetail() {
   if (!auctionData) {
     return (
       <div className="sb-detail-notfound">
-        <header className="sb-detail-notfound-header">
-          <Link to="/" className="sb-back-link"><ArrowLeft size={16} /> Back to Home</Link>
-        </header>
         <main className="sb-detail-notfound-body">
           <h2>Auction not found</h2>
           <Link to="/">Return to Home</Link>
@@ -233,10 +249,6 @@ export function AuctionDetail() {
 
   return (
     <div className="sb-detail">
-      <header className="sb-detail-header">
-        <Link to="/" className="sb-back-link"><ArrowLeft size={16} /> Back to Home</Link>
-      </header>
-
       <main className="sb-detail-main">
         {/* Left Column */}
         <div className="sb-detail-left">
@@ -332,9 +344,15 @@ export function AuctionDetail() {
                   <div className="sb-detail-deposit-notice">
                     <div className="sb-detail-deposit-notice__header"><Wallet size={16} /> ETH Deposit Required</div>
                     <p>You must deposit ETH equal to your bid amount. This ETH will be held in escrow until the auction ends. Losing bidders can claim a full refund.</p>
+                    {minimumBidWei && typeof minimumBidWei === 'bigint' && minimumBidWei > 0n && (
+                      <p className="sb-detail-deposit-min">Minimum ETH deposit: {formatEth(minimumBidWei)} ETH</p>
+                    )}
                   </div>
                   <p className="sb-detail-form-note">
                     <Lock size={12} /> Your bid amount is encrypted in-browser before submission. Other participants cannot see your bid.
+                  </p>
+                  <p className="sb-detail-form-note sb-detail-form-note--warn">
+                    <AlertCircle size={12} /> Bids below the seller's encrypted minimum will be silently rejected. Your ETH deposit is still required.
                   </p>
                   {error && <div className="sb-detail-error"><AlertCircle size={20} /><p>{error}</p></div>}
                   <button type="submit" disabled={isLoading || isEncrypting} className="btn-primary sb-detail-action-btn">

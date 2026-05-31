@@ -28,28 +28,48 @@ export function parseAuction(
   id: number,
   sealedBidCount: number = 0,
   metadata?: { description?: string; category?: string; imageURI?: string },
-): Auction {
-  const biddingEnd = raw[2] as bigint;
-  const finalized = raw[3] as boolean;
-  const revealedWinner = raw[9] as string;
+): Auction | null {
+  if (!Array.isArray(raw) || raw.length < 10) return null;
+
+  const seller = raw[0];
+  const title = raw[1];
+  const biddingEnd = raw[2];
+  const finalized = raw[3];
+  const paymentClaimed = raw[4];
+  const encryptedReservePrice = raw[5];
+  const revealedBid = raw[8];
+  const revealedWinner = raw[9];
+
+  if (
+    typeof seller !== 'string' ||
+    typeof title !== 'string' ||
+    typeof biddingEnd !== 'bigint' ||
+    typeof finalized !== 'boolean' ||
+    typeof paymentClaimed !== 'boolean' ||
+    typeof encryptedReservePrice !== 'string' ||
+    typeof revealedBid !== 'bigint' ||
+    typeof revealedWinner !== 'string'
+  ) {
+    return null;
+  }
 
   return {
     id,
-    seller: raw[0] as string,
-    title: raw[1] as string,
+    seller,
+    title,
     description: metadata?.description ?? '',
     category: metadata?.category ?? '',
     imageURI: metadata?.imageURI ?? '',
-    encryptedReservePrice: raw[5] as `0x${string}`,
+    encryptedReservePrice: encryptedReservePrice as `0x${string}`,
     duration: Number(biddingEnd) - Math.floor(Date.now() / 1000), // approximate
     revealWindow: 0, // not on-chain yet
     status: deriveStatus(biddingEnd, finalized, revealedWinner),
     sealedBidCount,
     biddingEnd,
     finalized,
-    paymentClaimed: raw[4] as boolean,
+    paymentClaimed,
     revealedWinner,
-    revealedBid: raw[8] as bigint,
+    revealedBid,
     createdAt: 0, // not on-chain yet
   };
 }

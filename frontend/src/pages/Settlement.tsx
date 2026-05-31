@@ -87,13 +87,14 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
+  if (!data) return null;
 
   // Only show settled auctions
   if (data.status !== 'FINALIZED') return null;
 
   const isWinner = data.revealedWinner.toLowerCase() === address.toLowerCase();
   const isSeller = data.seller.toLowerCase() === address.toLowerCase();
-  const claimed = paymentClaimed as boolean;
+  const claimed = paymentClaimed === true;
 
   return (
     <tr>

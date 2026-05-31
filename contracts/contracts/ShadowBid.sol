@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "@fhenixprotocol/cofhe-contracts/FHE.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title ShadowBid — Sealed-Bid Auction with FHE + ETH Escrow
 /// @notice Bids remain encrypted on-chain until finalization. Winner is
@@ -11,7 +12,7 @@ import "@fhenixprotocol/cofhe-contracts/FHE.sol";
 ///      ETH deposit (not the encrypted bid value) is transferred to the seller.
 ///      euint64 supports values up to ~18.4 ETH. For larger auctions,
 ///      consider using a different unit or upgrading to euint128.
-contract ShadowBid {
+contract ShadowBid is ReentrancyGuard {
     // ──────────────────────────────── Types ────────────────────────────────
 
     struct Auction {
@@ -85,6 +86,7 @@ contract ShadowBid {
     error NoRefundAvailable();
     error WinnerCannotRefund();
     error MaxBiddersReached(uint256 auctionId);
+    error BidderIndexOutOfBounds(uint256 index, uint256 length);
 
     // ─────────────────────────── Modifiers ─────────────────────────
 
@@ -305,6 +307,7 @@ contract ShadowBid {
     /// @param auctionId The auction to claim payment from
     function claimPayment(uint256 auctionId)
         external
+        nonReentrant
         auctionExists(auctionId)
     {
         Auction storage a = auctions[auctionId];
@@ -334,6 +337,7 @@ contract ShadowBid {
     /// @param auctionId The auction to claim refund from
     function claimRefund(uint256 auctionId)
         external
+        nonReentrant
         auctionExists(auctionId)
     {
         Auction storage a = auctions[auctionId];
@@ -395,7 +399,9 @@ contract ShadowBid {
         auctionExists(auctionId)
         returns (address)
     {
-        return _bidders[auctionId][index];
+        address[] storage bidders = _bidders[auctionId];
+        if (index >= bidders.length) revert BidderIndexOutOfBounds(index, bidders.length);
+        return bidders[index];
     }
 
     /// @notice Returns the ETH deposit for a specific bidder

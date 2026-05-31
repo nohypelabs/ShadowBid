@@ -1020,4 +1020,31 @@ describe("ShadowBid", function () {
       ).to.be.revertedWithCustomError(shadowBid, "NoRefundAvailable");
     });
   });
+
+  // ─────────────────────── Edge Cases ───────────────────────
+
+  describe("getBidder bounds check", function () {
+    it("should revert with BidderIndexOutOfBounds for invalid index", async function () {
+      const { shadowBid, seller, alice, sellerClient, aliceClient } =
+        await loadFixture(deployFixture);
+
+      await createTestAuction(shadowBid, seller, sellerClient);
+
+      const bid = await encryptBid(aliceClient, 500n);
+      const bidWei = hre.ethers.parseEther("0.05");
+      await shadowBid.connect(alice).placeBid(0, bid, { value: bidWei });
+
+      // Index 0 is valid, index 1 should revert
+      await expect(
+        shadowBid.getBidder(0, 1),
+      ).to.be.revertedWithCustomError(shadowBid, "BidderIndexOutOfBounds");
+    });
+  });
+
+  describe("MAX_BIDDERS cap", function () {
+    it("should have MAX_BIDDERS constant set to 500", async function () {
+      const { shadowBid } = await loadFixture(deployFixture);
+      expect(await shadowBid.MAX_BIDDERS()).to.equal(500n);
+    });
+  });
 });

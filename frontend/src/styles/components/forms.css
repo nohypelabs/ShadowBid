@@ -8,35 +8,38 @@
 
 .sb-form-label {
   display: block;
-  color: var(--t3);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 14px;
   font-weight: 500;
+  margin-bottom: 8px;
 }
 
 .sb-input {
   width: 100%;
-  background: var(--glass);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
-  border-radius: 4px;
-  padding: 11px 14px;
-  color: var(--t1);
-  font-family: var(--font-mono);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 14px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
   font-size: 14px;
   outline: none;
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
 
-.sb-input::placeholder { color: var(--t3); }
+.sb-input::placeholder { color: var(--text-muted); }
 
 .sb-input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-dim);
+  border-color: rgba(45,212,191,0.55);
+  box-shadow: 0 0 0 3px rgba(45,212,191,0.10);
 }
 
-.sb-input--textarea { resize: vertical; }
+.sb-input--textarea {
+  resize: vertical;
+  height: auto;
+  padding: 11px 14px;
+}
+
 .sb-input--mono { font-family: var(--font-mono); }

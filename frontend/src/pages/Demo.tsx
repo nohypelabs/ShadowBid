@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Gift, Diamond, Clock, ShieldCheck, ArrowRight, PlayCircle, ArrowLeft } from 'lucide-react';
+import { Gift, Diamond, Clock, ShieldCheck, ArrowRight, PlayCircle } from 'lucide-react';
 
 const DEMO_TEMPLATES = [
   {
@@ -49,8 +49,6 @@ export function Demo() {
     <div className="sb-demo-page">
       {/* Header */}
       <div className="sb-demo-header">
-        <Link to="/" className="sb-demo-back"><ArrowLeft size={16} /> Back to Home</Link>
-
         <div className="sb-demo-badge">Demo Mode</div>
 
         <h1 className="sb-demo-title">

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Eye, Lock, Clock, ChevronRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
+import { shortAddr } from '../utils/format';
 import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
 
 export function RevealCenter() {
@@ -88,6 +89,7 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
+  if (!data) return null;
 
   // Only show finalized auctions that need reveal or are settled
   if (data.status === 'ACTIVE') return null;
@@ -108,7 +110,7 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
       </td>
       <td>{bidders}</td>
       <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--t3)' }}>
-        {data.status === 'FINALIZED' ? data.revealedWinner.slice(0, 8) + '...' + data.revealedWinner.slice(-6) : '—'}
+        {data.status === 'FINALIZED' && data.revealedWinner ? shortAddr(data.revealedWinner) : '—'}
       </td>
       <td>
         <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t3)' }}>

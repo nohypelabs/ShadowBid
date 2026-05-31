@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════
    AuctionDetail Page
-   Cryptographic Noir design system
+   Institutional dark design system
    ═══════════════════════════════════════════ */
 
 .sb-detail-loading {
@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: var(--t2);
+  color: var(--text-secondary);
   flex-direction: column;
   gap: 16px;
 }
@@ -17,12 +17,12 @@
 .sb-detail-spinner {
   width: 48px;
   height: 48px;
-  color: var(--gold);
+  color: var(--accent);
   animation: spin 1s linear infinite;
 }
 
 .sb-detail-notfound-header {
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   padding: 16px;
 }
 
@@ -36,13 +36,11 @@
 .sb-detail-notfound-body h2 {
   font-size: 24px;
   margin-bottom: 16px;
-  letter-spacing: -0.03em;
-  color: var(--t1);
-  font-family: var(--font-display);
+  color: var(--text-primary);
 }
 
 .sb-detail-notfound-body a {
-  color: var(--gold);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -50,14 +48,14 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--gold);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 14px;
   transition: color var(--dur-fast) var(--ease);
 }
 
 .sb-back-link:hover {
-  color: var(--gold-bright);
+  color: var(--text-primary);
 }
 
 .sb-detail {
@@ -99,11 +97,10 @@
 
 /* Auction Info Card */
 .sb-detail-info {
-  background: var(--bg-surface);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  box-shadow: var(--shadow-card), var(--glass-inset);
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
   overflow: hidden;
   padding: 26px;
   position: relative;
@@ -111,46 +108,37 @@
 }
 
 .sb-detail-info:hover {
-  border-color: var(--glass-border-hover);
-}
-
-.sb-detail-info::before {
-  background: linear-gradient(90deg, var(--gold), var(--cipher), transparent);
-  content: "";
-  height: 1px;
-  inset: 0 0 auto;
-  position: absolute;
+  border-color: rgba(45,212,191,0.28);
 }
 
 .sb-detail-info__image {
   width: 100%;
   max-height: 240px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 12px;
   margin-bottom: 20px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .sb-detail-info__category {
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--t3);
-  padding: 2px 8px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
   margin-bottom: 8px;
 }
 
 .sb-detail-info__desc {
-  color: var(--t2);
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.6;
   margin: 16px 0 0;
   padding-top: 16px;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid rgba(255,255,255,0.07);
 }
 
 .sb-detail-info__header {
@@ -162,10 +150,11 @@
 }
 
 .sb-detail-info__title {
-  color: var(--t1);
-  font-family: var(--font-display);
-  font-size: clamp(30px, 3.4vw, 48px);
-  line-height: 1.03;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 600;
+  line-height: 1.2;
   margin-bottom: 10px;
   max-width: 680px;
 }
@@ -174,48 +163,43 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--t2);
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .sb-detail-kicker {
   align-items: center;
-  color: var(--gold);
+  color: var(--accent);
   display: flex;
   font-size: 12px;
-  font-weight: 700;
-  font-family: var(--font-display);
+  font-weight: 600;
   gap: 8px;
-  letter-spacing: 0.06em;
   margin-bottom: 14px;
-  text-transform: uppercase;
 }
 
 .sb-detail-status {
   align-items: center;
-  border-radius: 3px;
+  border-radius: 999px;
   display: inline-flex;
   flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  padding: 6px 10px;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
   white-space: nowrap;
 }
 
 .sb-detail-status--active {
-  background: var(--cipher-dim);
-  border: 1px solid rgba(26, 255, 228, 0.2);
-  color: var(--cipher);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: #99F6E4;
 }
 
 .sb-detail-status--ended,
 .sb-detail-status--finalized {
-  background: var(--gold-dim);
-  border: 1px solid rgba(201, 146, 42, 0.2);
-  color: var(--gold);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text-secondary);
 }
 
 .sb-detail-stats {
@@ -237,12 +221,11 @@
 .sb-detail-action-panel,
 .sb-detail-success-box,
 .sb-detail-winner-box {
-  background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  box-shadow: var(--shadow-card), var(--glass-inset);
-  transition: all var(--dur-normal) var(--ease);
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+  transition: border-color var(--dur-normal) var(--ease);
 }
 
 .sb-detail .stats-card:hover,
@@ -250,13 +233,7 @@
 .sb-detail-empty-bids:hover,
 .sb-detail-info-box:hover,
 .sb-detail-action-panel:hover {
-  background: var(--glass-hover);
-  border-color: var(--glass-border-hover);
-  box-shadow:
-    var(--shadow-card),
-    var(--glass-inset),
-    0 0 24px var(--gold-glow);
-  transform: translateY(-2px);
+  border-color: rgba(45,212,191,0.28);
 }
 
 .sb-detail .stats-card {
@@ -273,14 +250,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--t3);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.06em;
   margin-bottom: 10px;
   min-width: 0;
-  text-transform: uppercase;
 }
 
 .sb-detail-stat-label svg {
@@ -288,50 +263,49 @@
 }
 
 .sb-detail-stat-value {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 26px;
-  letter-spacing: -0.04em;
-  color: var(--t1);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1;
 }
 
 .sb-detail-stat-value--seller {
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--t1);
+  color: var(--text-primary);
 }
 
 .sb-detail-you {
   margin-left: 8px;
   font-size: 12px;
-  color: var(--gold);
+  color: var(--accent);
 }
 
-/* Highest Bid Card */
+/* Settlement Result Card */
 .sb-detail-highest {
-  background: var(--bg-surface);
-  border-radius: 6px;
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  border-radius: 16px;
   padding: 24px;
 }
 
 .sb-detail-highest__title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  letter-spacing: 0;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--t1);
+  color: var(--text-primary);
 }
 
-.sb-detail-highest__title svg { color: var(--gold); }
+.sb-detail-highest__title svg { color: var(--accent); }
 
 .sb-detail-highest__revealed,
 .sb-detail-highest__encrypted {
@@ -341,24 +315,23 @@
 }
 
 .sb-detail-highest__amount {
-  background: var(--bg-raised);
-  border: 1px solid var(--glass-border);
-  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
   padding: 20px;
 }
 
 .sb-detail-highest__amount-label {
   font-size: 14px;
-  color: var(--t2);
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .sb-detail-highest__amount-value {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 34px;
-  letter-spacing: 0;
-  color: var(--t1);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 28px;
+  color: var(--text-primary);
 }
 
 .sb-detail-highest__winner,
@@ -370,13 +343,13 @@
 
 .sb-detail-highest__winner-label {
   font-size: 14px;
-  color: var(--t3);
+  color: var(--text-muted);
   margin-bottom: 2px;
 }
 
 .sb-detail-mono {
   font-family: var(--font-mono);
-  color: var(--t1);
+  color: var(--text-primary);
   overflow-wrap: anywhere;
 }
 
@@ -384,11 +357,11 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #050608;
   flex-shrink: 0;
 }
 
@@ -396,23 +369,23 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--glass);
+  background: rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.sb-detail-lock-circle svg { color: var(--t2); }
+.sb-detail-lock-circle svg { color: var(--text-secondary); }
 
 .sb-detail-winning-box {
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.15);
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.20);
   color: var(--status-success);
   font-weight: 500;
 }
@@ -421,23 +394,23 @@
 
 .sb-detail-empty-bids {
   align-items: center;
-  background: var(--bg-surface);
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
   display: flex;
   gap: 14px;
-  border-radius: 6px;
+  border-radius: 16px;
   padding: 22px;
 }
 
 .sb-detail-empty-bids h2 {
-  color: var(--t1);
-  font-family: var(--font-display);
+  color: var(--text-primary);
+  font-family: var(--font-body);
   font-size: 18px;
-  letter-spacing: 0;
+  font-weight: 600;
   margin: 0 0 4px;
 }
 
 .sb-detail-empty-bids p {
-  color: var(--t2);
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.5;
   margin: 0;
@@ -445,18 +418,18 @@
 
 /* Info Box */
 .sb-detail-info-box {
-  background: var(--bg-surface);
-  border-left: 2px solid var(--gold);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  border-left: 2px solid var(--accent);
+  border-radius: 12px;
   padding: 22px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
 }
 
-.sb-detail-info-box svg { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
-.sb-detail-info-box h3 { color: var(--t1); font-weight: 600; letter-spacing: -0.03em; margin-bottom: 4px; }
-.sb-detail-info-box p { font-size: 14px; line-height: 1.6; color: var(--t2); margin: 0; }
+.sb-detail-info-box svg { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.sb-detail-info-box h3 { color: var(--text-primary); font-weight: 600; margin-bottom: 4px; }
+.sb-detail-info-box p { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0; }
 
 /* Right Column — Actions */
 .sb-detail-right {
@@ -477,39 +450,33 @@
 }
 
 .sb-detail-action-panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--glass-border);
-  border-radius: 6px;
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
   padding: 22px;
 }
 
 .sb-detail-action-title {
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: 0;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--t1);
+  color: var(--text-primary);
 }
 
-.sb-detail-action-title svg { color: var(--gold); }
-.sb-detail-action-desc { color: var(--t2); font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+.sb-detail-action-title svg { color: var(--accent); }
+.sb-detail-action-desc { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
 .sb-detail-action-btn {
-  border-radius: 4px;
-  box-shadow: 0 0 20px var(--gold-glow);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 15px 16px;
+  padding: 12px 16px;
   width: 100%;
-}
-
-.sb-detail-action-btn:hover:not(:disabled) {
-  box-shadow: 0 0 28px var(--gold-glow), 0 0 12px var(--cipher-glow);
 }
 
 /* Forms */
@@ -522,14 +489,18 @@
 .sb-detail-form-note {
   font-size: 12px;
   text-align: center;
-  color: var(--t2);
+  color: var(--text-muted);
+}
+
+.sb-detail-form-note--warn {
+  color: var(--warning);
 }
 
 .sb-detail-deposit-notice {
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 16px;
-  background: var(--gold-dim);
-  border: 1px solid rgba(201, 146, 42, 0.15);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.20);
 }
 
 .sb-detail-deposit-notice__header {
@@ -539,24 +510,30 @@
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--gold);
+  color: var(--warning);
 }
 
 .sb-detail-deposit-notice p {
-  font-size: 12px;
-  color: var(--t2);
+  font-size: 13px;
+  color: var(--text-secondary);
   line-height: 1.55;
   margin: 0;
 }
 
+.sb-detail-deposit-min {
+  margin-top: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
 .sb-detail-error {
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 16px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(192, 57, 43, 0.08);
-  border: 1px solid rgba(192, 57, 43, 0.15);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.20);
   color: var(--status-danger);
   font-size: 14px;
 }
@@ -571,38 +548,38 @@
   gap: 12px;
 }
 
-.sb-detail-already-bid svg { color: var(--gold); flex-shrink: 0; }
-.sb-detail-already-bid p { margin: 0; color: var(--t1); }
+.sb-detail-already-bid svg { color: var(--accent); flex-shrink: 0; }
+.sb-detail-already-bid p { margin: 0; color: var(--text-primary); }
 
 .sb-detail-deposit-info {
   font-size: 14px;
-  color: var(--t2);
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
 .sb-detail-green-box {
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 16px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.15);
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.20);
   color: var(--status-success);
   font-size: 14px;
   margin-bottom: 16px;
 }
 
 .sb-detail-amber-box {
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 16px;
-  background: var(--gold-dim);
-  border: 1px solid rgba(201, 146, 42, 0.15);
-  color: var(--gold);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.20);
+  color: var(--warning);
   font-size: 14px;
   margin-bottom: 16px;
 }
 
 .sb-detail-success-box {
-  background: rgba(16, 185, 129, 0.08);
-  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 16px;
   padding: 24px;
   display: flex;
   align-items: center;
@@ -612,8 +589,8 @@
 }
 
 .sb-detail-winner-box {
-  background: var(--bg-surface);
-  border-radius: 6px;
+  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
+  border-radius: 16px;
   padding: 24px;
 }
 
@@ -625,21 +602,21 @@
 }
 
 .sb-detail-winner-box__header h2 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 20px;
-  letter-spacing: -0.03em;
+  font-weight: 600;
   margin: 0;
-  color: var(--t1);
+  color: var(--text-primary);
 }
 
 .sb-detail-winner-box__header p {
-  color: var(--gold);
+  color: var(--accent);
   font-size: 14px;
   margin: 0;
 }
 
 .sb-detail-winner-box > p:last-child {
-  color: var(--t2);
+  color: var(--text-secondary);
   font-size: 14px;
   margin: 0;
 }
@@ -681,7 +658,7 @@
   }
 
   .sb-detail-highest__amount-value {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .sb-detail-trophy-circle {

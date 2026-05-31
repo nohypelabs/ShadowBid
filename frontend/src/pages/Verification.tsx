@@ -73,6 +73,7 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
 
   const bidders = Number(bidCount || 0);
   const data = parseAuction(auction as unknown[], auctionId, bidders);
+  if (!data) return null;
 
   return (
     <>

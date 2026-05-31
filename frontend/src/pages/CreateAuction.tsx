@@ -5,7 +5,7 @@ import { useCofheClient } from '@cofhe/react';
 import { Encryptable } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Lock, Wallet } from 'lucide-react';
+import { Lock, Wallet } from 'lucide-react';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 
 type CreateAuctionTemplateState = {
@@ -122,6 +122,8 @@ export function CreateAuction() {
     if (isNaN(minBid) || minBid <= 0) { setError('Reserve price must be greater than 0 ETH'); return; }
 
     try {
+      if (!client) { setError('Encryption client not initialized. Please wait for CoFHE to load.'); return; }
+
       setIsEncrypting(true);
       setEncryptStep('initTfhe');
       const builder = client.encryptInputs([
@@ -174,18 +176,11 @@ export function CreateAuction() {
     : isBalanceLoading
       ? 'Loading...'
       : walletBalance
-        ? `${Number(walletBalance.formatted).toFixed(4)} ${walletBalance.symbol}`
+        ? `${(Number(walletBalance.formatted) || 0).toFixed(4)} ${walletBalance.symbol}`
         : 'Unavailable';
 
   return (
     <div className="sb-create-page">
-      <header className="sb-create-header">
-        <Link to="/" className="sb-create-back">
-          <ArrowLeft size={16} />
-          Back to Home
-        </Link>
-      </header>
-
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="sb-create-title-block">
         <h1 className="sb-create-title">Create Sealed Auction</h1>
         <p className="sb-create-subtitle">Review the auction details, encrypt the reserve price locally, then deploy to Arbitrum Sepolia.</p>
@@ -285,7 +280,7 @@ export function CreateAuction() {
               </div>
             )}
 
-            <button type="submit" disabled={isLoading} className="sb-create-submit">
+            <button type="submit" disabled={isLoading || !client} className="sb-create-submit">
               {isLoading ? (
                 <span className="sb-create-loading">
                   <span className="sb-create-loading-text">

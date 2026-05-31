@@ -38,7 +38,7 @@ export function Topbar() {
             const balance = isBalanceLoading
               ? 'Loading'
               : walletBalance
-                ? `${Number(walletBalance.formatted).toFixed(4)} ${walletBalance.symbol}`
+                ? `${(Number(walletBalance.formatted) || 0).toFixed(4)} ${walletBalance.symbol}`
                 : account?.displayBalance;
 
             if (!connected) {

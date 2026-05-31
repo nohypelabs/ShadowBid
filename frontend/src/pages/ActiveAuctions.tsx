@@ -29,9 +29,9 @@ export function ActiveAuctions() {
     <div className="sb-active-page">
       <section className="sb-active-hero">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="sb-active-hero__copy">
-          <div className="sb-active-kicker"><ShieldCheck size={16} /> Live encrypted market</div>
+          <div className="sb-active-kicker"><ShieldCheck size={16} /> Encrypted sealed-bid market</div>
           <h1>Active Auctions</h1>
-          <p>Browse live sealed-bid auctions, track bidders, and enter before the encrypted bidding window closes.</p>
+          <p>Browse sealed auctions, deposit ETH, and submit encrypted bids before the bidding window closes.</p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="sb-active-hero__panel">
           <span>Total auctions</span>
@@ -42,8 +42,8 @@ export function ActiveAuctions() {
 
       <section className="sb-active-toolbar">
         <div>
-          <h2>Live bidding rooms</h2>
-          <p>Only auctions that are still accepting bids are shown here.</p>
+          <h2>Open sealed auctions</h2>
+          <p>Only auctions still accepting encrypted bids are shown here.</p>
         </div>
         <div className="sb-search sb-active-search">
           <Search size={16} className="icon-muted" />
@@ -100,6 +100,7 @@ function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number
 
   const bidders = Number(bidCount || 0);
   const auctionData = parseAuction(auction as unknown[], auctionId, bidders);
+  if (!auctionData) return null;
 
   const isActive = auctionData.status === 'ACTIVE';
   const matchesSearch = auctionData.title.toLowerCase().includes(searchQuery.trim().toLowerCase());

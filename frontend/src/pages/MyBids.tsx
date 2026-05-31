@@ -97,6 +97,8 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
+  if (!data) return null;
+
   const hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
 
   if (!hasBid) return null;
