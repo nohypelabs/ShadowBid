@@ -77,7 +77,7 @@ export function Demo() {
       </div>
 
       {/* Templates */}
-      <div className="sb-demo-templates responsive-section">
+      <div className="sb-demo-templates">
         <div className="sb-demo-templates-header">
           <h2 className="sb-demo-templates-title">Quick Start Templates</h2>
           <p className="sb-demo-templates-sub">Pick a scenario, review the prefilled auction, then deploy with your connected wallet</p>

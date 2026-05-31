@@ -1,0 +1,161 @@
+/* ═══════════════════════════════
+   COMPONENTS — Topbar
+   ═══════════════════════════════ */
+
+.sb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(2,3,10,0.82);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--glass-border);
+  gap: 16px;
+}
+
+/* Search */
+.sb-topbar__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  flex: 1;
+  max-width: 360px;
+  transition: border-color var(--dur-fast);
+}
+
+.sb-topbar__search:focus-within {
+  border-color: var(--gold);
+}
+
+.sb-topbar__search-icon {
+  color: var(--t3);
+  flex-shrink: 0;
+}
+
+.sb-topbar__search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--t1);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  width: 100%;
+  letter-spacing: 0.02em;
+}
+
+.sb-topbar__search-input::placeholder {
+  color: var(--t3);
+}
+
+/* Right section */
+.sb-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Network badge */
+.sb-topbar__network {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--cipher-dim);
+  border: 1px solid rgba(26,255,228,0.14);
+  border-radius: 3px;
+}
+
+.sb-topbar__network-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cipher);
+  box-shadow: 0 0 6px var(--cipher);
+  animation: pulse 2s infinite;
+}
+
+.sb-topbar__network-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--cipher);
+}
+
+/* Wallet button */
+.sb-topbar__wallet {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+  color: var(--t1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.sb-topbar__wallet:hover {
+  background: var(--glass-hover);
+  border-color: rgba(201,146,42,0.3);
+}
+
+.sb-topbar__wallet--connected {
+  gap: 6px;
+}
+
+.sb-topbar__wallet--warning {
+  background: rgba(201,146,42,0.1);
+  border-color: rgba(201,146,42,0.3);
+}
+
+.sb-topbar__wallet-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cipher);
+  box-shadow: 0 0 6px var(--cipher-glow);
+  flex-shrink: 0;
+}
+
+.sb-topbar__wallet--warning .sb-topbar__wallet-dot {
+  background: var(--gold);
+  box-shadow: 0 0 6px var(--gold-glow);
+}
+
+.sb-topbar__wallet-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1;
+}
+
+.sb-topbar__wallet-addr {
+  font-size: 11px;
+  color: var(--t1);
+}
+
+.sb-topbar__wallet-bal {
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+/* RainbowKit overrides for topbar context */
+.sb-topbar [data-rk] {
+  --rk-colors-accentColor: var(--gold);
+  --rk-colors-accentColorForeground: var(--bg-void);
+}

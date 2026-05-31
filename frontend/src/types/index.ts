@@ -14,9 +14,3 @@ export interface Auction {
 export interface AuctionWithId extends Auction {
   id: number;
 }
-
-export interface Bid {
-  amount: `0x${string}`;
-  ethDeposited: bigint;
-  exists: boolean;
-}

@@ -1,0 +1,50 @@
+/* ═══════════════════════════════
+   LAYOUT — Dashboard Shell
+   ═══════════════════════════════ */
+
+.sb-dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-void);
+}
+
+.sb-dashboard-layout__main {
+  flex: 1;
+  margin-left: 240px;
+  min-width: 0;
+  transition: margin-left var(--dur-normal) var(--ease);
+}
+
+.sb-dashboard-layout__main--collapsed {
+  margin-left: 64px;
+}
+
+.sb-dashboard-layout__content {
+  padding: 24px;
+  max-width: 1400px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sb-dashboard-layout__main {
+    margin-left: 0;
+  }
+
+  .sb-dashboard-layout__main--collapsed {
+    margin-left: 0;
+  }
+
+  .sb-dashboard-layout__content {
+    padding: 16px;
+  }
+
+  /* Sidebar becomes drawer on mobile */
+  .sb-sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--dur-normal) var(--ease);
+  }
+
+  .sb-sidebar:not(.sb-sidebar--collapsed) {
+    transform: translateX(0);
+  }
+}

@@ -9,22 +9,10 @@ import { ArrowLeft, Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, Arrow
 import confetti from 'canvas-confetti';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
+import { formatEth, shortAddr } from '../utils/format';
+import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
+import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
 import type { Auction } from '../types';
-
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-const WEI_PER_ETH = 1_000_000_000_000_000_000n;
-
-function formatEth(value: bigint) {
-  const whole = value / WEI_PER_ETH;
-  const fraction = value % WEI_PER_ETH;
-  if (fraction === 0n) return whole.toString();
-  const padded = fraction.toString().padStart(18, '0').slice(0, 4);
-  return `${whole}.${padded.replace(/0+$/, '')}`;
-}
-
-function shortAddress(value: string) {
-  return `${value.slice(0, 8)}...${value.slice(-6)}`;
-}
 
 export function AuctionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -34,12 +22,7 @@ export function AuctionDetail() {
   const [bidAmount, setBidAmount] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isEncrypting, setIsEncrypting] = useState(false);
-  const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(BigInt(Math.floor(Date.now() / 1000))), 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const now = useCurrentTimestamp();
 
   const { data: auction, isLoading: auctionLoading, refetch } = useReadContract({
     address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'auctions', args: auctionId !== null ? [auctionId] : undefined,
@@ -115,13 +98,7 @@ export function AuctionDetail() {
   let canClaimRefund = false;
 
   if (auction && Array.isArray(auction)) {
-    auctionData = {
-      seller: auction[0] as string, title: auction[1] as string, biddingEnd: auction[2] as bigint,
-      finalized: auction[3] as boolean, paymentClaimed: auction[4] as boolean,
-      minimumBid: auction[5] as `0x${string}`, highestBid: auction[6] as `0x${string}`,
-      highestBidder: auction[7] as `0x${string}`, revealedBid: auction[8] as bigint,
-      revealedWinner: auction[9] as string,
-    };
+    auctionData = parseAuction(auction, auctionId ?? undefined);
     isBiddingActive = auctionData.biddingEnd > now && !auctionData.finalized;
     isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
     hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
@@ -268,7 +245,7 @@ export function AuctionDetail() {
             <div className="sb-detail-info__header">
               <div>
                 <div className="sb-detail-kicker"><ShieldCheck size={16} /> Auction #{auctionId!.toString()} on Arbitrum Sepolia</div>
-                <h1 className="sb-detail-info__title responsive-title">{auctionData.title}</h1>
+                <h1 className="sb-detail-info__title">{auctionData.title}</h1>
                 <div className="sb-detail-info__tag"><Lock size={16} /> Encrypted Sealed-Bid Auction</div>
               </div>
               <span className={`sb-detail-status ${statusClass}`}>{statusLabel}</span>
@@ -286,7 +263,7 @@ export function AuctionDetail() {
               <div className="stats-card">
                 <div className="sb-detail-stat-label"><Lock size={16} /> Seller</div>
                 <p className="sb-detail-stat-value sb-detail-stat-value--seller">
-                  {shortAddress(auctionData.seller)}
+                  {shortAddr(auctionData.seller)}
                   {isSeller && <span className="sb-detail-you">(You)</span>}
                 </p>
               </div>
@@ -308,7 +285,7 @@ export function AuctionDetail() {
                     <div className="sb-detail-trophy-circle"><Trophy size={24} /></div>
                     <div>
                       <p className="sb-detail-highest__winner-label">Winner</p>
-                      <p className="sb-detail-mono">{shortAddress(auctionData.revealedWinner)}</p>
+                      <p className="sb-detail-mono">{shortAddr(auctionData.revealedWinner)}</p>
                     </div>
                   </div>
                 </div>
@@ -330,7 +307,7 @@ export function AuctionDetail() {
                       <div className="sb-detail-lock-circle"><Lock size={20} /></div>
                       <div>
                         <p className="sb-detail-highest__winner-label">Highest Bidder</p>
-                        <p className="sb-detail-mono">{shortAddress(decryptedBidder)}</p>
+                        <p className="sb-detail-mono">{shortAddr(decryptedBidder)}</p>
                       </div>
                     </div>
                   )}

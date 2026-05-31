@@ -1,8 +1,5 @@
-export { AuctionCard, AuctionCardSkeleton } from './AuctionCard';
 export { CountdownTimer } from './CountdownTimer';
-export { ErrorBoundary, ContractErrorFallback } from './ErrorBoundary';
-export { Footer } from './Footer';
-export { default as Header } from './Header';
+export { DashboardLayout } from './DashboardLayout';
+export { Sidebar } from './Sidebar';
+export { Topbar } from './Topbar';
 export { BackToTop } from './BackToTop';
-export { StatCard } from './ui/StatCard';
-export { StatsGrid } from './ui/StatsGrid';

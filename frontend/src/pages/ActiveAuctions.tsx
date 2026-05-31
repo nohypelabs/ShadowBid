@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract } from 'wagmi';
 import { motion } from 'framer-motion';
 import { Activity, ChevronRight, Clock, Lock, Plus, Search, ShieldCheck, Sparkles, Users, Zap } from 'lucide-react';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ABI, SHADOWBID_ADDRESS } from '../constants/contracts';
+import { shortAddr } from '../utils/format';
+import { parseAuction } from '../utils/auction';
+import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
 import type { AuctionWithId } from '../types';
 
 export function ActiveAuctions() {
@@ -43,7 +46,7 @@ export function ActiveAuctions() {
           <p>Only auctions that are still accepting bids are shown here.</p>
         </div>
         <div className="sb-search sb-active-search">
-          <Search size={16} color="#64748b" />
+          <Search size={16} className="icon-muted" />
           <input
             type="text"
             placeholder="Search active auctions..."
@@ -76,12 +79,7 @@ function ActiveEmptyState() {
 }
 
 function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number; searchQuery: string; index: number }) {
-  const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
-
-  useEffect(() => {
-    const interval = window.setInterval(() => setNow(BigInt(Math.floor(Date.now() / 1000))), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
+  const now = useCurrentTimestamp();
 
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
@@ -100,19 +98,7 @@ function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number
   if (isLoading) return <ActiveAuctionSkeleton />;
   if (!auction || !Array.isArray(auction)) return null;
 
-  const auctionData: AuctionWithId = {
-    id: auctionId,
-    seller: auction[0] as string,
-    title: auction[1] as string,
-    biddingEnd: auction[2] as bigint,
-    finalized: auction[3] as boolean,
-    paymentClaimed: auction[4] as boolean,
-    minimumBid: auction[5] as `0x${string}`,
-    highestBid: auction[6] as `0x${string}`,
-    highestBidder: auction[7] as `0x${string}`,
-    revealedBid: auction[8] as bigint,
-    revealedWinner: auction[9] as string,
-  };
+  const auctionData = parseAuction(auction, auctionId);
 
   const isActive = auctionData.biddingEnd > now && !auctionData.finalized;
   const matchesSearch = auctionData.title.toLowerCase().includes(searchQuery.trim().toLowerCase());

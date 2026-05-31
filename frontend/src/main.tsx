@@ -11,16 +11,6 @@ import App from "./App";
 import "@rainbow-me/rainbowkit/styles.css";
 import "./index.css";
 
-// Mobile glass degradation — disable backdrop-filter on mobile with many cards
-function applyMobileGlassDegradation() {
-  const isMobile = window.innerWidth < 768;
-  if (isMobile) {
-    document.documentElement.classList.add('no-glass');
-  }
-}
-applyMobileGlassDegradation();
-window.addEventListener('resize', applyMobileGlassDegradation);
-
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(

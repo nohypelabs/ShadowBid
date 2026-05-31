@@ -1,0 +1,93 @@
+/* ═══════════════════════════════
+   COMPONENTS — Metric Chips & Icon Utilities
+   ═══════════════════════════════ */
+
+/* Metric chip accent variants */
+.sb-metric-chip--gold .sb-metric-chip__icon   { background: var(--gold-dim); }
+.sb-metric-chip--cipher .sb-metric-chip__icon { background: var(--cipher-dim); }
+.sb-metric-chip--green .sb-metric-chip__icon  { background: rgba(16,185,129,0.06); }
+.sb-metric-chip--red .sb-metric-chip__icon    { background: rgba(192,57,43,0.06); }
+
+/* Icon color utility classes */
+.icon-gold    { color: var(--gold); }
+.icon-cipher  { color: var(--cipher); }
+.icon-green   { color: var(--status-success); }
+.icon-red     { color: var(--status-danger); }
+.icon-muted   { color: var(--t3); }
+.icon-dim     { color: var(--t4); }
+
+/* Metric chip (hero stats) */
+.sb-metric-chip {
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  transition: background var(--dur-normal) var(--ease);
+  flex: 1;
+  min-width: 120px;
+}
+
+.sb-metric-chip::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: transparent;
+  transition: background var(--dur-slow), box-shadow var(--dur-slow);
+}
+
+.sb-metric-chip:hover {
+  background: var(--bg-raised);
+}
+
+.sb-metric-chip:hover::before {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.sb-metric-chip__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sb-metric-chip__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.sb-metric-chip__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--t3);
+}
+
+.sb-metric-chip__value {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--t1);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.sb-metric-chip__skeleton {
+  display: block;
+  width: 48px;
+  height: 18px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--bg-raised) 25%, var(--glass-hover) 50%, var(--bg-raised) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}

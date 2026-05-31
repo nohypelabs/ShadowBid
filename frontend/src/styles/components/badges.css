@@ -1,0 +1,46 @@
+/* ═══════════════════════════════
+   COMPONENTS — Badges
+   ═══════════════════════════════ */
+
+.sb-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.sb-badge--active {
+  background: var(--cipher-dim);
+  border: 1px solid rgba(26,255,228,0.18);
+  color: var(--cipher);
+}
+
+.sb-badge--ended-warn {
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,146,42,0.18);
+  color: var(--gold);
+  animation: pulse 2s infinite;
+}
+
+.sb-badge--finalized {
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.18);
+  color: #818cf8;
+}
+
+/* Timer badges */
+.timer-urgent {
+  color: var(--gold);
+  font-family: var(--font-mono);
+  animation: pulse 1.5s infinite;
+}
+
+.timer-normal {
+  color: var(--t2);
+  font-family: var(--font-mono);
+}

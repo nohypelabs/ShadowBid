@@ -1,0 +1,81 @@
+/* ═══════════════════════════════
+   DESIGN TOKENS (:root)
+   Cryptographic Noir palette
+   ═══════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Geist+Mono:wght@300;400;500;600&display=swap');
+
+:root {
+  /* ── Backgrounds (dark only) ── */
+  --bg-void:      #02030A;
+  --bg-depth:     #04050E;
+  --bg-surface:   #080A16;
+  --bg-raised:    #0C0F1C;
+
+  /* ── Glass surfaces ── */
+  --glass:        rgba(255,255,255,0.030);
+  --glass-hover:  rgba(255,255,255,0.052);
+  --glass-active: rgba(255,255,255,0.075);
+  --glass-border: rgba(255,255,255,0.065);
+  --glass-border-hover: rgba(255,255,255,0.130);
+  --glass-blur:   blur(18px) saturate(160%);
+  --glass-inset:  inset 0 1px 0 rgba(255,255,255,0.06);
+
+  /* ── Gold accent ── */
+  --gold:         #C9922A;
+  --gold-bright:  #E0A83A;
+  --gold-dim:     rgba(201,146,42,0.10);
+  --gold-glow:    rgba(201,146,42,0.20);
+  --gold-trace:   rgba(201,146,42,0.05);
+
+  /* ── Cipher accent ── */
+  --cipher:       #1AFFE4;
+  --cipher-dim:   rgba(26,255,228,0.07);
+  --cipher-glow:  rgba(26,255,228,0.16);
+
+  /* ── Status ── */
+  --status-active:   #1AFFE4;
+  --status-ended:    #64748b;
+  --status-danger:   #C0392B;
+  --status-success:  #10b981;
+
+  /* ── Typography ── */
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-mono:    'Geist Mono', monospace;
+  --font-body:    'Barlow', sans-serif;
+
+  /* ── Text hierarchy (dark theme only) ── */
+  --t1: rgba(255,255,255,0.92);
+  --t2: rgba(255,255,255,0.52);
+  --t3: rgba(255,255,255,0.26);
+  --t4: rgba(255,255,255,0.10);
+
+  /* ── Compat aliases (old names → new values) ── */
+  --text-primary:   var(--t1);
+  --text-secondary: var(--t2);
+  --text-muted:     var(--t3);
+  --amber:          var(--gold);
+  --amber-glow:     var(--gold-glow);
+  --amber-dim:      var(--gold-dim);
+  --cyan:           var(--cipher);
+  --cyan-glow:      var(--cipher-glow);
+  --cyan-dim:       var(--cipher-dim);
+  --emerald:        var(--status-success);
+  --red:            var(--status-danger);
+  --red-glow:       rgba(192,57,43,0.15);
+  --green-glow:     rgba(16,185,129,0.12);
+  --glass-fill:     var(--glass);
+  --glass-fill-hover: var(--glass-hover);
+  --shadow-inset:   var(--glass-inset);
+  --shadow-card:    0 0 0 1px var(--glass-border), 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-glow-amber: 0 0 24px var(--gold-glow);
+  --border-default: var(--glass-border);
+  --border-glow:    var(--gold-glow);
+
+  /* ── Motion ── */
+  --ease:     cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:   150ms;
+  --dur-normal: 250ms;
+  --dur-slow:   400ms;
+}

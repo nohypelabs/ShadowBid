@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Search, ArrowLeft } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 
 export function NotFound() {
   return (
@@ -14,7 +14,7 @@ export function NotFound() {
         <div className="sb-404__glow" />
 
         <div className="sb-404__icon-wrap">
-          <Search size={32} color="#f59e0b" />
+          <Search size={32} className="icon-gold" />
         </div>
 
         <h1 className="sb-404__code">404</h1>

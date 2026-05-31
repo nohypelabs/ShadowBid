@@ -1,0 +1,22 @@
+/* ═══════════════════════════════
+   COMPONENTS — Overflow Fix
+   ═══════════════════════════════ */
+
+/* Panel overflow protection */
+.sb-panel {
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* Dashboard table overflow */
+.sb-dashboard-table-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Page overflow */
+.sb-dashboard-layout__content {
+  overflow-x: hidden;
+  max-width: 100%;
+}

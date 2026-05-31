@@ -1,8 +1,12 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Header, Footer, BackToTop } from './components';
-import { Home, CreateAuction, AuctionDetail, ActiveAuctions, Demo, NotFound } from './pages';
+import { DashboardLayout, BackToTop } from './components';
+import {
+  Home, CreateAuction, AuctionDetail, ActiveAuctions,
+  MyBids, RevealCenter, Settlement, Verification,
+  Demo, NotFound,
+} from './pages';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -28,10 +32,19 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-        <Route path="/auctions" element={<PageWrapper><ActiveAuctions /></PageWrapper>} />
-        <Route path="/create" element={<PageWrapper><CreateAuction /></PageWrapper>} />
-        <Route path="/auction/:id" element={<PageWrapper><AuctionDetail /></PageWrapper>} />
+        {/* Dashboard layout routes */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+          <Route path="/auctions" element={<PageWrapper><ActiveAuctions /></PageWrapper>} />
+          <Route path="/create" element={<PageWrapper><CreateAuction /></PageWrapper>} />
+          <Route path="/auction/:id" element={<PageWrapper><AuctionDetail /></PageWrapper>} />
+          <Route path="/my-bids" element={<PageWrapper><MyBids /></PageWrapper>} />
+          <Route path="/reveal" element={<PageWrapper><RevealCenter /></PageWrapper>} />
+          <Route path="/settlement" element={<PageWrapper><Settlement /></PageWrapper>} />
+          <Route path="/verification" element={<PageWrapper><Verification /></PageWrapper>} />
+        </Route>
+
+        {/* Standalone routes (no sidebar) */}
         <Route path="/demo" element={<PageWrapper><Demo /></PageWrapper>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
@@ -41,19 +54,11 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <div className="sb-app">
-      <div className="sb-app__glow" />
-
-      <Header />
+    <>
       <ScrollToTop />
-
-      <main className="sb-app__main">
-        <AnimatedRoutes />
-      </main>
-
-      <Footer />
+      <AnimatedRoutes />
       <BackToTop />
-    </div>
+    </>
   );
 }
 

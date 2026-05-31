@@ -167,7 +167,7 @@ export function CreateAuction() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass-card sb-create-form-card responsive-form-card"
+          className="glass-card sb-create-form-card"
         >
           <form onSubmit={handleSubmit}>
             <FormField label="Title">
