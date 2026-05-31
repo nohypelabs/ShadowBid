@@ -185,6 +185,46 @@
   --rk-colors-accentColorForeground: var(--bg-main);
 }
 
+/* RainbowKit modal — match dashboard theme */
+[data-rk] .rk-modal-container,
+.rk-overlay-container {
+  --rk-colors-modalBackground: var(--bg-surface);
+  --rk-colors-modalBorder: var(--glass-border);
+  --rk-colors-modalText: var(--text-primary);
+  --rk-colors-modalTextSecondary: var(--text-secondary);
+  --rk-colors-actionButtonBorder: var(--glass-border);
+  --rk-colors-actionButtonSecondaryBackground: var(--bg-card);
+  --rk-colors-closeButtonBackground: var(--bg-card);
+  --rk-colors-closeButtonBorder: var(--glass-border);
+  --rk-colors-selectedOptionBorder: var(--accent-border);
+  --rk-colors-menuItemBackground: var(--bg-card);
+  --rk-colors-accentColor: var(--accent);
+  --rk-colors-accentColorForeground: var(--bg-main);
+  --rk-colors-connectButtonBackground: var(--bg-surface);
+  --rk-colors-connectButtonBackgroundError: var(--status-danger);
+  --rk-colors-connectButtonText: var(--text-primary);
+  --rk-colors-connectButtonTextError: var(--text-primary);
+}
+
+.rk-overlay-container [data-rk] > div {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4) !important;
+}
+
+.rk-overlay-container [data-rk] button {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  color: var(--text-primary) !important;
+}
+
+.rk-overlay-container [data-rk] button:hover {
+  background: var(--bg-card-hover) !important;
+  border-color: var(--glass-border-hover) !important;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .sb-topbar {
