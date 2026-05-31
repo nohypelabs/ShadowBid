@@ -56,7 +56,7 @@ export function RevealCenter() {
                 <th>Phase</th>
                 <th>Bidders</th>
                 <th>Winner</th>
-                <th></th>
+                <th><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +121,7 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
         {data.status === 'FINALIZED' && data.revealedWinner ? shortAddr(data.revealedWinner) : '—'}
       </td>
       <td>
-        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }} aria-label={`View auction ${data.title}`}>
           <ChevronRight size={16} />
         </Link>
       </td>

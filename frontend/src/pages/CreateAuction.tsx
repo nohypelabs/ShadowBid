@@ -200,7 +200,7 @@ export function CreateAuction() {
                 {imagePreview ? (
                   <div className="sb-create-image-preview">
                     <img src={imagePreview} alt="Preview" />
-                    <button type="button" className="sb-create-image-remove" onClick={() => { setImagePreview(null); setImageURI(''); }}>
+                    <button type="button" className="sb-create-image-remove" onClick={() => { setImagePreview(null); setImageURI(''); }} aria-label="Remove image">
                       ×
                     </button>
                   </div>
@@ -213,7 +213,7 @@ export function CreateAuction() {
               </div>
             </FormField>
 
-            <FormField label="Title">
+            <FormField label="Title" htmlFor="title">
               <input
                 type="text" id="title" value={title}
                 onChange={e => setTitle(e.target.value)}
@@ -222,7 +222,7 @@ export function CreateAuction() {
               />
             </FormField>
 
-            <FormField label="Description">
+            <FormField label="Description" htmlFor="description">
               <textarea
                 id="description" value={description}
                 onChange={e => setDescription(e.target.value)}
@@ -231,7 +231,7 @@ export function CreateAuction() {
               />
             </FormField>
 
-            <FormField label="Category">
+            <FormField label="Category" htmlFor="category">
               <select
                 id="category" value={category}
                 onChange={e => setCategory(e.target.value)}
@@ -245,7 +245,7 @@ export function CreateAuction() {
             </FormField>
 
             <div className="sb-create-field-grid">
-              <FormField label="Reserve Price (ETH)">
+              <FormField label="Reserve Price (ETH)" htmlFor="reservePrice">
                 <input
                   type="number" id="reservePrice" value={reservePrice}
                   onChange={e => setReservePrice(e.target.value)}
@@ -254,7 +254,7 @@ export function CreateAuction() {
                 />
               </FormField>
 
-              <FormField label="Duration (hours)">
+              <FormField label="Duration (hours)" htmlFor="duration">
                 <input
                   type="number" id="duration" value={durationHours}
                   onChange={e => setDurationHours(e.target.value)}
@@ -264,7 +264,7 @@ export function CreateAuction() {
               </FormField>
             </div>
 
-            <FormField label="Reveal Delay (hours)">
+            <FormField label="Reveal Delay (hours)" htmlFor="revealDelay">
               <input
                 type="number" id="revealDelay" value={revealDelayHours}
                 onChange={e => setRevealDelayHours(e.target.value)}
@@ -274,7 +274,7 @@ export function CreateAuction() {
             </FormField>
 
             {error && (
-              <div className="sb-create-error">
+              <div className="sb-create-error" role="alert">
                 <Lock size={20} />
                 <p>{error}</p>
               </div>
@@ -287,7 +287,7 @@ export function CreateAuction() {
                     {loadingText}
                     {isEncrypting && encryptStep && <span className="encrypt-dots" />}
                   </span>
-                  <span className="sb-create-progress-bar">
+                  <span className="sb-create-progress-bar" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100} aria-label="Encryption progress">
                     <span className="sb-create-progress-fill" style={{ width: `${progressPercent}%` }} />
                   </span>
                 </span>
@@ -330,10 +330,10 @@ export function CreateAuction() {
   );
 }
 
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+function FormField({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div className="sb-form-field">
-      <label className="sb-form-label">{label}</label>
+      <label className="sb-form-label" htmlFor={htmlFor}>{label}</label>
       {children}
     </div>
   );

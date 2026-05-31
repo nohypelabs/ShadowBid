@@ -54,7 +54,7 @@ export function Settlement() {
                 <th>Winner</th>
                 <th>Winning Bid</th>
                 <th>Payment Status</th>
-                <th></th>
+                <th><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
@@ -131,7 +131,7 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
         )}
       </td>
       <td>
-        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }} aria-label={`View auction ${data.title}`}>
           <ChevronRight size={16} />
         </Link>
       </td>

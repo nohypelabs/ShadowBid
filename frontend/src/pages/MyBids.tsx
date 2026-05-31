@@ -57,7 +57,7 @@ export function MyBids() {
                 <th>My Bid</th>
                 <th>Phase</th>
                 <th>Ends</th>
-                <th></th>
+                <th><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
@@ -133,7 +133,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
       </td>
       <td>{remaining > 0n ? <CountdownTimer endTime={data.biddingEnd} compact /> : 'Ended'}</td>
       <td>
-        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }} aria-label={`View auction ${data.title}`}>
           <ChevronRight size={16} />
         </Link>
       </td>

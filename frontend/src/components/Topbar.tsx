@@ -29,6 +29,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           type="text"
           placeholder="Search auctions..."
           className="sb-topbar__search-input"
+          aria-label="Search auctions"
         />
       </div>
 

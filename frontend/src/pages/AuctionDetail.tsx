@@ -228,7 +228,7 @@ export function AuctionDetail() {
     }
     return (
       <div className="sb-detail-loading">
-        <svg className="sb-detail-spinner" viewBox="0 0 24 24" fill="none">
+        <svg className="sb-detail-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle className="sb-toast__spin-bg" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="sb-toast__spin-fg" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
         </svg>
@@ -359,7 +359,7 @@ export function AuctionDetail() {
                   <p className="sb-detail-form-note sb-detail-form-note--warn">
                     <AlertCircle size={12} /> Bids below the seller's encrypted minimum will be silently rejected. Your ETH deposit is still required.
                   </p>
-                  {error && <div className="sb-detail-error"><AlertCircle size={20} /><p>{error}</p></div>}
+                  {error && <div className="sb-detail-error" role="alert"><AlertCircle size={20} /><p>{error}</p></div>}
                   <button type="submit" disabled={isLoading || isEncrypting} className="btn-primary sb-detail-action-btn">
                     {isEncrypting ? 'Encrypting...' : isTxPending || isConfirming ? 'Processing...' : 'Encrypt & Submit Bid'}
                   </button>

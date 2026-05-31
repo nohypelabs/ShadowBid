@@ -54,6 +54,7 @@ export function ActiveAuctions() {
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             className="sb-search__input"
+            aria-label="Search active auctions"
           />
         </div>
       </section>
