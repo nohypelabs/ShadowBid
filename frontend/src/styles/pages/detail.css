@@ -353,16 +353,16 @@
 
 /* Info Box */
 .sb-detail-info-box {
-  background: linear-gradient(180deg, #10131A 0%, #0C0E13 100%);
-  border-left: 2px solid var(--accent);
-  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   padding: 24px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
 }
 
-.sb-detail-info-box svg { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.sb-detail-info-box svg { color: var(--t3); flex-shrink: 0; margin-top: 2px; }
 .sb-detail-info-box h3 { color: var(--text-primary); font-weight: 600; margin-bottom: 6px; }
 .sb-detail-info-box p { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0; }
 
