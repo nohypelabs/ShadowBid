@@ -405,7 +405,7 @@
 .sb-verification-feed__icon--pending { color: var(--gold); }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .sb-dashboard-stats {
     grid-template-columns: repeat(2, 1fr);
   }
