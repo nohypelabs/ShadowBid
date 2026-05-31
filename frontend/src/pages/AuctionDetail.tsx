@@ -547,9 +547,17 @@ export function AuctionDetail() {
                 <strong>{bidAmount} ETH</strong>
               </div>
               <div className="sb-confirm-row">
-                <span>Deposit Required</span>
-                <strong>{bidAmount} ETH</strong>
+                <span>Your Balance</span>
+                <strong className={walletBalance && BigInt(Math.round(parseFloat(bidAmount) * 1e18)) > walletBalance.value ? 'sb-confirm-insufficient' : ''}>
+                  {walletBalance ? `${Number(walletBalance.formatted).toFixed(4)} ETH` : 'Loading...'}
+                </strong>
               </div>
+              {walletBalance && BigInt(Math.round(parseFloat(bidAmount) * 1e18)) > walletBalance.value && (
+                <div className="sb-confirm-warning">
+                  <AlertCircle size={16} />
+                  <span>Insufficient balance. You need more ETH on Arbitrum Sepolia.</span>
+                </div>
+              )}
               <div className="sb-confirm-divider" />
               <p className="sb-confirm-note">
                 Your bid will be encrypted in-browser before submission. No one can see your bid amount.
@@ -558,7 +566,13 @@ export function AuctionDetail() {
             </div>
             <div className="sb-confirm-actions">
               <button className="btn-secondary" onClick={() => setShowBidConfirm(false)}>Cancel</button>
-              <button className="btn-primary" onClick={confirmBid}>Confirm & Submit</button>
+              <button
+                className="btn-primary"
+                onClick={confirmBid}
+                disabled={walletBalance && BigInt(Math.round(parseFloat(bidAmount) * 1e18)) > walletBalance.value}
+              >
+                Confirm & Submit
+              </button>
             </div>
           </motion.div>
         </div>

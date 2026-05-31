@@ -709,6 +709,27 @@
   flex: 1;
 }
 
+.sb-confirm-insufficient {
+  color: var(--status-danger) !important;
+}
+
+.sb-confirm-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.20);
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--status-danger);
+}
+
+.sb-confirm-warning svg {
+  flex-shrink: 0;
+}
+
 @media (max-width: 760px) {
   .sb-detail {
     padding: 24px 16px 56px;
