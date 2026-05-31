@@ -140,3 +140,5 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
     </tr>
   );
 }
+
+export default MyBids;

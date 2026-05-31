@@ -458,3 +458,5 @@ function ActionPanel({ title, children }: { title?: React.ReactNode; children: R
     </motion.div>
   );
 }
+
+export default AuctionDetail;

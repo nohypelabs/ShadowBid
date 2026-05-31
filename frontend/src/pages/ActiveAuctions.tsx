@@ -142,3 +142,5 @@ function ActiveAuctionSkeleton() {
     </div>
   );
 }
+
+export default ActiveAuctions;

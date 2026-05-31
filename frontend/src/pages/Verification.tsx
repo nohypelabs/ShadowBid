@@ -139,3 +139,5 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
     </>
   );
 }
+
+export default Verification;

@@ -128,3 +128,5 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
     </tr>
   );
 }
+
+export default RevealCenter;

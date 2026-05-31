@@ -138,3 +138,5 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
     </tr>
   );
 }
+
+export default Settlement;

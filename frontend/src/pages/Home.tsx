@@ -505,3 +505,5 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
     </div>
   );
 }
+
+export default Home;
