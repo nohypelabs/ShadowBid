@@ -122,6 +122,37 @@
   position: absolute;
 }
 
+.sb-detail-info__image {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid var(--glass-border);
+}
+
+.sb-detail-info__category {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--t3);
+  padding: 2px 8px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+
+.sb-detail-info__desc {
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-border);
+}
+
 .sb-detail-info__header {
   display: flex;
   align-items: flex-start;

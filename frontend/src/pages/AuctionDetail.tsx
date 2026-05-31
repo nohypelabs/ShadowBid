@@ -242,14 +242,22 @@ export function AuctionDetail() {
         <div className="sb-detail-left">
           {/* Auction Info */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="sb-detail-info">
+            {auctionData.imageURI && (
+              <img src={auctionData.imageURI} alt={auctionData.title} className="sb-detail-info__image" />
+            )}
             <div className="sb-detail-info__header">
               <div>
                 <div className="sb-detail-kicker"><ShieldCheck size={16} /> Auction #{auctionId!.toString()} on Arbitrum Sepolia</div>
                 <h1 className="sb-detail-info__title">{auctionData.title}</h1>
+                {auctionData.category && <span className="sb-detail-info__category">{auctionData.category}</span>}
                 <div className="sb-detail-info__tag"><Lock size={16} /> Encrypted Sealed-Bid Auction</div>
               </div>
               <span className={`sb-detail-status ${statusClass}`}>{statusLabel}</span>
             </div>
+
+            {auctionData.description && (
+              <p className="sb-detail-info__desc">{auctionData.description}</p>
+            )}
 
             <div className="sb-detail-stats">
               <div className="stats-card">
@@ -270,49 +278,23 @@ export function AuctionDetail() {
             </div>
           </motion.div>
 
-          {/* Highest Bid */}
-          {bidCountNumber > 0 ? (
+          {/* Settlement Result — only shown after reveal */}
+          {bidCountNumber > 0 && auctionData.revealedWinner !== ZERO_ADDRESS ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card sb-detail-highest">
-              <h2 className="sb-detail-highest__title"><Trophy size={24} /> Current Highest Bid</h2>
-
-              {auctionData.revealedWinner !== ZERO_ADDRESS ? (
-                <div className="sb-detail-highest__revealed">
-                  <div className="sb-detail-highest__amount">
-                    <p className="sb-detail-highest__amount-label">Winning Bid</p>
-                    <p className="sb-detail-highest__amount-value gradient-text">{formatEth(auctionData.revealedBid)} ETH</p>
-                  </div>
-                  <div className="sb-detail-highest__winner">
-                    <div className="sb-detail-trophy-circle"><Trophy size={24} /></div>
-                    <div>
-                      <p className="sb-detail-highest__winner-label">Winner</p>
-                      <p className="sb-detail-mono">{shortAddr(auctionData.revealedWinner)}</p>
-                    </div>
+              <h2 className="sb-detail-highest__title"><Trophy size={24} /> Settlement Result</h2>
+              <div className="sb-detail-highest__revealed">
+                <div className="sb-detail-highest__amount">
+                  <p className="sb-detail-highest__amount-label">Winning Bid</p>
+                  <p className="sb-detail-highest__amount-value gradient-text">{formatEth(auctionData.revealedBid)} ETH</p>
+                </div>
+                <div className="sb-detail-highest__winner">
+                  <div className="sb-detail-trophy-circle"><Trophy size={24} /></div>
+                  <div>
+                    <p className="sb-detail-highest__winner-label">Winner</p>
+                    <p className="sb-detail-mono">{shortAddr(auctionData.revealedWinner)}</p>
                   </div>
                 </div>
-              ) : (
-                <div className="sb-detail-highest__encrypted">
-                  <div className="sb-detail-highest__amount">
-                    <p className="sb-detail-highest__amount-label">Highest Bid (Encrypted)</p>
-                    <p className="sb-detail-highest__amount-value gradient-text encrypted-blur">
-                      {decryptedBid ? `${formatEth(BigInt(decryptedBid))} ETH` : 'Sealed ETH'}
-                    </p>
-                  </div>
-                  {isWinning && (
-                    <div className="sb-detail-winning-box">
-                      <Trophy size={20} /> You are currently winning.
-                    </div>
-                  )}
-                  {decryptedBidder && !isWinning && (
-                    <div className="sb-detail-highest__bidder">
-                      <div className="sb-detail-lock-circle"><Lock size={20} /></div>
-                      <div>
-                        <p className="sb-detail-highest__winner-label">Highest Bidder</p>
-                        <p className="sb-detail-mono">{shortAddr(decryptedBidder)}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              </div>
             </motion.div>
           ) : (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card sb-detail-empty-bids">
@@ -324,12 +306,12 @@ export function AuctionDetail() {
             </motion.div>
           )}
 
-          {/* Info Box */}
+          {/* Privacy Notice */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sb-detail-info-box">
             <Lock size={20} />
             <div>
-              <h3>How your bid is encrypted</h3>
-              <p>Your bid is encrypted using Fully Homomorphic Encryption (FHE) before it leaves your browser. This ensures that no one—including the seller or other bidders—can see your bid amount until the auction ends and the winner is revealed.</p>
+              <h3>Privacy Guarantee</h3>
+              <p>Your bid amount remains encrypted and hidden from other participants during the auction. No one—including the seller or other bidders—can see your bid until settlement is finalized.</p>
             </div>
           </motion.div>
         </div>
