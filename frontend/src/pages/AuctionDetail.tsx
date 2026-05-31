@@ -333,9 +333,12 @@ export function AuctionDetail() {
                     <div className="sb-detail-deposit-notice__header"><Wallet size={16} /> ETH Deposit Required</div>
                     <p>You must deposit ETH equal to your bid amount. This ETH will be held in escrow until the auction ends. Losing bidders can claim a full refund.</p>
                   </div>
+                  <p className="sb-detail-form-note">
+                    <Lock size={12} /> Your bid amount is encrypted in-browser before submission. Other participants cannot see your bid.
+                  </p>
                   {error && <div className="sb-detail-error"><AlertCircle size={20} /><p>{error}</p></div>}
                   <button type="submit" disabled={isLoading || isEncrypting} className="btn-primary sb-detail-action-btn">
-                    {isEncrypting ? 'Encrypting...' : isTxPending || isConfirming ? 'Processing...' : 'Place Bid & Deposit ETH'}
+                    {isEncrypting ? 'Encrypting...' : isTxPending || isConfirming ? 'Processing...' : 'Encrypt & Submit Bid'}
                   </button>
                   <p className="sb-detail-form-note">Your bid is encrypted before leaving your browser</p>
                 </form>
