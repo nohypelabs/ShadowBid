@@ -12,6 +12,7 @@ import type { Auction } from '../types';
 
 export function ActiveAuctions() {
   const [searchQuery, setSearchQuery] = useState('');
+  const now = useCurrentTimestamp();
 
   const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
@@ -60,7 +61,7 @@ export function ActiveAuctions() {
       <div className="sb-active-list">
         {totalAuctions === 0 && <ActiveEmptyState />}
         {totalAuctions > 0 && auctionIds.map((auctionId, index) => (
-          <ActiveAuctionRow key={auctionId} auctionId={auctionId} searchQuery={searchQuery} index={index} />
+          <ActiveAuctionRow key={auctionId} auctionId={auctionId} searchQuery={searchQuery} index={index} now={now} />
         ))}
       </div>
     </div>
@@ -78,9 +79,7 @@ function ActiveEmptyState() {
   );
 }
 
-function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number; searchQuery: string; index: number }) {
-  const now = useCurrentTimestamp();
-
+function ActiveAuctionRow({ auctionId, searchQuery, index, now }: { auctionId: number; searchQuery: string; index: number; now: bigint }) {
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,

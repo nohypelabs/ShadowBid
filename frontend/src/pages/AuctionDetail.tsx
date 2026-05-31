@@ -6,7 +6,6 @@ import { Encryptable, FheTypes } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { formatEth, shortAddr } from '../utils/format';
@@ -124,7 +123,9 @@ export function AuctionDetail() {
 
   useEffect(() => {
     if (shouldTriggerConfetti) {
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2DD4BF', '#C9922A', '#22C55E'] });
+      import('canvas-confetti').then((mod) => {
+        mod.default({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2DD4BF', '#C9922A', '#22C55E'] });
+      });
       window.setTimeout(() => setHasTriggeredConfetti(true), 0);
     }
   }, [shouldTriggerConfetti]);
