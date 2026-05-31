@@ -1,8 +1,12 @@
-import { Search, Wallet, ChevronDown } from 'lucide-react';
+import { Search, Wallet, ChevronDown, Menu } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useBalance } from 'wagmi';
 
-export function Topbar() {
+interface TopbarProps {
+  onMenuClick?: () => void;
+}
+
+export function Topbar({ onMenuClick }: TopbarProps) {
   const { address } = useAccount();
   const { data: walletBalance, isLoading: isBalanceLoading } = useBalance({
     address,
@@ -11,6 +15,13 @@ export function Topbar() {
 
   return (
     <header className="sb-topbar">
+      {/* Hamburger (mobile only) */}
+      {onMenuClick && (
+        <button className="sb-topbar__menu" onClick={onMenuClick} aria-label="Open menu">
+          <Menu size={20} />
+        </button>
+      )}
+
       {/* Search */}
       <div className="sb-topbar__search">
         <Search size={15} className="sb-topbar__search-icon" />

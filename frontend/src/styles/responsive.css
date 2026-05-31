@@ -16,6 +16,25 @@
   .sb-create-layout { grid-template-columns: 1fr; }
   .sb-active-hero { grid-template-columns: 1fr; }
   .sb-create-summary { order: -1; position: static; }
+
+  /* Mobile sidebar */
+  .sb-sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--dur-normal) var(--ease);
+    z-index: 100;
+  }
+
+  .sb-sidebar:not(.sb-sidebar--collapsed) {
+    transform: translateX(0);
+  }
+
+  .sb-dashboard-layout__main {
+    margin-left: 0 !important;
+  }
+
+  .sb-dashboard-layout__main--collapsed {
+    margin-left: 0 !important;
+  }
 }
 
 /* ── 760px ── */

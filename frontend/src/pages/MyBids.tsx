@@ -94,7 +94,16 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
     args: [BigInt(auctionId), address as `0x${string}`],
   });
 
-  if (!auction) return null;
+  if (!auction) return (
+    <tr className="sb-table-row--loading">
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+    </tr>
+  );
 
   const data = parseAuction(auction as unknown[], auctionId);
   if (!data) return null;
@@ -109,12 +118,12 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
   return (
     <tr>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t1)', textDecoration: 'none' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link">
           {data.title}
         </Link>
       </td>
       <td><span className="sb-badge sb-badge--active">Sealed</span></td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--t3)' }}>
+      <td className="sb-td--mono sb-td--muted">
         Hidden (encrypted)
       </td>
       <td>
@@ -124,7 +133,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
       </td>
       <td>{remaining > 0n ? <CountdownTimer endTime={data.biddingEnd} compact /> : 'Ended'}</td>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t3)' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }}>
           <ChevronRight size={16} />
         </Link>
       </td>

@@ -30,7 +30,7 @@ export function DashboardLayout() {
       />
 
       <div className={`sb-dashboard-layout__main ${effectiveCollapsed ? 'sb-dashboard-layout__main--collapsed' : ''}`}>
-        <Topbar />
+        <Topbar onMenuClick={isMobile ? () => setSidebarCollapsed(false) : undefined} />
         <div className="sb-dashboard-layout__content">
           <Outlet />
         </div>

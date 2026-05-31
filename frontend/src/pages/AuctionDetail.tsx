@@ -124,7 +124,7 @@ export function AuctionDetail() {
 
   useEffect(() => {
     if (shouldTriggerConfetti) {
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#8b5cf6', '#10b981'] });
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2DD4BF', '#C9922A', '#22C55E'] });
       window.setTimeout(() => setHasTriggeredConfetti(true), 0);
     }
   }, [shouldTriggerConfetti]);
@@ -211,7 +211,7 @@ export function AuctionDetail() {
   const isLoading = isEncrypting || isTxPending || isConfirming;
   const bidCountNumber = Number(bidCount || 0);
   const statusLabel = auctionData?.finalized ? 'Finalized' : isBiddingActive ? 'Accepting bids' : 'Bidding ended';
-  const statusClass = auctionData?.finalized ? 'sb-detail-status--finalized' : isBiddingActive ? 'sb-detail-status--active' : 'sb-detail-status--ended';
+  const statusClass = auctionData?.finalized ? 'sb-badge--finalized' : isBiddingActive ? 'sb-badge--active' : 'sb-badge--ended-warn';
 
   if (auctionLoading || auctionId === null) {
     if (auctionId === null) {
@@ -264,7 +264,7 @@ export function AuctionDetail() {
                 {auctionData.category && <span className="sb-detail-info__category">{auctionData.category}</span>}
                 <div className="sb-detail-info__tag"><Lock size={16} /> Encrypted Sealed-Bid Auction</div>
               </div>
-              <span className={`sb-detail-status ${statusClass}`}>{statusLabel}</span>
+              <span className={`sb-badge ${statusClass}`}>{statusLabel}</span>
             </div>
 
             {auctionData.description && (

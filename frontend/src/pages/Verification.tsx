@@ -69,7 +69,12 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
     args: [BigInt(auctionId)],
   });
 
-  if (!auction) return null;
+  if (!auction) return (
+    <div className="sb-verification-feed__item" style={{ opacity: 0.3 }}>
+      <span>&nbsp;</span>
+      <span>&nbsp;</span>
+    </div>
+  );
 
   const bidders = Number(bidCount || 0);
   const data = parseAuction(auction as unknown[], auctionId, bidders);

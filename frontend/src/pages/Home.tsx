@@ -296,7 +296,7 @@ function LiveAuctionsTable({ totalAuctions, now }: { totalAuctions: number; now:
         )}
       </div>
       {totalAuctions === 0 ? (
-        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--t3)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+        <div className="sb-table-empty">
           No auctions yet
         </div>
       ) : (
@@ -359,7 +359,7 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
   return (
     <tr>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t1)', textDecoration: 'none' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link">
           {data.title}
         </Link>
       </td>
@@ -381,7 +381,7 @@ function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: num
         <div className="sb-dashboard-table-header">
           <span className="sb-dashboard-table-title"><Lock size={14} className="icon-gold" /> My Sealed Bid Status</span>
         </div>
-        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--t3)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+        <div className="sb-table-empty">
           Connect wallet to see your bids
         </div>
       </div>
@@ -444,7 +444,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
   return (
     <tr>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t1)', textDecoration: 'none' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link">
           {data.title}
         </Link>
       </td>
@@ -464,7 +464,7 @@ function VerificationFeed({ totalAuctions }: { totalAuctions: number }) {
         <div className="sb-dashboard-table-header">
           <span className="sb-dashboard-table-title"><ShieldCheck size={14} className="icon-cipher" /> Verification Feed</span>
         </div>
-        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--t3)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+        <div className="sb-table-empty">
           No verification events yet
         </div>
       </div>

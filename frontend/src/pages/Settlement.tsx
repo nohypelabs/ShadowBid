@@ -84,7 +84,15 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
     args: [BigInt(auctionId)],
   });
 
-  if (!auction) return null;
+  if (!auction) return (
+    <tr className="sb-table-row--loading">
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+    </tr>
+  );
 
   const data = parseAuction(auction as unknown[], auctionId);
   if (!data) return null;
@@ -99,31 +107,31 @@ function SettlementRow({ auctionId, address }: { auctionId: number; address: str
   return (
     <tr>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t1)', textDecoration: 'none' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link">
           {data.title}
         </Link>
       </td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--t2)' }}>
+      <td className="sb-td--mono sb-td--muted">
         {shortAddr(data.revealedWinner)}
       </td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gold)' }}>
+      <td className="sb-td--mono sb-td--accent">
         {formatEth(data.revealedBid)} ETH
       </td>
       <td>
         {claimed ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--status-success)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+          <span className="sb-td--mono sb-td--success" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <CheckCircle2 size={14} /> Claimed
           </span>
         ) : isWinner || isSeller ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--gold)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+          <span className="sb-td--mono sb-td--warning" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Clock size={14} /> Claimable
           </span>
         ) : (
-          <span style={{ color: 'var(--t3)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>—</span>
+          <span className="sb-td--mono sb-td--muted">—</span>
         )}
       </td>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t3)' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }}>
           <ChevronRight size={16} />
         </Link>
       </td>

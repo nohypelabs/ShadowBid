@@ -86,7 +86,15 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
     args: [BigInt(auctionId)],
   });
 
-  if (!auction) return null;
+  if (!auction) return (
+    <tr className="sb-table-row--loading">
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+      <td><span>&nbsp;</span></td>
+    </tr>
+  );
 
   const data = parseAuction(auction as unknown[], auctionId);
   if (!data) return null;
@@ -99,7 +107,7 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
   return (
     <tr>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t1)', textDecoration: 'none' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link">
           {data.title}
         </Link>
       </td>
@@ -109,11 +117,11 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
         </span>
       </td>
       <td>{bidders}</td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--t3)' }}>
+      <td className="sb-td--mono sb-td--muted">
         {data.status === 'FINALIZED' && data.revealedWinner ? shortAddr(data.revealedWinner) : '—'}
       </td>
       <td>
-        <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t3)' }}>
+        <Link to={`/auction/${auctionId}`} className="sb-table-link" style={{ color: 'var(--text-muted)' }}>
           <ChevronRight size={16} />
         </Link>
       </td>
