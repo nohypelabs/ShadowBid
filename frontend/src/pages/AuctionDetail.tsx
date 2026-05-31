@@ -65,6 +65,7 @@ export function AuctionDetail() {
   const [decryptedBid, setDecryptedBid] = useState<string | null>(null);
   const [decryptedBidder, setDecryptedBidder] = useState<string | null>(null);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
+  const [showBidConfirm, setShowBidConfirm] = useState(false);
   const userDepositAmount = typeof userDeposit === 'bigint' ? userDeposit : 0n;
 
   useEffect(() => {
@@ -146,9 +147,17 @@ export function AuctionDetail() {
       return;
     }
     if (!cofheClient) { setError('Cofhe client not initialized'); return; }
+    // Show confirmation
+    setShowBidConfirm(true);
+  }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, auctionId, minimumBidWei]);
+
+  const confirmBid = useCallback(async () => {
+    setShowBidConfirm(false);
+    const bidValue = parseFloat(bidAmount);
+    const bidWei = BigInt(Math.round(bidValue * 1e18));
     try {
       setIsEncrypting(true);
-      const encryptedResults = await cofheClient.encryptInputs([
+      const encryptedResults = await cofheClient!.encryptInputs([
         Encryptable.uint64(BigInt(Math.round(bidValue * 1e18))),
       ]).execute();
       setIsEncrypting(false);
@@ -156,7 +165,7 @@ export function AuctionDetail() {
       const inEuint64 = { ctHash: encrypted.ctHash, securityZone: encrypted.securityZone, utype: encrypted.utype, signature: encrypted.signature as `0x${string}` };
       writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'placeBid', args: [auctionId, inEuint64], value: bidWei });
     } catch (err) { setIsEncrypting(false); setError(err instanceof Error ? err.message : 'Failed to encrypt bid'); }
-  }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, writeContract, auctionId, minimumBidWei]);
+  }, [bidAmount, cofheClient, writeContract, auctionId]);
 
   const handleFinalize = useCallback(() => {
     if (!auctionData || !isSeller || auctionId === null) return;
@@ -250,6 +259,15 @@ export function AuctionDetail() {
 
   return (
     <div className="sb-detail">
+      {/* Breadcrumbs */}
+      <nav className="sb-breadcrumbs">
+        <Link to="/" className="sb-breadcrumbs__link">Home</Link>
+        <span className="sb-breadcrumbs__sep">/</span>
+        <Link to="/auctions" className="sb-breadcrumbs__link">Auctions</Link>
+        <span className="sb-breadcrumbs__sep">/</span>
+        <span className="sb-breadcrumbs__current">#{auctionId!.toString()}</span>
+      </nav>
+
       <main className="sb-detail-main">
         {/* Left Column */}
         <div className="sb-detail-left">
@@ -368,6 +386,32 @@ export function AuctionDetail() {
               </ActionPanel>
             )}
 
+            {/* Cannot Bid - Seller */}
+            {isBiddingActive && isSeller && (
+              <ActionPanel title="Your Auction">
+                <div className="sb-detail-cannot-bid">
+                  <ShieldCheck size={20} />
+                  <div>
+                    <p>You created this auction.</p>
+                    <p className="sb-detail-cannot-bid-sub">Sellers cannot bid on their own auctions.</p>
+                  </div>
+                </div>
+              </ActionPanel>
+            )}
+
+            {/* Cannot Bid - Ended */}
+            {!isBiddingActive && !isSeller && !hasBid && !auctionData.finalized && (
+              <ActionPanel title="Bidding Ended">
+                <div className="sb-detail-cannot-bid">
+                  <Clock size={20} />
+                  <div>
+                    <p>The bidding period for this auction has ended.</p>
+                    <p className="sb-detail-cannot-bid-sub">Wait for the seller to finalize the auction.</p>
+                  </div>
+                </div>
+              </ActionPanel>
+            )}
+
             {/* Already Bid */}
             {hasBid && isBiddingActive && (
               <ActionPanel>
@@ -384,7 +428,11 @@ export function AuctionDetail() {
             {/* Finalize */}
             {isSeller && !isBiddingActive && !auctionData.finalized && Number(bidCount || 0) > 0 && (
               <ActionPanel title="Finalize Auction">
-                <p className="sb-detail-action-desc">As the seller, you can finalize this auction to reveal the winner.</p>
+                <p className="sb-detail-action-desc">Bidding has ended. Finalize to close the auction and prepare for settlement. This action cannot be undone.</p>
+                <div className="sb-detail-info-mini">
+                  <Lock size={14} />
+                  <span>All bids remain encrypted. Only the winner will be revealed.</span>
+                </div>
                 <button onClick={handleFinalize} disabled={isLoading} className="btn-primary sb-detail-action-btn">
                   {isTxPending || isConfirming ? 'Processing...' : 'Finalize Auction'}
                 </button>
@@ -394,7 +442,11 @@ export function AuctionDetail() {
             {/* Reveal */}
             {auctionData.finalized && auctionData.revealedWinner === ZERO_ADDRESS && (
               <ActionPanel title="Reveal Winner">
-                <p className="sb-detail-action-desc">The auction has been finalized. Reveal the winner and winning bid.</p>
+                <p className="sb-detail-action-desc">The auction is finalized. Decrypt and publish the winner on-chain using the Threshold Network.</p>
+                <div className="sb-detail-info-mini">
+                  <Eye size={14} />
+                  <span>Anyone can reveal — winner identity is cryptographically verified.</span>
+                </div>
                 <button onClick={handleReveal} disabled={isLoading} className="btn-primary sb-detail-action-btn">Reveal Winner</button>
               </ActionPanel>
             )}
@@ -447,6 +499,42 @@ export function AuctionDetail() {
           </div>
         </div>
       </main>
+
+      {/* Bid Confirmation Dialog */}
+      {showBidConfirm && (
+        <div className="sb-confirm-overlay" onClick={() => setShowBidConfirm(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="sb-confirm-dialog"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sb-confirm-header">
+              <Lock size={20} />
+              <h3>Confirm Your Bid</h3>
+            </div>
+            <div className="sb-confirm-body">
+              <div className="sb-confirm-row">
+                <span>Bid Amount</span>
+                <strong>{bidAmount} ETH</strong>
+              </div>
+              <div className="sb-confirm-row">
+                <span>Deposit Required</span>
+                <strong>{bidAmount} ETH</strong>
+              </div>
+              <div className="sb-confirm-divider" />
+              <p className="sb-confirm-note">
+                Your bid will be encrypted in-browser before submission. No one can see your bid amount.
+                This action cannot be undone.
+              </p>
+            </div>
+            <div className="sb-confirm-actions">
+              <button className="btn-secondary" onClick={() => setShowBidConfirm(false)}>Cancel</button>
+              <button className="btn-primary" onClick={confirmBid}>Confirm & Submit</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

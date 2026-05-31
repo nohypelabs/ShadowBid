@@ -252,6 +252,7 @@ export function CreateAuction() {
                   placeholder="0.1" step="0.0001" min="0.0001"
                   className="sb-input sb-input--mono" disabled={isLoading}
                 />
+                <p className="sb-form-helper">Minimum ETH deposit required from bidders. Encrypted on-chain — never revealed.</p>
               </FormField>
 
               <FormField label="Duration (hours)" htmlFor="duration">
