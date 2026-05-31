@@ -268,8 +268,7 @@
 }
 
 /* RainbowKit modal — match dashboard theme */
-[data-rk] .rk-modal-container,
-.rk-overlay-container {
+[data-rk] {
   --rk-colors-modalBackground: var(--bg-surface);
   --rk-colors-modalBorder: var(--glass-border);
   --rk-colors-modalText: var(--text-primary);
@@ -286,25 +285,55 @@
   --rk-colors-connectButtonBackgroundError: var(--status-danger);
   --rk-colors-connectButtonText: var(--text-primary);
   --rk-colors-connectButtonTextError: var(--text-primary);
+  --rk-colors-profileAction: var(--bg-card);
+  --rk-colors-profileActionHover: var(--bg-card-hover);
+  --rk-colors-profileForeground: var(--text-primary);
 }
 
-.rk-overlay-container [data-rk] > div {
+/* Account modal & connect modal overlay */
+div[data-rk] > div[role="dialog"],
+div[data-rk] > div[role="dialog"] > div {
   background: var(--bg-surface) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 16px !important;
   box-shadow: 0 16px 40px rgba(0,0,0,0.4) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-body) !important;
 }
 
-.rk-overlay-container [data-rk] button {
+/* Modal buttons */
+div[data-rk] button {
   background: var(--bg-card) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 12px !important;
   color: var(--text-primary) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  transition: background var(--dur-fast), border-color var(--dur-fast) !important;
 }
 
-.rk-overlay-container [data-rk] button:hover {
+div[data-rk] button:hover {
   background: var(--bg-card-hover) !important;
   border-color: var(--glass-border-hover) !important;
+}
+
+/* Account modal balance display */
+div[data-rk] [class*="Profile"] {
+  background: var(--bg-surface) !important;
+}
+
+/* Modal action buttons (disconnect, etc) */
+div[data-rk] button[class*="Action"],
+div[data-rk] a[class*="Action"] {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 10px !important;
+  padding: 10px 16px !important;
+}
+
+div[data-rk] button[class*="Action"]:hover,
+div[data-rk] a[class*="Action"]:hover {
+  background: var(--bg-card-hover) !important;
 }
 
 /* ── Responsive ── */
