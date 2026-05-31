@@ -98,8 +98,8 @@ export function AuctionDetail() {
   let canClaimRefund = false;
 
   if (auction && Array.isArray(auction)) {
-    auctionData = parseAuction(auction, auctionId ?? undefined);
-    isBiddingActive = auctionData.biddingEnd > now && !auctionData.finalized;
+    auctionData = parseAuction(auction as unknown[], auctionId ?? 0);
+    isBiddingActive = auctionData.status === 'ACTIVE';
     isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
     hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
     isWinning = !!decryptedBidder && !!address && decryptedBidder.toLowerCase() === address.toLowerCase();

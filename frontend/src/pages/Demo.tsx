@@ -40,7 +40,7 @@ export function Demo() {
         title: template.title,
         description: template.description,
         duration: template.durationHours.toString(),
-        minimumBid: template.minBid.toString(),
+        reservePrice: template.minBid.toString(),
       },
     });
   };
@@ -97,7 +97,7 @@ export function Demo() {
                 <div className="sb-template-card__icon">{template.icon}</div>
                 <div className="sb-template-card__meta">
                   <span><Clock size={12} /> {template.durationHours}h</span>
-                  <span className="sb-template-card__min">Min: {template.minBid} ETH</span>
+                  <span className="sb-template-card__min">Reserve: {template.minBid} ETH</span>
                 </div>
               </div>
 

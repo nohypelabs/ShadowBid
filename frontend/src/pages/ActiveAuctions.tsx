@@ -8,7 +8,7 @@ import { SHADOWBID_ABI, SHADOWBID_ADDRESS } from '../constants/contracts';
 import { shortAddr } from '../utils/format';
 import { parseAuction } from '../utils/auction';
 import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
-import type { AuctionWithId } from '../types';
+import type { Auction } from '../types';
 
 export function ActiveAuctions() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,9 +98,10 @@ function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number
   if (isLoading) return <ActiveAuctionSkeleton />;
   if (!auction || !Array.isArray(auction)) return null;
 
-  const auctionData = parseAuction(auction, auctionId);
+  const bidders = Number(bidCount || 0);
+  const auctionData = parseAuction(auction as unknown[], auctionId, bidders);
 
-  const isActive = auctionData.biddingEnd > now && !auctionData.finalized;
+  const isActive = auctionData.status === 'ACTIVE';
   const matchesSearch = auctionData.title.toLowerCase().includes(searchQuery.trim().toLowerCase());
   if (!isActive || !matchesSearch) return null;
 

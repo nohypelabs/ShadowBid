@@ -11,7 +11,7 @@ import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { shortAddr, formatEth } from '../utils/format';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
 import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
-import type { AuctionWithId } from '../types';
+import type { Auction } from '../types';
 
 export function Home() {
   const { address } = useAccount();
@@ -147,7 +147,7 @@ function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: big
 
   if (!latestAuction) return <DashboardStat label="Reveal Due" value="—" sub="no auctions" accent="gold" />;
 
-  const data = parseAuction(latestAuction as unknown[]);
+  const data = parseAuction(latestAuction as unknown[], totalAuctions - 1);
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
   const display = remaining > 0n ? `${Math.floor(hours)}h ${Math.floor((Number(remaining) % 3600) / 60)}m` : 'Ended';
@@ -186,9 +186,9 @@ function FeaturedAuction({ totalAuctions, now }: { totalAuctions: number; now: b
 
   if (isLoading || !auction) return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
 
-  const data = parseAuction(auction as unknown[], totalAuctions - 1);
-  const isActive = data.biddingEnd > now && !data.finalized;
   const bidders = Number(bidCount || 0);
+  const data = parseAuction(auction as unknown[], totalAuctions - 1, bidders);
+  const isActive = data.status === 'ACTIVE';
 
   return (
     <div className="sb-featured-card">
@@ -231,10 +231,10 @@ function AuctionPhaseTimeline({ totalAuctions, now }: { totalAuctions: number; n
 
   if (!auction) return <div className="sb-timeline"><p className="sb-timeline__title">No auction data</p></div>;
 
-  const data = parseAuction(auction as unknown[]);
-  const isCommit = data.biddingEnd > now && !data.finalized;
-  const isReveal = data.finalized && data.revealedWinner === ZERO_ADDRESS;
-  const isSettle = data.finalized && data.revealedWinner !== ZERO_ADDRESS;
+  const data = parseAuction(auction as unknown[], totalAuctions - 1);
+  const isCommit = data.status === 'ACTIVE';
+  const isReveal = data.status === 'SETTLEMENT';
+  const isSettle = data.status === 'FINALIZED';
 
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
@@ -327,11 +327,9 @@ function AuctionTableRow({ auctionId, now }: { auctionId: number; now: bigint })
 
   if (!auction) return null;
 
-  const data = parseAuction(auction as unknown[], auctionId);
-  const isActive = data.biddingEnd > now && !data.finalized;
-  const isReveal = data.finalized && data.revealedWinner === ZERO_ADDRESS;
-  const isSettle = data.finalized && data.revealedWinner !== ZERO_ADDRESS;
-  const phase = isActive ? 'Commit' : isReveal ? 'Reveal' : isSettle ? 'Settled' : 'Ended';
+  const bidders = Number(bidCount || 0);
+  const data = parseAuction(auction as unknown[], auctionId, bidders);
+  const phase = data.status === 'ACTIVE' ? 'Commit' : data.status === 'SETTLEMENT' ? 'Reveal' : 'Settled';
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
 
@@ -413,7 +411,6 @@ function MyBidRow({ auctionId, address }: { auctionId: number; address: string }
 
   const data = parseAuction(auction as unknown[], auctionId);
   const hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
-  const now = BigInt(Math.floor(Date.now() / 1000));
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
   const hours = Number(remaining) / 3600;
 
@@ -472,7 +469,7 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
-  const isActive = data.biddingEnd > BigInt(Math.floor(Date.now() / 1000)) && !data.finalized;
+  const isActive = data.status === 'ACTIVE';
 
   return (
     <div className="sb-verification-feed__item">

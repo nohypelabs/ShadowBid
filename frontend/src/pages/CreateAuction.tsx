@@ -12,7 +12,7 @@ type CreateAuctionTemplateState = {
   title?: string;
   description?: string;
   duration?: string;
-  minimumBid?: string;
+  reservePrice?: string;
 };
 
 const STEP_LABELS: Record<string, string> = {
@@ -41,7 +41,7 @@ export function CreateAuction() {
   const templateState = (location.state || {}) as CreateAuctionTemplateState;
   const [title, setTitle] = useState(templateState.title || '');
   const [description, setDescription] = useState(templateState.description || '');
-  const [startingPrice, setStartingPrice] = useState(templateState.minimumBid || '');
+  const [reservePrice, setReservePrice] = useState(templateState.reservePrice || '');
   const [durationHours, setDurationHours] = useState(templateState.duration || '24');
   const [revealDelayHours, setRevealDelayHours] = useState('1');
   const [error, setError] = useState<string | null>(null);
@@ -89,8 +89,8 @@ export function CreateAuction() {
     const duration = parseInt(durationHours);
     if (isNaN(duration) || duration < 1 || duration > 720) { setError('Duration must be between 1 and 720 hours'); return; }
 
-    const minBid = parseFloat(startingPrice);
-    if (isNaN(minBid) || minBid <= 0) { setError('Starting price must be greater than 0 ETH'); return; }
+    const minBid = parseFloat(reservePrice);
+    if (isNaN(minBid) || minBid <= 0) { setError('Reserve price must be greater than 0 ETH'); return; }
 
     try {
       setIsEncrypting(true);
@@ -159,7 +159,7 @@ export function CreateAuction() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="sb-create-title-block">
         <h1 className="sb-create-title">Create Sealed Auction</h1>
-        <p className="sb-create-subtitle">Review the auction details, encrypt the minimum bid locally, then deploy to Arbitrum Sepolia.</p>
+        <p className="sb-create-subtitle">Review the auction details, encrypt the reserve price locally, then deploy to Arbitrum Sepolia.</p>
       </motion.div>
 
       <div className="sb-create-layout">
@@ -189,10 +189,10 @@ export function CreateAuction() {
             </FormField>
 
             <div className="sb-create-field-grid">
-              <FormField label="Starting Price (ETH)">
+              <FormField label="Reserve Price (ETH)">
                 <input
-                  type="number" id="startingPrice" value={startingPrice}
-                  onChange={e => setStartingPrice(e.target.value)}
+                  type="number" id="reservePrice" value={reservePrice}
+                  onChange={e => setReservePrice(e.target.value)}
                   placeholder="0.1" step="0.0001" min="0.0001"
                   className="sb-input sb-input--mono" disabled={isLoading}
                 />
@@ -244,7 +244,7 @@ export function CreateAuction() {
           <div className="sb-create-summary__eyebrow">Deployment Preview</div>
           <h2>{title.trim() || 'Untitled sealed auction'}</h2>
           <dl>
-            <div><dt>Minimum bid</dt><dd>{startingPrice || '0.1'} ETH</dd></div>
+            <div><dt>Reserve price</dt><dd>{reservePrice || '0.1'} ETH</dd></div>
             <div><dt>Duration</dt><dd>{durationHours || '24'}h</dd></div>
             <div><dt>Network</dt><dd>Arbitrum Sepolia</dd></div>
             <div><dt>Wallet balance</dt><dd>{balanceLabel}</dd></div>
@@ -257,7 +257,7 @@ export function CreateAuction() {
           )}
           <div className="sb-create-info">
             <Lock size={20} />
-            <p>Minimum bid encryption happens in-browser before the transaction is submitted.</p>
+            <p>Reserve price encryption happens in-browser before the transaction is submitted.</p>
           </div>
         </aside>
       </div>

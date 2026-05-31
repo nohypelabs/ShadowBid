@@ -88,12 +88,9 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
   if (!auction) return null;
 
   const data = parseAuction(auction as unknown[], auctionId);
-  const isActive = data.biddingEnd > now && !data.finalized;
-  const isReveal = data.finalized && data.revealedWinner === ZERO_ADDRESS;
-  const isSettle = data.finalized && data.revealedWinner !== ZERO_ADDRESS;
 
   // Only show finalized auctions that need reveal or are settled
-  if (isActive) return null;
+  if (data.status === 'ACTIVE') return null;
 
   const bidders = Number(bidCount || 0);
 
@@ -105,13 +102,13 @@ function RevealRow({ auctionId, now }: { auctionId: number; now: bigint }) {
         </Link>
       </td>
       <td>
-        <span className={`sb-badge ${isReveal ? 'sb-badge--ended-warn' : 'sb-badge--finalized'}`}>
-          {isReveal ? 'Reveal Needed' : 'Settled'}
+        <span className={`sb-badge ${data.status === 'SETTLEMENT' ? 'sb-badge--ended-warn' : 'sb-badge--finalized'}`}>
+          {data.status === 'SETTLEMENT' ? 'Reveal Needed' : 'Settled'}
         </span>
       </td>
       <td>{bidders}</td>
       <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--t3)' }}>
-        {isSettle ? data.revealedWinner.slice(0, 8) + '...' + data.revealedWinner.slice(-6) : '—'}
+        {data.status === 'FINALIZED' ? data.revealedWinner.slice(0, 8) + '...' + data.revealedWinner.slice(-6) : '—'}
       </td>
       <td>
         <Link to={`/auction/${auctionId}`} style={{ color: 'var(--t3)' }}>

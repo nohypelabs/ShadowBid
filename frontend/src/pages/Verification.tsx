@@ -6,10 +6,7 @@ import { ShieldCheck, CheckCircle2, Circle, Lock, Zap, Trophy } from 'lucide-rea
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
 import { shortAddr } from '../utils/format';
-import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
-
 export function Verification() {
-  const now = useCurrentTimestamp();
 
   const { data: auctionCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
@@ -49,7 +46,7 @@ export function Verification() {
             </span>
           </div>
           {auctionIds.map((id) => (
-            <VerificationItem key={id} auctionId={id} now={now} />
+            <VerificationItem key={id} auctionId={id} />
           ))}
         </div>
       )}
@@ -57,7 +54,7 @@ export function Verification() {
   );
 }
 
-function VerificationItem({ auctionId, now }: { auctionId: number; now: bigint }) {
+function VerificationItem({ auctionId }: { auctionId: number }) {
   const { data: auction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -74,11 +71,8 @@ function VerificationItem({ auctionId, now }: { auctionId: number; now: bigint }
 
   if (!auction) return null;
 
-  const data = parseAuction(auction as unknown[], auctionId);
-  const isActive = data.biddingEnd > now && !data.finalized;
-  const isReveal = data.finalized && data.revealedWinner === ZERO_ADDRESS;
-  const isSettle = data.finalized && data.revealedWinner !== ZERO_ADDRESS;
   const bidders = Number(bidCount || 0);
+  const data = parseAuction(auction as unknown[], auctionId, bidders);
 
   return (
     <>
@@ -111,7 +105,7 @@ function VerificationItem({ auctionId, now }: { auctionId: number; now: bigint }
       )}
 
       {/* Finalization */}
-      {data.finalized && (
+      {data.status !== 'ACTIVE' && (
         <div className="sb-verification-feed__item">
           <CheckCircle2 size={14} className="sb-verification-feed__icon sb-verification-feed__icon--done" />
           <span>Auction finalized — bids decryptable</span>
@@ -119,7 +113,7 @@ function VerificationItem({ auctionId, now }: { auctionId: number; now: bigint }
       )}
 
       {/* Winner revealed */}
-      {isSettle && (
+      {data.status === 'FINALIZED' && (
         <div className="sb-verification-feed__item">
           <Trophy size={14} className="sb-verification-feed__icon" style={{ color: 'var(--gold)' }} />
           <span>Winner revealed — {shortAddr(data.revealedWinner)}</span>
@@ -130,7 +124,7 @@ function VerificationItem({ auctionId, now }: { auctionId: number; now: bigint }
       )}
 
       {/* Pending */}
-      {isActive && (
+      {data.status === 'ACTIVE' && (
         <div className="sb-verification-feed__item">
           <Circle size={14} className="sb-verification-feed__icon" style={{ color: 'var(--t4)' }} />
           <span style={{ color: 'var(--t3)' }}>Winner proof pending</span>

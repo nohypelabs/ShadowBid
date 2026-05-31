@@ -101,10 +101,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
 
   if (!hasBid) return null;
 
-  const isActive = data.biddingEnd > now && !data.finalized;
-  const isReveal = data.finalized && data.revealedWinner === ZERO_ADDRESS;
-  const isSettle = data.finalized && data.revealedWinner !== ZERO_ADDRESS;
-  const phase = isActive ? 'Commit' : isReveal ? 'Reveal' : isSettle ? 'Settled' : 'Ended';
+  const phase = data.status === 'ACTIVE' ? 'Commit' : data.status === 'SETTLEMENT' ? 'Reveal' : 'Settled';
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
 
   return (
@@ -119,7 +116,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
         Hidden (encrypted)
       </td>
       <td>
-        <span className={`sb-badge ${isActive ? 'sb-badge--active' : isSettle ? 'sb-badge--finalized' : 'sb-badge--ended-warn'}`}>
+        <span className={`sb-badge ${data.status === 'ACTIVE' ? 'sb-badge--active' : data.status === 'FINALIZED' ? 'sb-badge--finalized' : 'sb-badge--ended-warn'}`}>
           {phase}
         </span>
       </td>
