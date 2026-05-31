@@ -267,7 +267,9 @@
   --rk-colors-accentColorForeground: var(--bg-main);
 }
 
-/* RainbowKit modal — match dashboard theme */
+/* RainbowKit — full dashboard theme override */
+
+/* CSS variable overrides */
 [data-rk] {
   --rk-colors-modalBackground: var(--bg-surface);
   --rk-colors-modalBorder: var(--glass-border);
@@ -290,50 +292,129 @@
   --rk-colors-profileForeground: var(--text-primary);
 }
 
-/* Account modal & connect modal overlay */
-div[data-rk] > div[role="dialog"],
-div[data-rk] > div[role="dialog"] > div {
+/* Overlay backdrop */
+.rk-overlay-container {
+  background: rgba(0,0,0,0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ALL elements inside modal — nuke default styles */
+.rk-overlay-container [data-rk],
+.rk-overlay-container [data-rk] *,
+.rk-overlay-container [data-rk] *::before,
+.rk-overlay-container [data-rk] *::after {
+  border-color: var(--glass-border) !important;
+}
+
+/* Modal dialog container */
+.rk-overlay-container [data-rk] > div {
   background: var(--bg-surface) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 16px !important;
   box-shadow: 0 16px 40px rgba(0,0,0,0.4) !important;
   color: var(--text-primary) !important;
   font-family: var(--font-body) !important;
+  overflow: hidden !important;
 }
 
-/* Modal buttons */
-div[data-rk] button {
+/* Modal inner sections */
+.rk-overlay-container [data-rk] > div > div {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Profile / account section */
+.rk-overlay-container [data-rk] img {
+  border-radius: 50% !important;
+  border: 2px solid var(--glass-border) !important;
+}
+
+/* Balance text */
+.rk-overlay-container [data-rk] div[style*="font-size"],
+.rk-overlay-container [data-rk] span {
+  color: var(--text-primary) !important;
+  font-family: var(--font-mono) !important;
+}
+
+/* Address display */
+.rk-overlay-container [data-rk] button + div,
+.rk-overlay-container [data-rk] button + span {
+  color: var(--text-secondary) !important;
+}
+
+/* ALL buttons in modal */
+.rk-overlay-container [data-rk] button,
+.rk-overlay-container [data-rk] a[role="button"],
+.rk-overlay-container [data-rk] a {
   background: var(--bg-card) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 12px !important;
   color: var(--text-primary) !important;
   font-family: var(--font-mono) !important;
   font-size: 13px !important;
+  padding: 12px 16px !important;
   transition: background var(--dur-fast), border-color var(--dur-fast) !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
 }
 
-div[data-rk] button:hover {
+.rk-overlay-container [data-rk] button:hover,
+.rk-overlay-container [data-rk] a[role="button"]:hover,
+.rk-overlay-container [data-rk] a:hover {
   background: var(--bg-card-hover) !important;
   border-color: var(--glass-border-hover) !important;
 }
 
-/* Account modal balance display */
-div[data-rk] [class*="Profile"] {
-  background: var(--bg-surface) !important;
+/* Close button */
+.rk-overlay-container [data-rk] button[aria-label="Close"],
+.rk-overlay-container [data-rk] button[aria-label="close"] {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-/* Modal action buttons (disconnect, etc) */
-div[data-rk] button[class*="Action"],
-div[data-rk] a[class*="Action"] {
+/* Action buttons (Disconnect, Copy, etc) */
+.rk-overlay-container [data-rk] button + button,
+.rk-overlay-container [data-rk] div > button + button {
   background: var(--bg-card) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 10px !important;
-  padding: 10px 16px !important;
 }
 
-div[data-rk] button[class*="Action"]:hover,
-div[data-rk] a[class*="Action"]:hover {
-  background: var(--bg-card-hover) !important;
+/* Menu items / options list */
+.rk-overlay-container [data-rk] div[role="menu"],
+.rk-overlay-container [data-rk] ul {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.rk-overlay-container [data-rk] div[role="menuitem"],
+.rk-overlay-container [data-rk] li {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+.rk-overlay-container [data-rk] div[role="menuitem"]:hover,
+.rk-overlay-container [data-rk] li:hover {
+  background: var(--bg-card) !important;
+}
+
+/* Scrollbar in modal */
+.rk-overlay-container [data-rk] ::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.rk-overlay-container [data-rk] ::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08) !important;
+  border-radius: 2px !important;
 }
 
 /* ── Responsive ── */
