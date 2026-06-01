@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { type LucideIcon } from 'lucide-react';
+import { type LucideIcon, Gavel, Wallet, FileKey, Search } from 'lucide-react';
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -50,7 +50,7 @@ export function EmptyState({ icon: Icon, title, description, action, secondaryAc
 export function NoAuctionsEmpty() {
   return (
     <EmptyState
-      icon={undefined as any}
+      icon={Gavel}
       title="No auctions yet"
       description="Be the first to create a sealed-bid auction on ShadowBid."
       action={{ label: 'Create Auction', href: '/create' }}
@@ -61,7 +61,7 @@ export function NoAuctionsEmpty() {
 export function NoWalletEmpty({ message = 'Connect your wallet to continue' }: { message?: string }) {
   return (
     <EmptyState
-      icon={undefined as any}
+      icon={Wallet}
       title="Wallet not connected"
       description={message}
     />
@@ -71,7 +71,7 @@ export function NoWalletEmpty({ message = 'Connect your wallet to continue' }: {
 export function NoBidsEmpty() {
   return (
     <EmptyState
-      icon={undefined as any}
+      icon={FileKey}
       title="No bids yet"
       description="Be the first bidder. Your bid amount stays encrypted until the auction closes."
     />
@@ -81,7 +81,7 @@ export function NoBidsEmpty() {
 export function NoSearchResultsEmpty({ query }: { query: string }) {
   return (
     <EmptyState
-      icon={undefined as any}
+      icon={Search}
       title="No results found"
       description={`No auctions match "${query}". Try a different search term.`}
       action={{ label: 'View All Auctions', href: '/auctions' }}

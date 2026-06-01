@@ -4,4 +4,5 @@ export { Sidebar } from './Sidebar';
 export { Topbar } from './Topbar';
 export { BackToTop } from './BackToTop';
 export { EmptyState } from './EmptyState';
+export { OnboardingModal, resetOnboarding } from './onboarding/OnboardingModal';
 export { ErrorBoundary } from './ErrorBoundary';
