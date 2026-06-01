@@ -59,7 +59,6 @@ export function CreateAuction() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [reservePrice, setReservePrice] = useState(templateState.reservePrice || '');
   const [durationHours, setDurationHours] = useState(templateState.duration || '24');
-  const [revealDelayHours, setRevealDelayHours] = useState('1');
   const [error, setError] = useState<string | null>(null);
 
   const client = useCofheClient();
@@ -264,15 +263,6 @@ export function CreateAuction() {
                 />
               </FormField>
             </div>
-
-            <FormField label="Reveal Delay (hours)" htmlFor="revealDelay">
-              <input
-                type="number" id="revealDelay" value={revealDelayHours}
-                onChange={e => setRevealDelayHours(e.target.value)}
-                min="1" max="168" placeholder="1"
-                className="sb-input sb-input--mono" disabled={isLoading}
-              />
-            </FormField>
 
             {error && (
               <div className="sb-create-error" role="alert">

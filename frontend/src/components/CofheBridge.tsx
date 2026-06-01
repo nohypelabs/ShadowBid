@@ -23,7 +23,7 @@ export function CofheBridge({ children }: { children: React.ReactNode }) {
   return (
     <CofheProvider config={cofheConfig} walletClient={walletClient} publicClient={publicClient}>
       {children}
-      <Toaster position="bottom-right" richColors theme="light" />
+      <Toaster position="bottom-right" richColors theme="dark" />
     </CofheProvider>
   );
 }
