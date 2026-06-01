@@ -108,7 +108,7 @@ export function AuctionDetail() {
   let canClaimRefund = false;
 
   if (auction && Array.isArray(auction)) {
-    auctionData = parseAuction(auction as unknown[], auctionId ?? 0);
+    auctionData = parseAuction(auction as unknown[], Number(auctionId ?? 0));
     if (auctionData) {
       isBiddingActive = auctionData.status === 'ACTIVE';
       isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
