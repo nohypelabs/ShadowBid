@@ -1,7 +1,7 @@
-# ShadowBid — Fhenix Wave 7 Update
+# ShadowBid — Fhenix Wave 5 Update
 
 **Project:** ShadowBid
-**Track:** Wave 7 Buildathon
+**Track:** Wave 5 Buildathon
 **Date:** June 1, 2026
 **Status:** Active Development
 
@@ -46,7 +46,7 @@ ShadowBid is a sealed-bid auction protocol where bids stay encrypted on-chain us
 - ✅ Badge system (pill style, color-coded)
 - ✅ Header (64px, blur backdrop, network pill)
 - ✅ Sidebar (248px, teal active indicator, Docs link)
-- ✅ Footer (ShadowBid, Fhenix Wave 7, GitHub, X, Telegram)
+- ✅ Footer (ShadowBid, Fhenix Wave 5, GitHub, X, Telegram)
 
 ### User Experience (Phase 10)
 - ✅ User journey audit with fixes
@@ -101,7 +101,7 @@ ShadowBid is a sealed-bid auction protocol where bids stay encrypted on-chain us
 - ❌ Multi-chain support
 - ❌ Bid history (encrypted)
 
-**Why not done:** Out of scope for Wave 7 demo. IPFS requires infrastructure setup. Metadata needs backend.
+**Why not done:** Out of scope for Wave 5 demo. IPFS requires infrastructure setup. Metadata needs backend.
 
 ### Testing
 - ❌ End-to-end test on live testnet
@@ -207,7 +207,7 @@ Reveal → Threshold Network → plaintext winner
 4. Capture 15 screenshots
 5. Practice demo script 2-3 times
 
-### After Wave 7
+### After Wave 5
 1. Phase 8: Smart contract refactor (bid/deposit enforcement)
 2. IPFS integration for images
 3. Off-chain metadata backend

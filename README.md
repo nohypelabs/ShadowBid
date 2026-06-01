@@ -2,7 +2,12 @@
 
 > **Live Demo:** [shadowbid26.vercel.app](https://shadowbid26.vercel.app)
 
-ShadowBid is a sealed-bid auction protocol where bids stay encrypted forever — even from the contract itself. Built on Fhenix Fully Homomorphic Encryption (FHE) to eliminate MEV, front-running, and bid sniping in on-chain auctions.
+ShadowBid is a sealed-bid auction protocol where bids stay encrypted on-chain using Fully Homomorphic Encryption (FHE). The contract compares encrypted bids via FHE CMUX operations without ever decrypting them — only the winner is revealed after settlement.
+
+**Core Value Proposition:**
+> Public Asset. Private Bids. Verifiable Settlement.
+
+---
 
 ## The Problem
 
@@ -11,170 +16,233 @@ On-chain auctions are fundamentally broken. Every bid is visible on the blockcha
 - **Bid sniping**: Last-minute bids steal auctions from honest participants
 - **Price manipulation**: Competitors see your strategy and adjust accordingly
 
-Over $500M is extracted annually from DeFi through these attacks. Traditional solutions require trusted third parties or off-chain computation, which reintroduces centralization risks.
+Traditional solutions require trusted third parties or off-chain computation, which reintroduces centralization risks.
 
 ## The Solution
 
 ShadowBid uses Fhenix's Fully Homomorphic Encryption to keep bids encrypted on-chain while still allowing the contract to compute the winner. The contract can compare encrypted values without ever decrypting them — no trusted party needed.
 
-### How FHE Works (For Judges)
+### How FHE Works
 
-FHE allows computations on encrypted data without decryption. You can add, multiply, and compare encrypted numbers, and the result remains encrypted. Only the holder of the decryption key can reveal the final result.
+FHE allows computations on encrypted data without decryption. ShadowBid uses:
+- `euint64` — encrypted uint64 for bid amounts
+- `eaddress` — encrypted address for winner identity
+- `FHE.select()` — CMUX operation to compare encrypted bids
+- `FHE.allowPublic()` — make winner decryptable after finalization
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Smart Contracts | Solidity 0.8.28, Fhenix CoFHE (`@fhenixprotocol/cofhe-contracts`) |
-| Dev Tooling | Hardhat, `@cofhe/hardhat-plugin` |
+| Smart Contracts | Solidity 0.8.28, Fhenix CoFHE |
+| Dev Tooling | Hardhat, @cofhe/hardhat-plugin |
 | Frontend | React 19, Vite, TypeScript |
-| Wallet Connection | wagmi v3, RainbowKit v2 |
-| FHE Client SDK | `@cofhe/sdk` + `@cofhe/react` |
-| Target Chain | Arbitrum Sepolia (chainId: 421614) |
-| UI Library | TailwindCSS, Framer Motion, Sonner |
+| Wallet | wagmi v3, RainbowKit v2 |
+| FHE Client | @cofhe/sdk + @cofhe/react |
+| Styling | Custom CSS (Geist fonts, institutional dark) |
+| Chain | Arbitrum Sepolia (chainId: 421614) |
+
+---
+
+## Repository Structure
+
+```
+contracts/
+├── contracts/ShadowBid.sol    — Main auction contract (~430 lines)
+├── test/ShadowBid.test.ts     — 47 tests (Hardhat + CoFHE mock)
+└── scripts/deploy.ts          — Deployment script
+
+frontend/
+├── src/pages/                 — 11 pages
+│   ├── Home.tsx               — Dashboard with privacy model
+│   ├── CreateAuction.tsx      — Auction creation form
+│   ├── AuctionDetail.tsx      — Bid, finalize, reveal, claim
+│   ├── ActiveAuctions.tsx     — Browse active auctions
+│   ├── MyBids.tsx             — Track user's bids
+│   ├── RevealCenter.tsx       — Auctions awaiting reveal
+│   ├── Settlement.tsx         — Claim payments/refunds
+│   ├── Verification.tsx       — On-chain proof feed
+│   ├── Docs.tsx               — Protocol documentation
+│   ├── Demo.tsx               — Demo templates
+│   └── NotFound.tsx           — 404 page
+├── src/components/            — Reusable components
+│   ├── DashboardLayout.tsx    — Main layout with sidebar
+│   ├── Sidebar.tsx            — Navigation sidebar
+│   ├── Topbar.tsx             — Header with search
+│   ├── EmptyState.tsx         — Empty state component
+│   └── CountdownTimer.tsx     — Auction timer
+├── src/styles/                — CSS modules
+│   ├── variables.css          — Design tokens
+│   ├── components/            — Component styles
+│   └── pages/                 — Page styles
+└── src/constants/contracts.ts — Contract address + ABI
+```
+
+---
+
+## Smart Contract
+
+### Auction Lifecycle
+
+```
+createAuction() → placeBid() → finalize() → revealWinner() → claimPayment()/claimRefund()
+```
+
+### Key Functions
+
+| Function | Description |
+|----------|-------------|
+| `createAuction(title, duration, minimumBidEncrypted, minimumBidWei)` | Create auction with encrypted reserve price |
+| `placeBid(auctionId, bidAmountEncrypted)` | Submit encrypted bid + ETH deposit |
+| `finalize(auctionId)` | Close bidding, allow public decryption |
+| `revealWinner(auctionId, ...)` | Verify Threshold Network signatures, publish winner |
+| `claimPayment(auctionId)` | Seller claims winner's ETH deposit |
+| `claimRefund(auctionId)` | Losers claim ETH refund |
+
+### Security Features
+
+- ReentrancyGuard on payment/refund functions
+- MAX_BIDDERS cap (500)
+- Bidder index bounds checking
+- Custom errors for gas efficiency
+- FHE.allowThis() after every encrypted state mutation
+
+### Test Coverage
+
+47 tests covering:
+- Create auction (valid, invalid, events)
+- Place bid (valid, seller rejection, duplicate, late, insufficient)
+- CMUX winner selection (ascending, descending, ties, minimum enforcement)
+- Finalize (valid, non-seller, early, empty, double)
+- Reveal (valid, without finalize, double)
+- Claim payment (valid, non-seller, double, before reveal)
+- Claim refund (valid, winner rejection, double, before reveal, non-bidder)
+
+---
+
+## Frontend
+
+### Pages
+
+| Page | Description |
+|------|-------------|
+| Home | Dashboard with privacy model, stats, auctions table |
+| CreateAuction | Form to create encrypted auction |
+| AuctionDetail | Bid placement, finalize, reveal, claim flows |
+| ActiveAuctions | Browse and search active auctions |
+| MyBids | Track user's sealed bids |
+| RevealCenter | Auctions awaiting winner reveal |
+| Settlement | Claim payments and refunds |
+| Verification | On-chain proof feed |
+| Docs | Protocol documentation |
+| Demo | Demo auction templates |
+
+### Design System
+
+- **Font:** Geist Sans + Geist Mono
+- **Colors:** Institutional dark (#050608 bg, #2DD4BF teal accent)
+- **Buttons:** Primary (#E5E7EB), Secondary (transparent), Ghost
+- **Cards:** 16px radius, gradient backgrounds
+- **Badges:** Pill style, color-coded (active, warning, finalized)
+
+### Key Features
+
+- FHE encryption in-browser via CoFHE SDK
+- Wallet connection via RainbowKit
+- Search auctions by title
+- Bid confirmation dialog with balance check
+- Breadcrumb navigation
+- Loading skeletons (no fake zeros)
+- Empty states with clear guidance
+- Responsive design (390px, 768px, 1440px)
+
+---
 
 ## Local Setup
 
 ### Prerequisites
 - Node.js 18+
-- npm or yarn
+- npm
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/nohypelabas/ShadowBid.git
-cd ShadowBid
+# Clone
+git clone https://github.com/nohypelabs/shadowbid.git
+cd shadowbid
 
-# Install contract dependencies
+# Contracts
 cd contracts
 npm install
 
-# Install frontend dependencies
+# Frontend
 cd ../frontend
 npm install
-
-# Set up environment variables
-cd ../contracts
-cp .env.example .env
-# Edit .env and add your private key
-
-cd ../frontend
-cp .env.example .env
-# Edit .env and add your WalletConnect project ID
 ```
 
 ### Environment Variables
 
-**Contracts** — create `.env` in the `/contracts` directory:
-
+**Contracts** — `.env` in `/contracts`:
 ```bash
 PRIVATE_KEY=your_private_key_here
-ARBITRUM_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
-ARBISCAN_API_KEY=optional_for_verification
 ```
 
-**Frontend** — create `.env` in the `/frontend` directory:
-
+**Frontend** — `.env` in `/frontend`:
 ```bash
 VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
 ```
 
-Get a free project ID from [WalletConnect Cloud](https://cloud.walletconnect.com/).
-
-### Deploy Contracts
+### Commands
 
 ```bash
-cd contracts
-
 # Compile contracts
+cd contracts
 npm run compile
 
+# Run tests
+npm test
+
 # Deploy to Arbitrum Sepolia
-npx hardhat run scripts/deploy.ts --network arbitrumSepolia
-```
+npm run deploy:arb-sepolia
 
-The deployed contract address will be printed. Update the frontend's contract address in `frontend/src/constants/contracts.ts` if different.
-
-### Run Frontend
-
-```bash
+# Run frontend
 cd frontend
 npm run dev
 ```
 
-Open http://localhost:5173 in your browser.
+---
 
 ## Testnet Deployment
 
-**Contract Address**: `0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1`
-**Network**: Arbitrum Sepolia
-**Explorer**: [Arbiscan](https://sepolia.arbiscan.io/address/0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1)
+**Contract Address:** `0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1`
+**Network:** Arbitrum Sepolia
+**Explorer:** [Arbiscan](https://sepolia.arbiscan.io/address/0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1)
 
-The contract is already deployed and ready to use. No additional deployment needed for testing.
+---
 
-## How to Run Tests
+## Known Limitations
 
-```bash
-cd contracts
-npm test
-```
+1. **Bid/Deposit Mismatch:** Contract allows encrypted bid amount to differ from ETH deposit
+2. **No Auction Cancellation:** Once created, auction must run its course
+3. **No Bid Withdrawal:** ETH locked until settlement
+4. **Title Length Limit:** Unbounded string calldata (gas bomb risk)
+5. **Image Storage:** Uses data URLs, not IPFS
+6. **Off-Chain Metadata:** Description, category not stored on-chain
 
-Tests use the CoFHE mock coprocessor automatically — no external dependencies required.
+These are documented and postponed for post-buildathon improvement.
 
-## Demo Instructions
+---
 
-1. Connect your wallet (Arbitrum Sepolia network)
-2. Navigate to the **Demo** route in the app
-3. Click **"Load Demo Auctions"** to create 3 sample auctions:
-   - Launch Auction (48 hours, 0.1 ETH min)
-   - NFT Bundle (2 hours, 0.05 ETH min)
-   - Early Bird (24 hours, 0.01 ETH min)
-4. Place encrypted bids on active auctions
-5. Wait for auction to end, then finalize as seller
-6. Winner is revealed using FHE decryption
+## Links
 
-## Architecture
+- **Website:** [shadowbid26.vercel.app](https://shadowbid26.vercel.app)
+- **GitHub:** [github.com/nohypelabs/shadowbid](https://github.com/nohypelabs/shadowbid)
+- **X:** [x.com/nohypelabs](https://x.com/nohypelabs)
+- **Telegram:** [t.me/nohypelabs](https://t.me/nohypelabs)
 
-- `/contracts` — Hardhat project with CoFHE integration
-- `/frontend` — React + Vite app with wagmi and RainbowKit
-- `/frontend/src/components` — Reusable UI components (AuctionCard, CountdownTimer, ErrorBoundary)
-- `/frontend/src/pages` — Page components (Home, CreateAuction, AuctionDetail, Demo)
-- `/frontend/src/constants` — Contract addresses and ABIs
-
-## Contract Functions
-
-- `createAuction(string title, uint256 duration, InEuint64 minimumBidEncrypted)` — Create a new auction
-- `placeBid(uint256 auctionId, InEuint64 bidAmountEncrypted)` — Submit an encrypted bid
-- `finalize(uint256 auctionId)` — End bidding and make winner data publicly decryptable
-- `revealWinner(uint256 auctionId, euint64 bidCtHash, uint64 bidDecrypted, bytes bidSignature, eaddress winnerCtHash, address winnerDecrypted, bytes winnerSignature)` — Verify Threshold Network signatures and publish plaintext winner + bid on-chain
-- `getBidderCount(uint256 auctionId)` — Get total number of bidders
-- `getBidder(uint256 auctionId, uint256 index)` — Get bidder address by index
-- `getHighestBidCtHash(uint256 auctionId)` — Get ciphertext hash of highest bid
-- `getHighestBidderCtHash(uint256 auctionId)` — Get ciphertext hash of highest bidder
-
-## Security Notes
-
-- All bids are encrypted using FHE before submission
-- The contract can compare encrypted values without decryption
-- Only the auction winner is revealed; losing bids stay encrypted
-- Decryption requires a permit from the Fhenix Threshold Network
-- No trusted third parties or off-chain computation required
-
-## Built For
-
-**Privacy-by-Design dApp Buildathon** — Build the Encrypted Fhenix Ecosystem.
-
-The window for privacy-native architecture is open. This project is built for founders who want to bake privacy in from day one — not retrofit it later.
-
-## Team
-
-**ShadowBid Team**
-
-- Email: [abdulgofur100persen@gmail.com](mailto:abdulgofur100persen@gmail.com)
-- GitHub: [github.com/nohypelabas/ShadowBid](https://github.com/nohypelabas/ShadowBid)
-- X: [x.com/nohypelabs](https://x.com/nohypelabs)
-- Telegram: [@nohypelabs](https://t.me/nohypelabs)
+---
 
 ## License
 
