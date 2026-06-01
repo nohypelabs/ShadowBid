@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-ShadowBid is a functional sealed-bid auction dApp with FHE encryption. The product is demo-ready for Fhenix Wave 7 Buildathon. Core flows work: create auction, place bid, finalize, reveal, claim payment/refund.
+ShadowBid is a functional sealed-bid auction dApp with FHE encryption. The product is demo-ready for Fhenix Wave 5 Buildathon. Core flows work: create auction, place bid, finalize, reveal, claim payment/refund.
 
 **Overall Assessment:** 85% demo-ready. Remaining 15% requires smart contract changes or is intentionally postponed.
 
@@ -145,7 +145,7 @@ ShadowBid is a functional sealed-bid auction dApp with FHE encryption. The produ
 - Dutch auctions
 - Vickrey auctions (second-price)
 
-**Why postponed:** Out of scope for Wave 7 buildathon.
+**Why postponed:** Out of scope for Wave 5 buildathon.
 
 ### Advanced Features
 **Items:**

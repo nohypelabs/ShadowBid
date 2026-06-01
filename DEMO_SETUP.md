@@ -170,4 +170,4 @@ Before demo day:
 
 ---
 
-*Setup guide for Fhenix Wave 7 Buildathon — ShadowBid*
+*Setup guide for Fhenix Wave 5 Buildathon — ShadowBid*

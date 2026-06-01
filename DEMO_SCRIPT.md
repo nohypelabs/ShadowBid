@@ -1,7 +1,7 @@
 # ShadowBid — Demo Script
 
 **Duration:** 5-7 minutes
-**Audience:** Fhenix Wave 7 Judges
+**Audience:** Fhenix Wave 5 Judges
 **Goal:** Demonstrate confidential sealed-bid auctions powered by FHE
 
 ---
@@ -248,7 +248,7 @@
 > "Finalization would still work — it just sets the ACL permission. Reveal would fail until the network is back. Bids remain encrypted and safe."
 
 ### "Why euint64? What's the limit?"
-> "euint64 supports values up to ~18.4 ETH. For larger auctions, we'd need euint128 or a different unit system. For Wave 7, euint64 is sufficient."
+> "euint64 supports values up to ~18.4 ETH. For larger auctions, we'd need euint128 or a different unit system. For Wave 5, euint64 is sufficient."
 
 ---
 
@@ -291,4 +291,4 @@
 
 ---
 
-*Script prepared for Fhenix Wave 7 Buildathon — ShadowBid*
+*Script prepared for Fhenix Wave 5 Buildathon — ShadowBid*
