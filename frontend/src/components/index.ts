@@ -4,3 +4,4 @@ export { Sidebar } from './Sidebar';
 export { Topbar } from './Topbar';
 export { BackToTop } from './BackToTop';
 export { EmptyState } from './EmptyState';
+export { ErrorBoundary } from './ErrorBoundary';

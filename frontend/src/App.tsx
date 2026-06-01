@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { DashboardLayout, BackToTop } from './components';
+import { DashboardLayout, BackToTop, ErrorBoundary } from './components';
 
 const Home = lazy(() => import('./pages/Home'));
 const CreateAuction = lazy(() => import('./pages/CreateAuction'));
@@ -67,14 +67,14 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <>
+    <ErrorBoundary>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--gold)] focus:text-[var(--bg-void)] focus:rounded">
         Skip to main content
       </a>
       <ScrollToTop />
       <AnimatedRoutes />
       <BackToTop />
-    </>
+    </ErrorBoundary>
   );
 }
 
