@@ -5,7 +5,7 @@ import { useCofheClient } from '@cofhe/react';
 import { Encryptable, FheTypes } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel } from 'lucide-react';
+import { Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel, Eye } from 'lucide-react';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { formatEth, shortAddr } from '../utils/format';
