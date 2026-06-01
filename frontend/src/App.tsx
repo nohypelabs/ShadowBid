@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { DashboardLayout, BackToTop, ErrorBoundary } from './components';
+import { DashboardLayout, BackToTop, ErrorBoundary, OnboardingModal } from './components';
 
 const Home = lazy(() => import('./pages/Home'));
 const CreateAuction = lazy(() => import('./pages/CreateAuction'));
@@ -74,6 +74,7 @@ function App() {
       <ScrollToTop />
       <AnimatedRoutes />
       <BackToTop />
+      <OnboardingModal />
     </ErrorBoundary>
   );
 }
