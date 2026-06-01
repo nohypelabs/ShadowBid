@@ -55,23 +55,25 @@ export function MyBids() {
         />
       ) : (
         <div className="sb-dashboard-table-card">
-          <table className="sb-dashboard-table">
-            <thead>
-              <tr>
-                <th>Auction</th>
-                <th>Status</th>
-                <th>My Bid</th>
-                <th>Phase</th>
-                <th>Ends</th>
-                <th><span className="sr-only">Actions</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {auctionIds.map((id) => (
-                <MyBidRow key={id} auctionId={id} address={address} now={now} />
-              ))}
-            </tbody>
-          </table>
+          <div className="sb-table-scroll">
+            <table className="sb-dashboard-table">
+              <thead>
+                <tr>
+                  <th>Auction</th>
+                  <th>Status</th>
+                  <th>My Bid</th>
+                  <th>Phase</th>
+                  <th>Ends</th>
+                  <th><span className="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {auctionIds.map((id) => (
+                  <MyBidRow key={id} auctionId={id} address={address} now={now} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

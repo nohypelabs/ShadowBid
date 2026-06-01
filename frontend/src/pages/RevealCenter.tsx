@@ -55,22 +55,24 @@ export function RevealCenter() {
         />
       ) : (
         <div className="sb-dashboard-table-card">
-          <table className="sb-dashboard-table">
-            <thead>
-              <tr>
-                <th>Auction</th>
-                <th>Phase</th>
-                <th>Bidders</th>
-                <th>Winner</th>
-                <th><span className="sr-only">Actions</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {auctionIds.map((id) => (
-                <RevealRow key={id} auctionId={id} now={now} />
-              ))}
-            </tbody>
-          </table>
+          <div className="sb-table-scroll">
+            <table className="sb-dashboard-table">
+              <thead>
+                <tr>
+                  <th>Auction</th>
+                  <th>Phase</th>
+                  <th>Bidders</th>
+                  <th>Winner</th>
+                  <th><span className="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {auctionIds.map((id) => (
+                  <RevealRow key={id} auctionId={id} now={now} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -402,10 +402,22 @@
   max-width: 100%;
 }
 
-.sb-dashboard-table-card > table {
-  display: block;
+.sb-table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.sb-table-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.sb-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sb-table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.10);
+  border-radius: 2px;
 }
 
 .sb-dashboard-table-header {

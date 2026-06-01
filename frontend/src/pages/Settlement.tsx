@@ -53,22 +53,24 @@ export function Settlement() {
         />
       ) : (
         <div className="sb-dashboard-table-card">
-          <table className="sb-dashboard-table">
-            <thead>
-              <tr>
-                <th>Auction</th>
-                <th>Winner</th>
-                <th>Winning Bid</th>
-                <th>Payment Status</th>
-                <th><span className="sr-only">Actions</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {auctionIds.map((id) => (
-                <SettlementRow key={id} auctionId={id} address={address} />
-              ))}
-            </tbody>
-          </table>
+          <div className="sb-table-scroll">
+            <table className="sb-dashboard-table">
+              <thead>
+                <tr>
+                  <th>Auction</th>
+                  <th>Winner</th>
+                  <th>Winning Bid</th>
+                  <th>Payment Status</th>
+                  <th><span className="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {auctionIds.map((id) => (
+                  <SettlementRow key={id} auctionId={id} address={address} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
