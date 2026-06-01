@@ -29,16 +29,18 @@ export function parseAuction(
   sealedBidCount: number = 0,
   metadata?: { description?: string; category?: string; imageURI?: string },
 ): Auction | null {
-  if (!Array.isArray(raw) || raw.length < 10) return null;
+  // ABI has 11 fields: seller, title, biddingEnd, finalized, paymentClaimed,
+  // minimumBidWei, minimumBid, highestBid, highestBidder, revealedBid, revealedWinner
+  if (!Array.isArray(raw) || raw.length < 11) return null;
 
   const seller = raw[0];
   const title = raw[1];
   const biddingEnd = raw[2];
   const finalized = raw[3];
   const paymentClaimed = raw[4];
-  const encryptedReservePrice = raw[5];
-  const revealedBid = raw[8];
-  const revealedWinner = raw[9];
+  const encryptedReservePrice = raw[6]; // minimumBid (encrypted)
+  const revealedBid = raw[9];
+  const revealedWinner = raw[10];
 
   if (
     typeof seller !== 'string' ||
