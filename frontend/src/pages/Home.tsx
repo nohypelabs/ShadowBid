@@ -167,17 +167,18 @@ function DashboardStat({ label, value, sub, accent }: {
 }
 
 function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: bigint }) {
+  const latestAuctionId = totalAuctions > 0 ? totalAuctions : null;
   const { data: latestAuction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctions',
-    args: totalAuctions > 0 ? [BigInt(totalAuctions - 1)] : undefined,
-    query: { enabled: totalAuctions > 0 },
+    args: latestAuctionId !== null ? [BigInt(latestAuctionId)] : undefined,
+    query: { enabled: latestAuctionId !== null },
   });
 
   if (!latestAuction) return <DashboardStat label="Reveal Due" value="—" sub="no auctions" accent="gold" />;
 
-  const data = parseAuction(latestAuction as unknown[], totalAuctions - 1);
+  const data = parseAuction(latestAuction as unknown[], latestAuctionId ?? 0);
   if (!data) return <DashboardStat label="Reveal Due" value="—" sub="no auctions" accent="gold" />;
 
   const remaining = data.biddingEnd > now ? data.biddingEnd - now : 0n;
@@ -188,20 +189,21 @@ function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: big
 }
 
 function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
+  const latestAuctionId = totalAuctions > 0 ? totalAuctions : null;
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctions',
-    args: totalAuctions > 0 ? [BigInt(totalAuctions - 1)] : undefined,
-    query: { enabled: totalAuctions > 0 },
+    args: latestAuctionId !== null ? [BigInt(latestAuctionId)] : undefined,
+    query: { enabled: latestAuctionId !== null },
   });
 
   const { data: bidCount, isLoading: isLoadingBidCount } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'getBidderCount',
-    args: totalAuctions > 0 ? [BigInt(totalAuctions - 1)] : undefined,
-    query: { enabled: totalAuctions > 0 },
+    args: latestAuctionId !== null ? [BigInt(latestAuctionId)] : undefined,
+    query: { enabled: latestAuctionId !== null },
   });
 
   if (isLoadingCounter) {
@@ -223,7 +225,7 @@ function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { 
   if (isLoading || !auction) return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
 
   const bidders = isLoadingBidCount ? undefined : Number(bidCount || 0);
-  const data = parseAuction(auction as unknown[], totalAuctions - 1, bidders ?? 0);
+  const data = parseAuction(auction as unknown[], latestAuctionId ?? 0, bidders ?? 0);
   if (!data) return <div className="sb-featured-card"><div className="sb-skeleton__bar sb-skeleton__bar--lg" /></div>;
 
   const isActive = data.status === 'ACTIVE';
@@ -263,19 +265,20 @@ function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { 
 }
 
 function AuctionPhaseTimeline({ totalAuctions, now, isLoading: isLoadingCounter }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
+  const latestAuctionId = totalAuctions > 0 ? totalAuctions : null;
   const { data: auction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'auctions',
-    args: totalAuctions > 0 ? [BigInt(totalAuctions - 1)] : undefined,
-    query: { enabled: totalAuctions > 0 },
+    args: latestAuctionId !== null ? [BigInt(latestAuctionId)] : undefined,
+    query: { enabled: latestAuctionId !== null },
   });
 
   if (isLoadingCounter) return <div className="sb-timeline"><p className="sb-timeline__title">Loading...</p></div>;
 
   if (!auction) return <div className="sb-timeline"><p className="sb-timeline__title">No auction data</p></div>;
 
-  const data = parseAuction(auction as unknown[], totalAuctions - 1);
+  const data = parseAuction(auction as unknown[], latestAuctionId ?? 0);
   if (!data) return <div className="sb-timeline"><p className="sb-timeline__title">No auction data</p></div>;
 
   const isCommit = data.status === 'ACTIVE';
@@ -352,7 +355,7 @@ function LiveAuctionsTable({ totalAuctions, now, isLoading }: { totalAuctions: n
           </thead>
           <tbody>
             {Array.from({ length: displayCount }, (_, i) => (
-              <AuctionTableRow key={i} auctionId={totalAuctions - 1 - i} now={now} />
+              <AuctionTableRow key={totalAuctions - i} auctionId={totalAuctions - i} now={now} />
             ))}
           </tbody>
         </table>
@@ -432,7 +435,7 @@ function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: num
   }
 
   // Show last 3 auctions the user might have bid on
-  const recentIds = Array.from({ length: Math.min(totalAuctions, 3) }, (_, i) => totalAuctions - 1 - i);
+  const recentIds = Array.from({ length: Math.min(totalAuctions, 3) }, (_, i) => totalAuctions - i);
 
   return (
     <div className="sb-dashboard-table-card">
@@ -499,7 +502,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
 
 function VerificationFeed({ totalAuctions }: { totalAuctions: number }) {
   // Show recent activity as verification events
-  const recentIds = Array.from({ length: Math.min(totalAuctions, 4) }, (_, i) => totalAuctions - 1 - i);
+  const recentIds = Array.from({ length: Math.min(totalAuctions, 4) }, (_, i) => totalAuctions - i);
 
   if (totalAuctions === 0) {
     return (

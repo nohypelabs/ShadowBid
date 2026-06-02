@@ -22,7 +22,7 @@ export function ActiveAuctions() {
 
   const totalAuctions = auctionCounter ? Number(auctionCounter) : 0;
   const auctionIds = useMemo(
-    () => Array.from({ length: totalAuctions }, (_, index) => totalAuctions - 1 - index),
+    () => Array.from({ length: totalAuctions }, (_, index) => totalAuctions - index),
     [totalAuctions],
   );
 
