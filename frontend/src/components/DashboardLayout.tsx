@@ -64,7 +64,7 @@ export function DashboardLayout() {
           <div className="sb-footer__left">
             <span className="sb-footer__brand">ShadowBid</span>
             <span className="sb-footer__sep">·</span>
-            <span className="sb-footer__wave">Fhenix Wave 7 Buildathon</span>
+            <span className="sb-footer__wave">Fhenix Wave 5 Buildathon</span>
           </div>
           <div className="sb-footer__right">
             <a href="https://shadowbid26.vercel.app/docs" target="_blank" rel="noopener noreferrer" className="sb-footer__link">
