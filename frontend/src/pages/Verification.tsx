@@ -1,11 +1,10 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { useReadContract } from 'wagmi';
 import { motion } from 'framer-motion';
-import { ShieldCheck, CheckCircle2, Circle, Lock, Zap, Trophy, Gavel } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Circle, Trophy, Gavel } from 'lucide-react';
 import { EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
-import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
+import { parseAuction } from '../utils/auction';
 import { shortAddr } from '../utils/format';
 export function Verification() {
 

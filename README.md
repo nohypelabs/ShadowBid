@@ -94,7 +94,7 @@ createAuction() → placeBid() → finalize() → revealWinner() → claimPaymen
 
 | Function | Description |
 |----------|-------------|
-| `createAuction(title, duration, minimumBidEncrypted, minimumBidWei)` | Create auction with encrypted reserve price |
+| `createAuction(title, duration, minimumBidEncrypted)` | Create auction with an encrypted-only reserve price |
 | `placeBid(auctionId, bidAmountEncrypted)` | Submit encrypted bid + ETH deposit |
 | `finalize(auctionId)` | Close bidding, allow public decryption |
 | `revealWinner(auctionId, ...)` | Verify Threshold Network signatures, publish winner |
@@ -216,9 +216,9 @@ npm run dev
 
 ## Testnet Deployment
 
-**Contract Address:** `0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1`
+**Contract Address:** `0x96dA01145BE15b12e659630b4E4597Cb626Ff447`
 **Network:** Arbitrum Sepolia
-**Explorer:** [Arbiscan](https://sepolia.arbiscan.io/address/0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1)
+**Explorer:** [Arbiscan](https://sepolia.arbiscan.io/address/0x96dA01145BE15b12e659630b4E4597Cb626Ff447)
 
 ---
 

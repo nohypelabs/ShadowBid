@@ -91,4 +91,4 @@ All styling is in `src/index.css` (~4,400 lines) using Tailwind CSS 4 + custom C
 - **No path aliases** — all imports use relative paths (no `@/` prefix).
 - **Utility functions are co-located** with the pages that use them (e.g., `formatEth`, `shortAddress` in AuctionDetail.tsx). No shared utils directory.
 - **The CSS file is large** — prefer adding Tailwind utility classes in JSX over editing `index.css` when possible.
-- **Contract address** — `0x2BccEa43CE4D32dbfE813c5FEdd39C396E75072c` on Arbitrum Sepolia (defined in `src/constants/contracts.ts`). The README has a stale address.
+- **Contract address** — `0x96dA01145BE15b12e659630b4E4597Cb626Ff447` on Arbitrum Sepolia (defined in `src/constants/contracts.ts`).

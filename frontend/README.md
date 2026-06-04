@@ -82,7 +82,7 @@ src/
 | Detail | Value |
 |--------|-------|
 | Network | Arbitrum Sepolia (chainId 421614) |
-| Address | `0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1` |
+| Address | `0x96dA01145BE15b12e659630b4E4597Cb626Ff447` |
 | ABI | `src/constants/ShadowBid.json` (symlinked from `contracts/artifacts/`) |
 
 ## FHE Encryption Flow

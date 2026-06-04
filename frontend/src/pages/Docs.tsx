@@ -29,9 +29,9 @@ const SECTIONS = [
   {
     icon: Wallet,
     title: 'ETH Deposits & Refunds',
-    content: `To place a bid, you must deposit ETH equal to or greater than your bid amount. This ETH
-    is held in escrow during the auction. If you win, the seller receives your deposit. If you lose,
-    you can claim a full refund after the auction is settled.`,
+    content: `To place a bid, you submit an encrypted bid plus a separate public escrow bond. Keeping
+    the bond independent prevents transaction value from revealing the encrypted bid. If you win,
+    the seller receives your bond. If you lose, you can claim a full refund after settlement.`,
   },
   {
     icon: Code,

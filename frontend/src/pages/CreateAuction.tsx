@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAccount, useBalance, usePublicClient, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
 import { Encryptable } from '@cofhe/sdk';
@@ -55,7 +55,6 @@ export function CreateAuction() {
   const [title, setTitle] = useState(templateState.title || '');
   const [description, setDescription] = useState(templateState.description || '');
   const [category, setCategory] = useState(templateState.category || '');
-  const [imageURI, setImageURI] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [reservePrice, setReservePrice] = useState(templateState.reservePrice || '');
   const [durationHours, setDurationHours] = useState(templateState.duration || '24');
@@ -102,7 +101,6 @@ export function CreateAuction() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
-      setImageURI(reader.result as string); // TODO: Upload to IPFS
     };
     reader.readAsDataURL(file);
   };
@@ -152,7 +150,7 @@ export function CreateAuction() {
         address: SHADOWBID_ADDRESS,
         abi: SHADOWBID_ABI,
         functionName: 'createAuction',
-        args: [title.trim(), BigInt(duration * 3600), inEuint64, BigInt(Math.round(minBid * 1e18))],
+        args: [title.trim(), BigInt(duration * 3600), inEuint64],
         ...bufferedFees,
       });
     } catch (err) {
@@ -251,7 +249,7 @@ export function CreateAuction() {
                   placeholder="0.1" step="0.0001" min="0.0001"
                   className="sb-input sb-input--mono" disabled={isLoading}
                 />
-                <p className="sb-form-helper">Minimum ETH deposit required from bidders. Encrypted on-chain — never revealed.</p>
+                <p className="sb-form-helper">Encrypted eligibility threshold used only in FHE comparisons. Never stored or emitted as plaintext.</p>
               </FormField>
 
               <FormField label="Duration (hours)" htmlFor="duration">

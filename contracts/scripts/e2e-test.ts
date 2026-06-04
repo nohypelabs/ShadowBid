@@ -1,6 +1,6 @@
 import hre from "hardhat";
 
-const CONTRACT_ADDRESS = "0x2BccEa43CE4D32dbfE813c5FEdd39C396E75072c";
+const CONTRACT_ADDRESS = "0x96dA01145BE15b12e659630b4E4597Cb626Ff447";
 
 async function main() {
   console.log("=== ShadowBid E2E Test (Testnet) ===\n");
@@ -104,7 +104,7 @@ async function main() {
     "AlreadyBid",
     "RevealNotReady",
     "NoBids",
-    "InsufficientETH",
+    "ZeroETHDeposit",
     "InvalidDuration",
     "PaymentAlreadyClaimed",
     "NoRefundAvailable",

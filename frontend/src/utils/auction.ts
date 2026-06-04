@@ -29,18 +29,18 @@ export function parseAuction(
   sealedBidCount: number = 0,
   metadata?: { description?: string; category?: string; imageURI?: string },
 ): Auction | null {
-  // ABI has 11 fields: seller, title, biddingEnd, finalized, paymentClaimed,
-  // minimumBidWei, minimumBid, highestBid, highestBidder, revealedBid, revealedWinner
-  if (!Array.isArray(raw) || raw.length < 11) return null;
+  // ABI has 10 fields: seller, title, biddingEnd, finalized, paymentClaimed,
+  // minimumBid, highestBid, highestBidder, revealedBid, revealedWinner
+  if (!Array.isArray(raw) || raw.length < 10) return null;
 
   const seller = raw[0];
   const title = raw[1];
   const biddingEnd = raw[2];
   const finalized = raw[3];
   const paymentClaimed = raw[4];
-  const encryptedReservePrice = raw[6]; // minimumBid (encrypted)
-  const revealedBid = raw[9];
-  const revealedWinner = raw[10];
+  const encryptedReservePrice = raw[5]; // minimumBid (encrypted)
+  const revealedBid = raw[8];
+  const revealedWinner = raw[9];
 
   if (
     typeof seller !== 'string' ||
@@ -79,7 +79,7 @@ export function parseAuction(
 /**
  * Parse a raw contract bid tuple into a Bid object.
  */
-export function parseBid(raw: unknown, auctionId: number, bidder: string): { exists: boolean; ethDeposited: bigint } {
+export function parseBid(raw: unknown): { exists: boolean; ethDeposited: bigint } {
   const bidData = raw as { exists: boolean; ethDeposited: bigint };
   return {
     exists: bidData.exists,

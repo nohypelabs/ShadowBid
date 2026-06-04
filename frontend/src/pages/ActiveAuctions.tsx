@@ -2,17 +2,13 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract } from 'wagmi';
 import { motion } from 'framer-motion';
-import { Activity, ChevronRight, Clock, Lock, Plus, Search, ShieldCheck, Sparkles, Users, Zap } from 'lucide-react';
+import { ChevronRight, Clock, Plus, Search, ShieldCheck, Sparkles, Users, Zap } from 'lucide-react';
 import { CountdownTimer } from '../components';
 import { SHADOWBID_ABI, SHADOWBID_ADDRESS } from '../constants/contracts';
-import { shortAddr } from '../utils/format';
 import { parseAuction } from '../utils/auction';
-import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
-import type { Auction } from '../types';
 
 export function ActiveAuctions() {
   const [searchQuery, setSearchQuery] = useState('');
-  const now = useCurrentTimestamp();
 
   const { data: auctionCounter, isLoading: isLoadingCounter } = useReadContract({
     address: SHADOWBID_ADDRESS,
@@ -22,7 +18,7 @@ export function ActiveAuctions() {
 
   const totalAuctions = auctionCounter ? Number(auctionCounter) : 0;
   const auctionIds = useMemo(
-    () => Array.from({ length: totalAuctions }, (_, index) => totalAuctions - index),
+    () => Array.from({ length: totalAuctions }, (_, index) => totalAuctions - 1 - index),
     [totalAuctions],
   );
 
@@ -66,7 +62,7 @@ export function ActiveAuctions() {
           <ActiveEmptyState />
         ) : (
           auctionIds.map((auctionId, index) => (
-            <ActiveAuctionRow key={auctionId} auctionId={auctionId} searchQuery={searchQuery} index={index} now={now} />
+            <ActiveAuctionRow key={auctionId} auctionId={auctionId} searchQuery={searchQuery} index={index} />
           ))
         )}
       </div>
@@ -85,7 +81,7 @@ function ActiveEmptyState() {
   );
 }
 
-function ActiveAuctionRow({ auctionId, searchQuery, index, now }: { auctionId: number; searchQuery: string; index: number; now: bigint }) {
+function ActiveAuctionRow({ auctionId, searchQuery, index }: { auctionId: number; searchQuery: string; index: number }) {
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,

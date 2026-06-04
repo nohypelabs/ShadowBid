@@ -21,7 +21,6 @@ contract ShadowBid is ReentrancyGuard {
         uint256 biddingEnd;
         bool finalized;
         bool paymentClaimed;
-        uint256 minimumBidWei; // Plaintext minimum — stored on-chain for ETH validation
         // Encrypted running state — only the contract (via ACL) can read these
         euint64 minimumBid;
         euint64 highestBid;
@@ -61,7 +60,7 @@ contract ShadowBid is ReentrancyGuard {
 
     // ──────────────────────────── Events ───────────────────────────
 
-    event AuctionCreated(uint256 indexed auctionId, address seller, string title, uint256 biddingEnd, uint256 minimumBidWei);
+    event AuctionCreated(uint256 indexed auctionId, address seller, string title, uint256 biddingEnd);
     event BidSubmitted(uint256 indexed auctionId, address indexed bidder, uint256 ethDeposited);
     event AuctionFinalized(uint256 indexed auctionId, address winner, uint64 winningBid);
     event PaymentClaimed(uint256 indexed auctionId, address indexed seller, uint256 amount);
@@ -79,7 +78,7 @@ contract ShadowBid is ReentrancyGuard {
     error AlreadyBid(uint256 auctionId);
     error RevealNotReady();
     error NoBids(uint256 auctionId);
-    error InsufficientETH(uint256 required, uint256 sent);
+    error ZeroETHDeposit();
     error InvalidDuration(uint256 duration);
     error PaymentAlreadyClaimed();
     error NotWinner();
@@ -116,12 +115,10 @@ contract ShadowBid is ReentrancyGuard {
     /// @param title Human-readable item description
     /// @param duration Bidding window in seconds from now (must be between MIN and MAX)
     /// @param minimumBidEncrypted Encrypted minimum bid (InEuint64 from SDK)
-    /// @param minimumBidWei Minimum bid in wei (plaintext, for ETH validation)
     function createAuction(
         string calldata title,
         uint256 duration,
-        InEuint64 calldata minimumBidEncrypted,
-        uint256 minimumBidWei
+        InEuint64 calldata minimumBidEncrypted
     ) external returns (uint256 auctionId) {
         if (duration < MIN_AUCTION_DURATION || duration > MAX_AUCTION_DURATION) {
             revert InvalidDuration(duration);
@@ -139,7 +136,6 @@ contract ShadowBid is ReentrancyGuard {
         a.biddingEnd = block.timestamp + duration;
         a.finalized = false;
         a.paymentClaimed = false;
-        a.minimumBidWei = minimumBidWei;
         a.minimumBid = minimumBid;
         a.highestBid = initialBid;
         a.highestBidder = initialBidder;
@@ -151,7 +147,7 @@ contract ShadowBid is ReentrancyGuard {
         FHE.allowThis(a.highestBid);
         FHE.allowThis(a.highestBidder);
 
-        emit AuctionCreated(auctionId, msg.sender, title, a.biddingEnd, minimumBidWei);
+        emit AuctionCreated(auctionId, msg.sender, title, a.biddingEnd);
     }
 
     // ────────────────────────── Place Bid ──────────────────────────
@@ -180,10 +176,9 @@ contract ShadowBid is ReentrancyGuard {
         // ── Max bidders cap ──
         if (_bidders[auctionId].length >= MAX_BIDDERS) revert MaxBiddersReached(auctionId);
 
-        // ── Require ETH deposit >= on-chain minimum ──
-        if (msg.value < a.minimumBidWei) {
-            revert InsufficientETH(a.minimumBidWei, msg.value);
-        }
+        // Require escrow without exposing the encrypted reserve as plaintext.
+        // Bid eligibility is enforced below with FHE.gte().
+        if (msg.value == 0) revert ZeroETHDeposit();
 
         euint64 bidAmount = FHE.asEuint64(bidAmountEncrypted);
 
@@ -194,11 +189,10 @@ contract ShadowBid is ReentrancyGuard {
         bidAmount = FHE.select(meetsMinimum, bidAmount, FHE.asEuint64(uint64(0)));
 
         // Store the (conditionally-zeroed) encrypted bid + ETH deposit
-        bids[auctionId][msg.sender] = Bid({
-            amount: bidAmount,
-            ethDeposited: msg.value,
-            exists: true
-        });
+        Bid storage storedBid = bids[auctionId][msg.sender];
+        storedBid.amount = bidAmount;
+        storedBid.ethDeposited = msg.value;
+        storedBid.exists = true;
         _bidders[auctionId].push(msg.sender);
         totalEscrowed[auctionId] += msg.value;
 
@@ -224,8 +218,10 @@ contract ShadowBid is ReentrancyGuard {
         FHE.allowThis(a.highestBid);
         FHE.allowThis(a.highestBidder);
 
-        // Grant the bidder read access to their own encrypted bid
-        FHE.allowSender(bidAmount);
+        // allowSender lets the bidder read their handle; allowThis lets the
+        // contract reuse the stored handle during future encrypted execution.
+        FHE.allowSender(storedBid.amount);
+        FHE.allowThis(storedBid.amount);
 
         emit BidSubmitted(auctionId, msg.sender, msg.value);
     }
@@ -424,13 +420,4 @@ contract ShadowBid is ReentrancyGuard {
         return auctions[auctionId].paymentClaimed;
     }
 
-    /// @notice Returns the on-chain minimum bid in wei
-    function getMinimumBidWei(uint256 auctionId)
-        external
-        view
-        auctionExists(auctionId)
-        returns (uint256)
-    {
-        return auctions[auctionId].minimumBidWei;
-    }
 }

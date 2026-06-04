@@ -55,13 +55,10 @@ describe("ShadowBid", function () {
     sellerClient: any,
     title = "Test Auction",
     duration = 3600,
-    encryptedMin = 10n,
-    minBidWei = "0.001"
+    encryptedMin = 10n
   ) {
     const minBid = await encryptMinBid(sellerClient, encryptedMin);
-    const minBidWeiParsed = hre.ethers.parseEther(minBidWei);
-    await shadowBid.connect(seller).createAuction(title, duration, minBid, minBidWeiParsed);
-    return { minBidWeiParsed };
+    await shadowBid.connect(seller).createAuction(title, duration, minBid);
   }
 
   // Helper: full finalize + reveal flow
@@ -105,11 +102,10 @@ describe("ShadowBid", function () {
       const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 100n);
-      const minBidWei = hre.ethers.parseEther("0.01");
 
       const tx = await shadowBid
         .connect(seller)
-        .createAuction("Rare NFT #1", 3600, minBid, minBidWei);
+        .createAuction("Rare NFT #1", 3600, minBid);
       await tx.wait();
 
       expect(await shadowBid.auctionCounter()).to.equal(1n);
@@ -119,31 +115,29 @@ describe("ShadowBid", function () {
       expect(auction.title).to.equal("Rare NFT #1");
       expect(auction.finalized).to.be.false;
       expect(auction.paymentClaimed).to.be.false;
-      expect(auction.minimumBidWei).to.equal(minBidWei);
+      expect(await hre.cofhe.mocks.getPlaintext(auction.minimumBid)).to.equal(100n);
       expect(auction.revealedWinner).to.equal(
         "0x0000000000000000000000000000000000000000",
       );
     });
 
-    it("should store minimumBidWei on-chain", async function () {
-      const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
+    it("should not expose a plaintext minimum bid getter", async function () {
+      const { shadowBid } = await loadFixture(deployFixture);
 
-      const minBid = await encryptMinBid(sellerClient, 100n);
-      const minBidWei = hre.ethers.parseEther("0.05");
-
-      await shadowBid.connect(seller).createAuction("Stored Min", 3600, minBid, minBidWei);
-
-      expect(await shadowBid.getMinimumBidWei(0)).to.equal(minBidWei);
+      const hasPlaintextMinimumGetter = shadowBid.interface.fragments.some(
+        (fragment: { type: string; name?: string }) =>
+          fragment.type === "function" && fragment.name === "getMinimumBidWei",
+      );
+      expect(hasPlaintextMinimumGetter).to.be.false;
     });
 
     it("should emit AuctionCreated event", async function () {
       const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 50n);
-      const minBidWei = hre.ethers.parseEther("0.005");
 
       await expect(
-        shadowBid.connect(seller).createAuction("Art Piece", 1800, minBid, minBidWei),
+        shadowBid.connect(seller).createAuction("Art Piece", 1800, minBid),
       ).to.emit(shadowBid, "AuctionCreated");
     });
 
@@ -151,16 +145,15 @@ describe("ShadowBid", function () {
       const { shadowBid, seller, sellerClient } = await loadFixture(deployFixture);
 
       const minBid = await encryptMinBid(sellerClient, 50n);
-      const minBidWei = hre.ethers.parseEther("0.005");
 
       // Too short (less than 60 seconds)
       await expect(
-        shadowBid.connect(seller).createAuction("Too Short", 30, minBid, minBidWei),
+        shadowBid.connect(seller).createAuction("Too Short", 30, minBid),
       ).to.be.revertedWithCustomError(shadowBid, "InvalidDuration");
 
       // Too long (more than 365 days)
       await expect(
-        shadowBid.connect(seller).createAuction("Too Long", 366 * 24 * 3600, minBid, minBidWei),
+        shadowBid.connect(seller).createAuction("Too Long", 366 * 24 * 3600, minBid),
       ).to.be.revertedWithCustomError(shadowBid, "InvalidDuration");
     });
   });
@@ -244,18 +237,17 @@ describe("ShadowBid", function () {
       ).to.be.revertedWithCustomError(shadowBid, "BiddingPeriodEnded");
     });
 
-    it("should reject bids with insufficient ETH using on-chain minimum", async function () {
+    it("should reject zero ETH deposits without exposing the encrypted minimum", async function () {
       const { shadowBid, seller, alice, sellerClient, aliceClient } =
         await loadFixture(deployFixture);
 
-      await createTestAuction(shadowBid, seller, sellerClient, "Insufficient", 3600, 100n, "0.1");
+      await createTestAuction(shadowBid, seller, sellerClient, "Zero Deposit", 3600, 100n);
 
       const bid = await encryptBid(aliceClient, 500n);
-      const lowBidWei = hre.ethers.parseEther("0.05"); // Below 0.1 ETH minimum
 
       await expect(
-        shadowBid.connect(alice).placeBid(0, bid, { value: lowBidWei }),
-      ).to.be.revertedWithCustomError(shadowBid, "InsufficientETH");
+        shadowBid.connect(alice).placeBid(0, bid),
+      ).to.be.revertedWithCustomError(shadowBid, "ZeroETHDeposit");
     });
 
     it("should reject bids on finalized auction", async function () {
@@ -403,8 +395,8 @@ describe("ShadowBid", function () {
         bobClient,
       } = await loadFixture(deployFixture);
 
-      // Minimum bid = 1000, minimumBidWei = 0.1 ETH
-      await createTestAuction(shadowBid, seller, sellerClient, "MinBid Test", 3600, 1000n, "0.1");
+      // Minimum bid = 1000 and remains encrypted on-chain.
+      await createTestAuction(shadowBid, seller, sellerClient, "MinBid Test", 3600, 1000n);
 
       // Alice bids 500 (below min), Bob bids 2000 (above min)
       const aliceBid = await encryptBid(aliceClient, 500n);

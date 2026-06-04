@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Banknote, ChevronRight, Wallet, Gavel, CheckCircle2, Clock } from 'lucide-react';
 import { EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
-import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
+import { parseAuction } from '../utils/auction';
 import { formatEth, shortAddr } from '../utils/format';
 
 export function Settlement() {

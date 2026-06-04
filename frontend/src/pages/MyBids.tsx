@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract, useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
-import { FileKey, Lock, Clock, ChevronRight, Wallet, Gavel } from 'lucide-react';
+import { FileKey, ChevronRight, Wallet, Gavel } from 'lucide-react';
 import { CountdownTimer, EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
-import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
+import { parseAuction } from '../utils/auction';
 import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
 
 export function MyBids() {
@@ -92,13 +92,6 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
     functionName: 'bids',
-    args: [BigInt(auctionId), address as `0x${string}`],
-  });
-
-  const { data: userDeposit } = useReadContract({
-    address: SHADOWBID_ADDRESS,
-    abi: SHADOWBID_ABI,
-    functionName: 'getBidderDeposit',
     args: [BigInt(auctionId), address as `0x${string}`],
   });
 

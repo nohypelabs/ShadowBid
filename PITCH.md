@@ -88,7 +88,7 @@ All of these suffer from MEV and front-running. ShadowBid's technology applies t
 
 ### Smart Contract
 - Solidity 0.8.28 with Fhenix CoFHE integration
-- Deployed on Arbitrum Sepolia: `0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1`
+- Deployed on Arbitrum Sepolia: `0x96dA01145BE15b12e659630b4E4597Cb626Ff447`
 - Gas-efficient: ~150k gas for bid submission, ~200k for finalize
 - No external dependencies beyond Fhenix coprocessor
 
@@ -143,7 +143,7 @@ Try the live demo on Arbitrum Sepolia:
 4. Place encrypted bids
 5. Finalize and reveal winners
 
-**Contract**: [0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1](https://sepolia.arbiscan.io/address/0xF801Bb64c6f396e431ad0C3b8D8770BC028fF0D1)
+**Contract**: [0x96dA01145BE15b12e659630b4E4597Cb626Ff447](https://sepolia.arbiscan.io/address/0x96dA01145BE15b12e659630b4E4597Cb626Ff447)
 
 ## Conclusion
 

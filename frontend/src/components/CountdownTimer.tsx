@@ -20,7 +20,7 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
   const [timeLeft, setTimeLeft] = useState<string>('');
   const [status, setStatus] = useState<AuctionStatus>('active');
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
-  const totalDurationRef = useRef<number>(0);
+  const [progress, setProgress] = useState(0);
   const onCompleteCalledRef = useRef(false);
 
   useEffect(() => {
@@ -28,6 +28,9 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
   }, [endTime]);
 
   useEffect(() => {
+    const startedAt = Math.floor(Date.now() / 1000);
+    const totalDuration = Math.max(Number(endTime) - startedAt, 0);
+
     const calculateTimeLeft = () => {
       const now = Math.floor(Date.now() / 1000);
       const end = Number(endTime);
@@ -37,6 +40,7 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
         setTimeLeft('Ended');
         setStatus('ended');
         setSecondsLeft(0);
+        setProgress(0);
         if (!onCompleteCalledRef.current) {
           onCompleteCalledRef.current = true;
           onComplete?.();
@@ -45,7 +49,7 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
       }
 
       setSecondsLeft(difference);
-      if (totalDurationRef.current === 0) totalDurationRef.current = difference;
+      setProgress(totalDuration > 0 ? (difference / totalDuration) * 100 : 0);
 
       if (isFinalized) setStatus('finalizing');
       else if (difference < 3600) setStatus('ending');
@@ -74,7 +78,6 @@ export function CountdownTimer({ endTime, isFinalized = false, onComplete, compa
     return () => clearInterval(interval);
   }, [endTime, isFinalized, onComplete, compact]);
 
-  const progress = totalDurationRef.current > 0 ? (secondsLeft / totalDurationRef.current) * 100 : 0;
   const config = STATUS_CONFIG[status];
 
   const statusLabel = status === 'active' ? 'Active'

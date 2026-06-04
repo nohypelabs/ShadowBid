@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useReadContract, useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
 import {
   Plus, Gavel, Lock, Clock, Users, ShieldCheck, Eye,
-  CheckCircle2, Circle, Zap, ChevronRight, ArrowRight, Wallet,
+  CheckCircle2, Zap, ChevronRight, Wallet,
 } from 'lucide-react';
 import { CountdownTimer, EmptyState } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
-import { shortAddr, formatEth } from '../utils/format';
-import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
+import { formatEth } from '../utils/format';
+import { parseAuction } from '../utils/auction';
 import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
-import type { Auction } from '../types';
 
 export function Home() {
   const { address } = useAccount();
@@ -125,7 +123,7 @@ export function Home() {
         transition={{ delay: 0.15 }}
         className="sb-dashboard-grid"
       >
-        <FeaturedAuction totalAuctions={totalAuctions} now={now} isLoading={isLoadingCounter} />
+        <FeaturedAuction totalAuctions={totalAuctions} isLoading={isLoadingCounter} />
         <AuctionPhaseTimeline totalAuctions={totalAuctions} now={now} isLoading={isLoadingCounter} />
       </motion.div>
 
@@ -167,7 +165,7 @@ function DashboardStat({ label, value, sub, accent }: {
 }
 
 function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: bigint }) {
-  const latestAuctionId = totalAuctions > 0 ? totalAuctions : null;
+  const latestAuctionId = totalAuctions > 0 ? totalAuctions - 1 : null;
   const { data: latestAuction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -188,8 +186,8 @@ function RevealDueStat({ totalAuctions, now }: { totalAuctions: number; now: big
   return <DashboardStat label="Reveal Due" value={display} sub={remaining > 0n ? 'until bidding ends' : 'bidding concluded'} accent="gold" />;
 }
 
-function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
-  const latestAuctionId = totalAuctions > 0 ? totalAuctions : null;
+function FeaturedAuction({ totalAuctions, isLoading: isLoadingCounter }: { totalAuctions: number; isLoading?: boolean }) {
+  const latestAuctionId = totalAuctions > 0 ? totalAuctions - 1 : null;
   const { data: auction, isLoading } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -265,7 +263,7 @@ function FeaturedAuction({ totalAuctions, now, isLoading: isLoadingCounter }: { 
 }
 
 function AuctionPhaseTimeline({ totalAuctions, now, isLoading: isLoadingCounter }: { totalAuctions: number; now: bigint; isLoading?: boolean }) {
-  const latestAuctionId = totalAuctions > 0 ? totalAuctions : null;
+  const latestAuctionId = totalAuctions > 0 ? totalAuctions - 1 : null;
   const { data: auction } = useReadContract({
     address: SHADOWBID_ADDRESS,
     abi: SHADOWBID_ABI,
@@ -355,7 +353,7 @@ function LiveAuctionsTable({ totalAuctions, now, isLoading }: { totalAuctions: n
           </thead>
           <tbody>
             {Array.from({ length: displayCount }, (_, i) => (
-              <AuctionTableRow key={totalAuctions - i} auctionId={totalAuctions - i} now={now} />
+              <AuctionTableRow key={totalAuctions - 1 - i} auctionId={totalAuctions - 1 - i} now={now} />
             ))}
           </tbody>
         </table>
@@ -435,7 +433,7 @@ function MySealedBidStatus({ totalAuctions, address, now }: { totalAuctions: num
   }
 
   // Show last 3 auctions the user might have bid on
-  const recentIds = Array.from({ length: Math.min(totalAuctions, 3) }, (_, i) => totalAuctions - i);
+  const recentIds = Array.from({ length: Math.min(totalAuctions, 3) }, (_, i) => totalAuctions - 1 - i);
 
   return (
     <div className="sb-dashboard-table-card">
@@ -502,7 +500,7 @@ function MyBidRow({ auctionId, address, now }: { auctionId: number; address: str
 
 function VerificationFeed({ totalAuctions }: { totalAuctions: number }) {
   // Show recent activity as verification events
-  const recentIds = Array.from({ length: Math.min(totalAuctions, 4) }, (_, i) => totalAuctions - i);
+  const recentIds = Array.from({ length: Math.min(totalAuctions, 4) }, (_, i) => totalAuctions - 1 - i);
 
   if (totalAuctions === 0) {
     return (
@@ -541,8 +539,6 @@ function VerificationItem({ auctionId }: { auctionId: number }) {
 
   const data = parseAuction(auction as unknown[], auctionId);
   if (!data) return null;
-
-  const isActive = data.status === 'ACTIVE';
 
   return (
     <div className="sb-verification-feed__item">

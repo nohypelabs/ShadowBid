@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X, Play, ArrowRight } from 'lucide-react';
@@ -8,16 +8,9 @@ import { OnboardingStep } from './OnboardingStep';
 const ONBOARDING_KEY = 'shadowbid_onboarding_seen';
 
 export function OnboardingModal() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => localStorage.getItem(ONBOARDING_KEY) !== 'true');
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const seen = localStorage.getItem(ONBOARDING_KEY);
-    if (!seen) {
-      setIsOpen(true);
-    }
-  }, []);
 
   const completeOnboarding = () => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
@@ -131,9 +124,4 @@ export function OnboardingModal() {
       </motion.div>
     </div>
   );
-}
-
-// Developer helper — not exposed in production UI
-export function resetOnboarding() {
-  localStorage.removeItem(ONBOARDING_KEY);
 }

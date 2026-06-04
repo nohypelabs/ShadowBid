@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount, useBalance } from 'wagmi';
 import { useCofheClient } from '@cofhe/react';
-import { Encryptable, FheTypes } from '@cofhe/sdk';
+import { Encryptable } from '@cofhe/sdk';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Clock, Users, Lock, Trophy, AlertCircle, Gift, Wallet, ArrowDownToLine, ShieldCheck, Gavel, Eye } from 'lucide-react';
@@ -10,7 +10,6 @@ import { CountdownTimer } from '../components';
 import { SHADOWBID_ADDRESS, SHADOWBID_ABI } from '../constants/contracts';
 import { formatEth, shortAddr } from '../utils/format';
 import { parseAuction, ZERO_ADDRESS } from '../utils/auction';
-import { useCurrentTimestamp } from '../hooks/useCurrentTimestamp';
 import type { Auction } from '../types';
 
 export function AuctionDetail() {
@@ -24,9 +23,9 @@ export function AuctionDetail() {
   });
 
   const [bidAmount, setBidAmount] = useState('');
+  const [depositAmount, setDepositAmount] = useState('0.001');
   const [error, setError] = useState<string | null>(null);
   const [isEncrypting, setIsEncrypting] = useState(false);
-  const now = useCurrentTimestamp();
 
   const { data: auction, isLoading: auctionLoading, refetch } = useReadContract({
     address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'auctions', args: auctionId !== null ? [auctionId] : undefined,
@@ -60,40 +59,11 @@ export function AuctionDetail() {
     query: { enabled: auctionId !== null },
   });
 
-  const { data: minimumBidWei } = useReadContract({
-    address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'getMinimumBidWei', args: auctionId !== null ? [auctionId] : undefined,
-    query: { enabled: auctionId !== null },
-  });
-
   const cofheClient = useCofheClient();
 
-  const [decryptedBid, setDecryptedBid] = useState<string | null>(null);
-  const [decryptedBidder, setDecryptedBidder] = useState<string | null>(null);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
   const [showBidConfirm, setShowBidConfirm] = useState(false);
   const userDepositAmount = typeof userDeposit === 'bigint' ? userDeposit : 0n;
-
-  useEffect(() => {
-    async function tryDecrypt() {
-      if (highestBidCtHash && address && cofheClient) {
-        try {
-          const r = await cofheClient.decryptForView(highestBidCtHash as `0x${string}`, FheTypes.Uint64).execute();
-          setDecryptedBid(r.toString());
-        } catch (err) {
-          console.debug('[AuctionDetail] Unable to decrypt highest bid yet:', err);
-        }
-      }
-      if (highestBidderCtHash && address && cofheClient) {
-        try {
-          const r = await cofheClient.decryptForView(highestBidderCtHash as `0x${string}`, FheTypes.Uint160).execute();
-          setDecryptedBidder(r);
-        } catch (err) {
-          console.debug('[AuctionDetail] Unable to decrypt highest bidder yet:', err);
-        }
-      }
-    }
-    tryDecrypt();
-  }, [highestBidCtHash, highestBidderCtHash, address, cofheClient]);
 
   const { data: hash, isPending: isTxPending, writeContract, error: txError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
@@ -103,7 +73,6 @@ export function AuctionDetail() {
   let isBiddingActive = false;
   let isSeller = false;
   let hasBid = false;
-  let isWinning = false;
   let isWinner = false;
   let canClaimRefund = false;
 
@@ -113,7 +82,6 @@ export function AuctionDetail() {
       isBiddingActive = auctionData.status === 'ACTIVE';
       isSeller = !!address && auctionData.seller.toLowerCase() === address.toLowerCase();
       hasBid = userBid ? (userBid as { exists: boolean }).exists : false;
-      isWinning = !!decryptedBidder && !!address && decryptedBidder.toLowerCase() === address.toLowerCase();
       isWinner = auctionData.revealedWinner !== ZERO_ADDRESS &&
                  !!address && auctionData.revealedWinner.toLowerCase() === address.toLowerCase();
       canClaimRefund = hasBid && !isWinner && auctionData.finalized &&
@@ -146,20 +114,18 @@ export function AuctionDetail() {
     if (auctionId === null) { setError('Invalid auction ID'); return; }
     const bidValue = parseFloat(bidAmount);
     if (isNaN(bidValue) || bidValue <= 0) { setError('Please enter a valid bid amount'); return; }
-    const bidWei = BigInt(Math.round(bidValue * 1e18));
-    if (minimumBidWei && typeof minimumBidWei === 'bigint' && bidWei < minimumBidWei) {
-      setError(`Bid must be at least ${formatEth(minimumBidWei)} ETH (seller's minimum deposit)`);
-      return;
-    }
+    const depositValue = parseFloat(depositAmount);
+    if (isNaN(depositValue) || depositValue <= 0) { setError('Please enter a valid escrow bond'); return; }
     if (!cofheClient) { setError('FHE encryption client not loaded. Please wait a moment and try again.'); return; }
     // Show confirmation
     setShowBidConfirm(true);
-  }, [address, auctionData, isBiddingActive, hasBid, bidAmount, cofheClient, auctionId, minimumBidWei]);
+  }, [address, auctionData, isBiddingActive, hasBid, bidAmount, depositAmount, cofheClient, auctionId]);
 
   const confirmBid = useCallback(async () => {
     setShowBidConfirm(false);
     const bidValue = parseFloat(bidAmount);
-    const bidWei = BigInt(Math.round(bidValue * 1e18));
+    const depositValue = parseFloat(depositAmount);
+    const depositWei = BigInt(Math.round(depositValue * 1e18));
     try {
       setIsEncrypting(true);
       setError(null);
@@ -173,12 +139,12 @@ export function AuctionDetail() {
       } catch (encryptErr) {
         const msg = encryptErr instanceof Error ? encryptErr.message : String(encryptErr);
         if (msg.includes('TFHE') || msg.includes('WASM') || msg.includes('tfhe')) {
-          throw new Error('FHE encryption failed — the TFHE library could not load. This is a testnet limitation. Please refresh and try again.');
+          throw new Error('FHE encryption failed — the TFHE library could not load. This is a testnet limitation. Please refresh and try again.', { cause: encryptErr });
         }
         if (msg.includes('network') || msg.includes('fetch') || msg.includes('connection')) {
-          throw new Error('Network error during encryption. Please check your connection and try again.');
+          throw new Error('Network error during encryption. Please check your connection and try again.', { cause: encryptErr });
         }
-        throw new Error(`Encryption failed: ${msg}`);
+        throw new Error(`Encryption failed: ${msg}`, { cause: encryptErr });
       }
 
       setIsEncrypting(false);
@@ -186,14 +152,14 @@ export function AuctionDetail() {
       const inEuint64 = { ctHash: encrypted.ctHash, securityZone: encrypted.securityZone, utype: encrypted.utype, signature: encrypted.signature as `0x${string}` };
 
       // Step 2: Submit transaction
-      writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'placeBid', args: [auctionId, inEuint64], value: bidWei });
+      writeContract({ address: SHADOWBID_ADDRESS, abi: SHADOWBID_ABI, functionName: 'placeBid', args: [auctionId, inEuint64], value: depositWei });
     } catch (err) {
       setIsEncrypting(false);
       const message = err instanceof Error ? err.message : 'Failed to submit bid';
       setError(message);
       console.error('[PlaceBid] Error:', err);
     }
-  }, [bidAmount, cofheClient, writeContract, auctionId]);
+  }, [bidAmount, depositAmount, cofheClient, writeContract, auctionId]);
 
   const handleFinalize = useCallback(() => {
     if (!auctionData || !isSeller || auctionId === null) return;
@@ -342,7 +308,7 @@ export function AuctionDetail() {
           </motion.div>
 
           {/* Settlement Result — only shown after reveal */}
-          {bidCountNumber > 0 && auctionData.revealedWinner !== ZERO_ADDRESS ? (
+          {(bidCountNumber ?? 0) > 0 && auctionData.revealedWinner !== ZERO_ADDRESS ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="sb-detail-highest">
               <h2 className="sb-detail-highest__title"><Trophy size={20} /> Settlement Result</h2>
               <div className="sb-detail-highest__revealed">
@@ -411,18 +377,21 @@ export function AuctionDetail() {
                       placeholder="0.5" step="0.0001" min="0.0001"
                       className="sb-input sb-input--mono" disabled={isLoading} />
                   </div>
+                  <div className="sb-form-field">
+                    <label className="sb-form-label" htmlFor="depositAmount">Escrow Bond (ETH)</label>
+                    <input type="number" id="depositAmount" value={depositAmount} onChange={e => setDepositAmount(e.target.value)}
+                      placeholder="0.001" step="0.0001" min="0.0001"
+                      className="sb-input sb-input--mono" disabled={isLoading} />
+                  </div>
                   <div className="sb-detail-deposit-notice">
-                    <div className="sb-detail-deposit-notice__header"><Wallet size={16} /> ETH Deposit Required</div>
-                    <p>You must deposit ETH equal to your bid amount. This ETH will be held in escrow until the auction ends. Losing bidders can claim a full refund.</p>
-                    {minimumBidWei && typeof minimumBidWei === 'bigint' && minimumBidWei > 0n && (
-                      <p className="sb-detail-deposit-min">Minimum ETH deposit: {formatEth(minimumBidWei)} ETH</p>
-                    )}
+                    <div className="sb-detail-deposit-notice__header"><Wallet size={16} /> Privacy-Preserving Escrow Bond</div>
+                    <p>The public bond is intentionally separate from your encrypted bid, so transaction value does not reveal your bid amount. Losing bidders can claim a full refund.</p>
                   </div>
                   <p className="sb-detail-form-note">
                     <Lock size={12} /> Your bid amount is encrypted in-browser before submission. Other participants cannot see your bid.
                   </p>
                   <p className="sb-detail-form-note sb-detail-form-note--warn">
-                    <AlertCircle size={12} /> Bids below the seller's encrypted minimum will be silently rejected. Your ETH deposit is still required.
+                    <AlertCircle size={12} /> Bids below the seller's encrypted minimum are zeroed by FHE comparison without revealing the reserve.
                   </p>
                   {error && <div className="sb-detail-error" role="alert"><AlertCircle size={20} /><p>{error}</p></div>}
                   <button type="submit" disabled={isLoading || isEncrypting || !cofheClient} className="btn-primary sb-detail-action-btn">
@@ -563,15 +532,19 @@ export function AuctionDetail() {
             <div className="sb-confirm-body">
               <div className="sb-confirm-row">
                 <span>Bid Amount</span>
-                <strong>{bidAmount} ETH</strong>
+                <strong>Encrypted before submission</strong>
+              </div>
+              <div className="sb-confirm-row">
+                <span>Public Escrow Bond</span>
+                <strong>{depositAmount} ETH</strong>
               </div>
               <div className="sb-confirm-row">
                 <span>Your Balance</span>
-                <strong className={walletBalance && BigInt(Math.round(parseFloat(bidAmount) * 1e18)) > walletBalance.value ? 'sb-confirm-insufficient' : ''}>
+                <strong className={walletBalance && BigInt(Math.round(parseFloat(depositAmount) * 1e18)) > walletBalance.value ? 'sb-confirm-insufficient' : ''}>
                   {walletBalance ? `${Number(walletBalance.formatted).toFixed(4)} ETH` : 'Loading...'}
                 </strong>
               </div>
-              {walletBalance && BigInt(Math.round(parseFloat(bidAmount) * 1e18)) > walletBalance.value && (
+              {walletBalance && BigInt(Math.round(parseFloat(depositAmount) * 1e18)) > walletBalance.value && (
                 <div className="sb-confirm-warning">
                   <AlertCircle size={16} />
                   <span>Insufficient balance. You need more ETH on Arbitrum Sepolia.</span>
@@ -588,7 +561,7 @@ export function AuctionDetail() {
               <button
                 className="btn-primary"
                 onClick={confirmBid}
-                disabled={walletBalance && BigInt(Math.round(parseFloat(bidAmount) * 1e18)) > walletBalance.value}
+                disabled={walletBalance && BigInt(Math.round(parseFloat(depositAmount) * 1e18)) > walletBalance.value}
               >
                 Confirm & Submit
               </button>
